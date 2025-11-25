@@ -1,0 +1,291 @@
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import Newsletter from '../components/Newsletter';
+import Services from '../components/Services';
+import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
+import Link from 'next/link';
+
+export default function CheckoutPage() {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    paymentMethod: 'cash',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (step === 1) {
+      setStep(2);
+    } else {
+      // Handle order placement
+      alert('Order placed successfully!');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Header />
+
+      {/* Page Header */}
+      <section className="bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Checkout</h1>
+            <p className="text-xl text-white/90">Complete your order</p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Checkout Steps */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4 max-w-6xl">
+          {/* Progress Steps */}
+          <div className="flex items-center justify-center mb-12">
+            <div className="flex items-center space-x-4">
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
+                  step >= 1
+                    ? 'bg-[#1A73A8] text-white'
+                    : 'bg-gray-200 text-gray-500'
+                }`}
+              >
+                {step > 1 ? <CheckCircle className="w-6 h-6" /> : '1'}
+              </div>
+              <div
+                className={`h-1 w-24 ${
+                  step >= 2 ? 'bg-[#1A73A8]' : 'bg-gray-200'
+                }`}
+              />
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
+                  step >= 2
+                    ? 'bg-[#1A73A8] text-white'
+                    : 'bg-gray-200 text-gray-500'
+                }`}
+              >
+                {step > 2 ? <CheckCircle className="w-6 h-6" /> : '2'}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Checkout Form */}
+            <div className="lg:col-span-2">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {step === 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-white border border-gray-200 rounded-2xl p-8 space-y-6"
+                  >
+                    <h2 className="text-2xl font-bold text-[#0D2B3A] mb-6">Shipping Information</h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-[#0D2B3A] font-medium mb-2">
+                          First Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.firstName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, firstName: e.target.value })
+                          }
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[#0D2B3A] font-medium mb-2">
+                          Last Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.lastName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, lastName: e.target.value })
+                          }
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[#0D2B3A] font-medium mb-2">Email *</label>
+                      <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[#0D2B3A] font-medium mb-2">Phone *</label>
+                      <input
+                        type="tel"
+                        required
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[#0D2B3A] font-medium mb-2">Address *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-[#0D2B3A] font-medium mb-2">City *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[#0D2B3A] font-medium mb-2">
+                          Postal Code *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.postalCode}
+                          onChange={(e) =>
+                            setFormData({ ...formData, postalCode: e.target.value })
+                          }
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {step === 2 && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-white border border-gray-200 rounded-2xl p-8 space-y-6"
+                  >
+                    <h2 className="text-2xl font-bold text-[#0D2B3A] mb-6">Payment Method</h2>
+                    <div className="space-y-4">
+                      <label className="flex items-center space-x-4 p-4 border-2 border-[#1A73A8] rounded-xl cursor-pointer">
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="cash"
+                          checked={formData.paymentMethod === 'cash'}
+                          onChange={(e) =>
+                            setFormData({ ...formData, paymentMethod: e.target.value })
+                          }
+                          className="w-5 h-5 text-[#1A73A8]"
+                        />
+                        <div>
+                          <p className="font-semibold text-[#0D2B3A]">Cash on Delivery</p>
+                          <p className="text-sm text-[#6B7280]">Pay when you receive your order</p>
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#1A73A8] transition-colors">
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="card"
+                          checked={formData.paymentMethod === 'card'}
+                          onChange={(e) =>
+                            setFormData({ ...formData, paymentMethod: e.target.value })
+                          }
+                          className="w-5 h-5 text-[#1A73A8]"
+                        />
+                        <div>
+                          <p className="font-semibold text-[#0D2B3A]">Credit/Debit Card</p>
+                          <p className="text-sm text-[#6B7280]">Secure online payment</p>
+                        </div>
+                      </label>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="flex space-x-4">
+                  {step > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setStep(step - 1)}
+                      className="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-[#0D2B3A] rounded-full font-semibold transition-colors"
+                    >
+                      Back
+                    </button>
+                  )}
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex-1 bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-8 py-4 rounded-full font-semibold transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <span>{step === 1 ? 'Continue to Payment' : 'Place Order'}</span>
+                    {step === 2 && <Lock className="w-5 h-5" />}
+                    {step === 1 && <ArrowRight className="w-5 h-5" />}
+                  </motion.button>
+                </div>
+              </form>
+            </div>
+
+            {/* Order Summary */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="lg:col-span-1"
+            >
+              <div className="bg-[#F8F2DE] rounded-2xl p-6 sticky top-24">
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-6">Order Summary</h2>
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between text-[#6B7280]">
+                    <span>Subtotal</span>
+                    <span>Rs. 6,800</span>
+                  </div>
+                  <div className="flex justify-between text-[#6B7280]">
+                    <span>Shipping</span>
+                    <span className="text-green-600 font-semibold">Free</span>
+                  </div>
+                  <div className="border-t border-gray-300 pt-4">
+                    <div className="flex justify-between text-xl font-bold text-[#0D2B3A]">
+                      <span>Total</span>
+                      <span>Rs. 6,800</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <Newsletter />
+      <Services />
+      <Footer />
+    </div>
+  );
+}
+
