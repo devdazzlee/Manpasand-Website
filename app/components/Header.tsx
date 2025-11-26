@@ -50,82 +50,97 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
-            {menuItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-white hover:text-[#DFF3EA] transition-colors duration-300 font-medium text-sm"
-              >
-                {item.name}
-              </Link>
-            ))}
-            
-            {/* Products Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setIsCategoriesOpen(true)}
-              onMouseLeave={() => setIsCategoriesOpen(false)}
-            >
-              <button className="flex items-center space-x-1 text-white hover:text-[#DFF3EA] transition-colors duration-300 font-medium text-sm">
-                <span>Products</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
-              </button>
+            {menuItems.map((item) => {
+              // Render Shop link
+              if (item.name === 'Shop') {
+                return (
+                  <div key={item.name} className="flex items-center space-x-6">
+                    <Link
+                      href={item.href}
+                      className="text-white hover:text-[#DFF3EA] transition-colors duration-300 font-medium text-sm"
+                    >
+                      {item.name}
+                    </Link>
+                    {/* Products Dropdown - appears right after Shop */}
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setIsCategoriesOpen(true)}
+                      onMouseLeave={() => setIsCategoriesOpen(false)}
+                    >
+                      <button className="flex items-center space-x-1 text-white hover:text-[#DFF3EA] transition-colors duration-300 font-medium text-sm">
+                        <span>Products</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                      </button>
 
-              <AnimatePresence>
-                {isCategoriesOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden"
-                  >
-                    <div className="p-4 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A]">
-                      <h3 className="text-white font-bold text-lg">Shop by Category</h3>
-                      <p className="text-white/80 text-sm mt-1">Browse our premium products</p>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto">
-                      {categories.map((category, index) => {
-                        const Icon = category.icon;
-                        return (
-                          <Link
-                            key={category.name}
-                            href={category.href}
-                            onClick={() => setIsCategoriesOpen(false)}
+                      <AnimatePresence>
+                        {isCategoriesOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden"
                           >
-                            <motion.div
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.03 }}
-                              className="flex items-center space-x-4 p-4 hover:bg-[#F8F2DE] transition-colors border-b border-gray-100 last:border-b-0 group"
-                            >
-                              <div className="w-12 h-12 bg-[#DFF3EA] rounded-xl flex items-center justify-center group-hover:bg-[#1A73A8] transition-colors">
-                                <Icon className="w-6 h-6 text-[#0D2B3A] group-hover:text-white transition-colors" />
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-semibold text-[#0D2B3A] group-hover:text-[#1A73A8] transition-colors">
-                                  {category.name}
-                                </h4>
-                                <p className="text-sm text-[#6B7280]">{category.description}</p>
-                              </div>
-                              <ChevronDown className="w-4 h-4 text-[#6B7280] rotate-[-90deg] group-hover:text-[#1A73A8] transition-colors" />
-                            </motion.div>
-                          </Link>
-                        );
-                      })}
+                            <div className="p-4 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A]">
+                              <h3 className="text-white font-bold text-lg">Shop by Category</h3>
+                              <p className="text-white/80 text-sm mt-1">Browse our premium products</p>
+                            </div>
+                            <div className="max-h-96 overflow-y-auto">
+                              {categories.map((category, index) => {
+                                const Icon = category.icon;
+                                return (
+                                  <Link
+                                    key={category.name}
+                                    href={category.href}
+                                    onClick={() => setIsCategoriesOpen(false)}
+                                  >
+                                    <motion.div
+                                      initial={{ opacity: 0, x: -10 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{ delay: index * 0.03 }}
+                                      className="flex items-center space-x-4 p-4 hover:bg-[#F8F2DE] transition-colors border-b border-gray-100 last:border-b-0 group"
+                                    >
+                                      <div className="w-12 h-12 bg-[#DFF3EA] rounded-xl flex items-center justify-center group-hover:bg-[#1A73A8] transition-colors">
+                                        <Icon className="w-6 h-6 text-[#0D2B3A] group-hover:text-white transition-colors" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <h4 className="font-semibold text-[#0D2B3A] group-hover:text-[#1A73A8] transition-colors">
+                                          {category.name}
+                                        </h4>
+                                        <p className="text-sm text-[#6B7280]">{category.description}</p>
+                                      </div>
+                                      <ChevronDown className="w-4 h-4 text-[#6B7280] rotate-[-90deg] group-hover:text-[#1A73A8] transition-colors" />
+                                    </motion.div>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                            <div className="p-4 bg-[#F8F2DE] border-t border-gray-200">
+                              <Link
+                                href="/shop"
+                                className="block text-center text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm transition-colors"
+                              >
+                                View All Products →
+                              </Link>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    <div className="p-4 bg-[#F8F2DE] border-t border-gray-200">
-                      <Link
-                        href="/shop"
-                        className="block text-center text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm transition-colors"
-                      >
-                        View All Products →
-                      </Link>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                  </div>
+                );
+              }
+              // Render other menu items normally
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-white hover:text-[#DFF3EA] transition-colors duration-300 font-medium text-sm"
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Icons */}
@@ -186,55 +201,71 @@ export default function Header() {
             className="lg:hidden bg-[#0D2B3A] border-t border-white/10"
           >
             <nav className="container mx-auto px-4 py-6 space-y-4">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block text-white hover:text-[#DFF3EA] transition-colors py-2"
-                >
-                  {item.name}
-                </Link>
-              ))}
-              
-              {/* Mobile Categories */}
-              <div className="pt-2">
-                <button
-                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                  className="flex items-center justify-between w-full text-white hover:text-[#DFF3EA] transition-colors py-2"
-                >
-                  <span>Products</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
-                </button>
-                <AnimatePresence>
-                  {isCategoriesOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="pl-4 mt-2 space-y-2"
-                    >
-                      {categories.map((category) => {
-                        const Icon = category.icon;
-                        return (
-                          <Link
-                            key={category.name}
-                            href={category.href}
-                            onClick={() => {
-                              setIsMenuOpen(false);
-                              setIsCategoriesOpen(false);
-                            }}
-                            className="flex items-center space-x-3 text-white/80 hover:text-[#DFF3EA] transition-colors py-2"
-                          >
-                            <Icon className="w-4 h-4" />
-                            <span>{category.name}</span>
-                          </Link>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              {menuItems.map((item) => {
+                // Render Shop link
+                if (item.name === 'Shop') {
+                  return (
+                    <div key={item.name}>
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="block text-white hover:text-[#DFF3EA] transition-colors py-2"
+                      >
+                        {item.name}
+                      </Link>
+                      {/* Mobile Categories - appears right after Shop */}
+                      <div className="pt-2">
+                        <button
+                          onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                          className="flex items-center justify-between w-full text-white hover:text-[#DFF3EA] transition-colors py-2"
+                        >
+                          <span>Products</span>
+                          <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        <AnimatePresence>
+                          {isCategoriesOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="pl-4 mt-2 space-y-2"
+                            >
+                              {categories.map((category) => {
+                                const Icon = category.icon;
+                                return (
+                                  <Link
+                                    key={category.name}
+                                    href={category.href}
+                                    onClick={() => {
+                                      setIsMenuOpen(false);
+                                      setIsCategoriesOpen(false);
+                                    }}
+                                    className="flex items-center space-x-3 text-white/80 hover:text-[#DFF3EA] transition-colors py-2"
+                                  >
+                                    <Icon className="w-4 h-4" />
+                                    <span>{category.name}</span>
+                                  </Link>
+                                );
+                              })}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  );
+                }
+                // Render other menu items normally
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block text-white hover:text-[#DFF3EA] transition-colors py-2"
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
 
               <div className="pt-4 border-t border-white/10 space-y-2">
                 <Link

@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
-import { Award, Users, Heart, MapPin, Clock, TrendingUp, Shield, Sparkles } from 'lucide-react';
+import { Award, Users, Heart, MapPin, Clock, TrendingUp, Shield, Sparkles, Star, Gift, CheckCircle, Zap, Target, Eye } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AboutPage() {
@@ -236,16 +236,111 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Location Section */}
-      <section className="py-20 bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white">
+      {/* Mission & Vision Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-[#F8F2DE]">
         <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="w-20 h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mb-6">
+                <Target className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-3xl font-bold text-[#0D2B3A] mb-4">Our Mission</h3>
+              <p className="text-lg text-[#6B7280] leading-relaxed">
+                To enrich lives by providing access to the highest quality natural products, fostering health 
+                and well-being in every community we serve. We are committed to excellence, authenticity, 
+                and making premium products accessible to everyone.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="w-20 h-20 bg-gradient-to-br from-[#F97316] to-[#1A73A8] rounded-2xl flex items-center justify-center mb-6">
+                <Eye className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-3xl font-bold text-[#0D2B3A] mb-4">Our Vision</h3>
+              <p className="text-lg text-[#6B7280] leading-relaxed">
+                To be the leading provider of premium natural foods, recognized for our unwavering commitment 
+                to quality, customer satisfaction, and community health. We envision a future where everyone 
+                has access to authentic, high-quality natural products.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Trust Us Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Why Trust Us?</h2>
+            <p className="text-lg text-[#6B7280] max-w-2xl mx-auto">
+              We've earned the trust of thousands of customers through our commitment to excellence
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              { icon: CheckCircle, title: 'Authentic Products', desc: '100% genuine, verified sources' },
+              { icon: Star, title: 'Premium Quality', desc: 'Handpicked and tested products' },
+              { icon: Gift, title: 'Best Prices', desc: 'Competitive pricing guaranteed' },
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -10 }}
+                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{item.title}</h3>
+                  <p className="text-[#6B7280]">{item.desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Location Section */}
+      <section className="py-20 bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#DFF3EA] rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#F97316] rounded-full blur-3xl"></div>
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto"
           >
-            <MapPin className="w-16 h-16 text-[#DFF3EA] mx-auto mb-6" />
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="inline-block mb-6"
+            >
+              <MapPin className="w-16 h-16 text-[#DFF3EA]" />
+            </motion.div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Visit Our Store</h2>
             <p className="text-xl text-white/90 mb-8">
               Located in the heart of Bahadurabad, Karachi, our store welcomes you to experience 

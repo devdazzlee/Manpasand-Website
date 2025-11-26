@@ -36,7 +36,7 @@ export default function NewsletterSignupPage() {
             <Mail className="w-16 h-16 mx-auto mb-6" />
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Newsletter Signup</h1>
             <p className="text-xl text-white/90">
-              Subscribe to our newsletter and receive Rs. 500 coupon for first shopping
+              Subscribe to our newsletter and receive Rs. 500 coupon for your first shopping
             </p>
           </motion.div>
         </div>

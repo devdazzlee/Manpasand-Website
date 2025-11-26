@@ -34,7 +34,7 @@ export default function Newsletter() {
             <div>
               <h3 className="text-xl font-semibold mb-1">Sign up to Newsletter</h3>
               <p className="text-white/90 text-sm">
-                ...and receive Rs. 500 coupon for first shopping
+                Subscribe to our newsletter and receive Rs. 500 coupon for your first shopping
               </p>
             </div>
           </div>

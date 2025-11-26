@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
-import { MapPin, Phone, Mail, MessageCircle, Send, Clock, CheckCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle, Send, Clock, CheckCircle, Sparkles, Star, Gift, Zap } from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -84,6 +84,16 @@ export default function ContactPage() {
       {/* Contact Methods */}
       <section className="py-16 bg-gradient-to-b from-white to-[#F8F2DE]">
         <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <Sparkles className="w-12 h-12 text-[#F97316] mx-auto mb-4" />
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-4">Get in Touch</h2>
+            <p className="text-[#6B7280] text-lg">Choose your preferred way to reach us</p>
+          </motion.div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {contactMethods.map((method, index) => {
               const Icon = method.icon;
@@ -310,6 +320,49 @@ export default function ContactPage() {
                 </div>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Contact Us Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Why Contact Us?</h2>
+            <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+              We're here to help with any questions or concerns
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              { icon: Zap, title: 'Quick Response', desc: 'We respond within 24 hours' },
+              { icon: Star, title: 'Expert Advice', desc: 'Get guidance from our experts' },
+              { icon: Gift, title: 'Special Offers', desc: 'Learn about exclusive deals' },
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -10 }}
+                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{item.title}</h3>
+                  <p className="text-[#6B7280]">{item.desc}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -6,7 +6,7 @@ import Footer from './components/Footer';
 import Newsletter from './components/Newsletter';
 import Services from './components/Services';
 import ProductCard from './components/ProductCard';
-import { ArrowRight, Star, TrendingUp, Users, Award, Sparkles, Heart, ShoppingBag, CheckCircle, Zap, Leaf } from 'lucide-react';
+import { ArrowRight, Star, TrendingUp, Users, Award, Sparkles, Heart, ShoppingBag, CheckCircle, Zap, Gift, Clock, Shield, Truck } from 'lucide-react';
 import Link from 'next/link';
 
 const categories = [
@@ -102,6 +102,13 @@ const features = [
   { icon: CheckCircle, title: 'Fresh Products', description: 'Always fresh and authentic' },
   { icon: CheckCircle, title: 'Best Prices', description: 'Competitive pricing guaranteed' },
   { icon: CheckCircle, title: 'Fast Delivery', description: 'Quick and secure shipping' },
+];
+
+const benefits = [
+  { icon: Shield, title: '100% Authentic', description: 'All products are verified authentic' },
+  { icon: Truck, title: 'Free Shipping', description: 'On orders over Rs. 2000' },
+  { icon: Gift, title: 'Special Offers', description: 'Regular discounts and promotions' },
+  { icon: Clock, title: '24/7 Support', description: 'Always here to help you' },
 ];
 
 export default function Home() {
@@ -200,14 +207,14 @@ export default function Home() {
               <motion.div
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl"
+                className="relative w-full max-w-2xl aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl"
               >
                 <img
                   src="/Manpasand-Banner-design-01-min.jpg"
                   alt="Manpasand Store"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-3xl"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0D2B3A]/50 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0D2B3A]/30 to-transparent"></div>
               </motion.div>
             </motion.div>
           </div>
@@ -239,6 +246,35 @@ export default function Home() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* Special Offer Banner */}
+      <section className="py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row items-center justify-between gap-4"
+          >
+            <div className="flex items-center space-x-4">
+              <Gift className="w-12 h-12" />
+              <div>
+                <h3 className="text-2xl md:text-3xl font-bold">Special Offer!</h3>
+                <p className="text-white/90">Get Rs. 500 off on your first order</p>
+              </div>
+            </div>
+            <Link href="/shop">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white text-[#0D2B3A] px-8 py-4 rounded-full font-bold text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl"
+              >
+                Shop Now
+              </motion.button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 
@@ -283,7 +319,7 @@ export default function Home() {
                       <motion.img
                         src={category.image}
                         alt={category.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-center"
                         whileHover={{ scale: 1.15 }}
                         transition={{ duration: 0.5 }}
                       />
@@ -392,11 +428,49 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Benefits Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">
+              Why Shop With Us?
+            </h2>
+            <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+              Experience the difference with our premium service and quality products
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {benefits.map((benefit, index) => {
+              const Icon = benefit.icon;
+              return (
+                <motion.div
+                  key={benefit.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -10, rotate: [0, -5, 5, 0] }}
+                  className="bg-gradient-to-br from-[#DFF3EA] to-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                >
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Icon className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{benefit.title}</h3>
+                  <p className="text-[#6B7280]">{benefit.description}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* 700+ Herbs Section */}
       <section className="py-20 bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('/Banner-01.jpg')] bg-cover bg-center"></div>
-        </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div

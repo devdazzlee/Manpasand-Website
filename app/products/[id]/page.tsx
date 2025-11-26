@@ -7,7 +7,7 @@ import Footer from '../../components/Footer';
 import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
 import ProductCard from '../../components/ProductCard';
-import { ShoppingCart, Heart, Minus, Plus, Star, Truck, Shield, RotateCcw, CheckCircle, TrendingUp, Award } from 'lucide-react';
+import { ShoppingCart, Heart, Minus, Plus, Star, Truck, Shield, RotateCcw, CheckCircle, TrendingUp, Award, Gift, Zap, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 const productData: Record<string, any> = {
@@ -128,12 +128,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             >
               <motion.div
                 whileHover={{ scale: 1.02 }}
-                className="relative aspect-square rounded-3xl overflow-hidden bg-[#F8F2DE] shadow-2xl"
+                className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl"
               >
                 <img
                   src={product.images[selectedImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-center"
                 />
                 {discount > 0 && (
                   <motion.div
@@ -159,7 +159,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                         : 'border-transparent hover:border-[#DFF3EA]'
                     }`}
                   >
-                    <img src={img} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={img} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover object-center" />
                   </motion.button>
                 ))}
               </div>
@@ -399,6 +399,79 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         </div>
       </section>
 
+      {/* Why Buy This Product */}
+      <section className="py-16 bg-gradient-to-b from-white to-[#F8F2DE]">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <Sparkles className="w-12 h-12 text-[#F97316] mx-auto mb-4" />
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Why Choose This Product?</h2>
+            <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+              Discover what makes this product special
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              { icon: Award, title: 'Premium Quality', desc: 'Handpicked and tested for excellence' },
+              { icon: CheckCircle, title: '100% Authentic', desc: 'Genuine products guaranteed' },
+              { icon: Gift, title: 'Best Value', desc: 'Great quality at competitive prices' },
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -10 }}
+                  className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{item.title}</h3>
+                  <p className="text-[#6B7280]">{item.desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Special Offer Banner */}
+      <section className="py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row items-center justify-between gap-4"
+          >
+            <div className="flex items-center space-x-4">
+              <Gift className="w-12 h-12" />
+              <div>
+                <h3 className="text-2xl md:text-3xl font-bold">Limited Time Offer!</h3>
+                <p className="text-white/90">Buy 2 Get 1 Free on selected items</p>
+              </div>
+            </div>
+            <Link href="/shop">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white text-[#0D2B3A] px-8 py-4 rounded-full font-bold text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl"
+              >
+                Shop Now
+              </motion.button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Related Products */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
@@ -408,7 +481,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl font-bold text-[#0D2B3A] mb-4">You May Also Like</h2>
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Zap className="w-8 h-8 text-[#F97316]" />
+              <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A]">You May Also Like</h2>
+            </div>
             <p className="text-[#6B7280] text-lg">Related products you might be interested in</p>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-8">
