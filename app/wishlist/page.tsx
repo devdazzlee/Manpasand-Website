@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -37,10 +37,26 @@ const wishlistItems = [
 ];
 
 export default function WishlistPage() {
-  const [items, setItems] = useState(wishlistItems);
+  const [items, setItems] = useState<any[]>([]);
+
+  // Load wishlist from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      setItems(wishlist);
+    }
+  }, []);
 
   const removeItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
+    if (typeof window !== 'undefined') {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      const updatedWishlist = wishlist.filter((item: any) => item.id !== id);
+      localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+      setItems(updatedWishlist);
+      
+      // Dispatch event to update header count
+      window.dispatchEvent(new Event('wishlistUpdated'));
+    }
   };
 
   return (
@@ -85,7 +101,7 @@ export default function WishlistPage() {
                         alt={item.name}
                         className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                       />
-                      {!item.inStock && (
+                      {(item.inStock === false) && (
                         <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                           Out of Stock
                         </div>
@@ -112,9 +128,9 @@ export default function WishlistPage() {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        disabled={!item.inStock}
+                        disabled={item.inStock === false}
                         className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-full font-semibold transition-colors ${
-                          item.inStock
+                          item.inStock !== false
                             ? 'bg-[#1A73A8] hover:bg-[#0D2B3A] text-white'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}

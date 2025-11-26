@@ -117,9 +117,9 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#0D2B3A] via-[#1A73A8] to-[#0D2B3A] text-white overflow-hidden">
+      <section className="relative bg-gradient-to-r from-[#0D2B3A] via-[#1A73A8] to-[#0D2B3A] text-white overflow-x-hidden">
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
             animate={{
               scale: [1, 1.2, 1],
@@ -130,7 +130,7 @@ export default function Home() {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="absolute top-20 right-20 w-96 h-96 bg-[#DFF3EA] rounded-full blur-3xl"
+            className="absolute top-10 right-10 md:top-20 md:right-20 w-48 h-48 md:w-96 md:h-96 bg-[#DFF3EA] rounded-full blur-3xl"
           />
           <motion.div
             animate={{
@@ -142,17 +142,17 @@ export default function Home() {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="absolute bottom-20 left-20 w-96 h-96 bg-[#F97316] rounded-full blur-3xl"
+            className="absolute bottom-10 left-10 md:bottom-20 md:left-20 w-48 h-48 md:w-96 md:h-96 bg-[#F97316] rounded-full blur-3xl"
           />
         </div>
 
-        <div className="container mx-auto px-4 py-24 md:py-32 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-4 py-12 sm:py-16 md:py-24 lg:py-32 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="space-y-6"
+              className="space-y-4 sm:space-y-6 text-center md:text-left"
             >
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -160,29 +160,29 @@ export default function Home() {
                 transition={{ delay: 0.2 }}
                 className="inline-block"
               >
-                <span className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold border border-white/30">
+                <span className="bg-white/20 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold border border-white/30">
                   🏆 25+ Years of Excellence
                 </span>
               </motion.div>
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
                 Premium Quality
-                <span className="block text-[#DFF3EA] mt-2">Dry Fruits & Spices</span>
+                <span className="block text-[#DFF3EA] mt-1 sm:mt-2">Dry Fruits & Spices</span>
               </h1>
-              <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed px-2 sm:px-0">
                 Discover 700+ herbs, remedies, and premium quality products. 
                 25+ years of excellence in Bahadurabad, Karachi.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start pt-2">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link
                     href="/shop"
-                    className="inline-flex items-center space-x-2 bg-[#1A73A8] hover:bg-[#DFF3EA] text-white hover:text-[#0D2B3A] px-8 py-4 rounded-full font-semibold transition-all duration-300 shadow-xl text-lg"
+                    className="inline-flex items-center space-x-2 bg-[#1A73A8] hover:bg-[#DFF3EA] text-white hover:text-[#0D2B3A] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold transition-all duration-300 shadow-xl text-sm sm:text-base md:text-lg"
                   >
                     <span>Shop Now</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </Link>
                 </motion.div>
                 <motion.div
@@ -191,7 +191,7 @@ export default function Home() {
                 >
                   <Link
                     href="/about"
-                    className="inline-flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 border border-white/30 text-lg"
+                    className="inline-flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold transition-all duration-300 border border-white/30 text-sm sm:text-base md:text-lg"
                   >
                     <span>Learn More</span>
                   </Link>
@@ -202,19 +202,19 @@ export default function Home() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative w-full flex items-center justify-center mt-8 md:mt-0"
             >
               <motion.div
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative w-full max-w-2xl aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl"
+                className="relative w-full max-w-full md:max-w-2xl"
               >
                 <img
                   src="/Manpasand-Banner-design-01-min.jpg"
                   alt="Manpasand Store"
-                  className="w-full h-full object-cover rounded-3xl"
+                  className="w-full h-auto rounded-2xl md:rounded-3xl shadow-2xl block"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0D2B3A]/30 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0D2B3A]/30 to-transparent rounded-2xl md:rounded-3xl"></div>
               </motion.div>
             </motion.div>
           </div>
@@ -222,9 +222,9 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-8 sm:py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
@@ -235,13 +235,13 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   whileHover={{ y: -10, scale: 1.05 }}
-                  className="text-center p-6 bg-gradient-to-br from-[#F8F2DE] to-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                  className="text-center p-4 sm:p-6 bg-gradient-to-br from-[#F8F2DE] to-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
                 >
-                  <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                    <Icon className="w-8 h-8 text-white" />
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${stat.color} rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg`}>
+                    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
-                  <h3 className="text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-2">{stat.number}</h3>
-                  <p className="text-[#6B7280] font-medium">{stat.label}</p>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-1 sm:mb-2">{stat.number}</h3>
+                  <p className="text-[#6B7280] font-medium text-xs sm:text-sm md:text-base">{stat.label}</p>
                 </motion.div>
               );
             })}
@@ -250,26 +250,26 @@ export default function Home() {
       </section>
 
       {/* Special Offer Banner */}
-      <section className="py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
+      <section className="py-6 sm:py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-4"
+            className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6"
           >
-            <div className="flex items-center space-x-4">
-              <Gift className="w-12 h-12" />
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <Gift className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0" />
               <div>
-                <h3 className="text-2xl md:text-3xl font-bold">Special Offer!</h3>
-                <p className="text-white/90">Get Rs. 500 off on your first order</p>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">Special Offer!</h3>
+                <p className="text-white/90 text-sm sm:text-base">Get Rs. 500 off on your first order</p>
               </div>
             </div>
             <Link href="/shop">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white text-[#0D2B3A] px-8 py-4 rounded-full font-bold text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl"
+                className="bg-white text-[#0D2B3A] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base md:text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl w-full sm:w-auto"
               >
                 Shop Now
               </motion.button>
@@ -279,31 +279,31 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 bg-gradient-to-b from-white to-[#F8F2DE]">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-[#F8F2DE]">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
             <motion.div
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ type: 'spring', delay: 0.2 }}
-              className="inline-block mb-4"
+              className="inline-block mb-3 sm:mb-4"
             >
-              <Sparkles className="w-12 h-12 text-[#F97316] mx-auto" />
+              <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-[#F97316] mx-auto" />
             </motion.div>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">
               Shop by Category
             </h2>
-            <p className="text-[#6B7280] text-lg md:text-xl">
+            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg lg:text-xl px-4 sm:px-0">
               Explore our wide range of premium products
             </p>
           </motion.div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
             {categories.map((category, index) => (
               <motion.div
                 key={category.name}
@@ -314,7 +314,7 @@ export default function Home() {
                 whileHover={{ y: -12, scale: 1.05 }}
               >
                 <Link href={category.href}>
-                  <div className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer group">
+                  <div className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer group">
                     <div className="aspect-square relative overflow-hidden">
                       <motion.img
                         src={category.image}
@@ -325,8 +325,8 @@ export default function Home() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0D2B3A]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    <div className="p-5 text-center">
-                      <h3 className="font-bold text-[#0D2B3A] text-lg group-hover:text-[#1A73A8] transition-colors">
+                    <div className="p-3 sm:p-4 md:p-5 text-center">
+                      <h3 className="font-bold text-[#0D2B3A] text-sm sm:text-base md:text-lg group-hover:text-[#1A73A8] transition-colors">
                         {category.name}
                       </h3>
                     </div>
@@ -339,22 +339,22 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 md:mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">
               Why Choose Manpasand?
             </h2>
-            <p className="text-[#6B7280] text-lg md:text-xl max-w-2xl mx-auto">
+            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto px-4 sm:px-0">
               We are committed to providing the best quality products and exceptional service
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
@@ -365,13 +365,13 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   whileHover={{ y: -10 }}
-                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
                 >
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Icon className="w-10 h-10 text-white" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{feature.title}</h3>
-                  <p className="text-[#6B7280]">{feature.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0D2B3A] mb-2 sm:mb-3">{feature.title}</h3>
+                  <p className="text-[#6B7280] text-sm sm:text-base">{feature.description}</p>
                 </motion.div>
               );
             })}
@@ -380,25 +380,25 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-20 bg-gradient-to-b from-[#F8F2DE] to-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#F8F2DE] to-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Zap className="w-8 h-8 text-[#F97316]" />
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A]">
+            <div className="flex items-center justify-center space-x-2 mb-3 sm:mb-4">
+              <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-[#F97316]" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A]">
                 Featured Products
               </h2>
             </div>
-            <p className="text-[#6B7280] text-lg md:text-xl">
+            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg lg:text-xl px-4 sm:px-0">
               Handpicked premium selections for you
             </p>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {featuredProducts.map((product, index) => (
               <motion.div
                 key={product.id}
@@ -429,22 +429,22 @@ export default function Home() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 md:mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">
               Why Shop With Us?
             </h2>
-            <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4 sm:px-0">
               Experience the difference with our premium service and quality products
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {benefits.map((benefit, index) => {
               const Icon = benefit.icon;
               return (
@@ -455,13 +455,13 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   whileHover={{ y: -10, rotate: [0, -5, 5, 0] }}
-                  className="bg-gradient-to-br from-[#DFF3EA] to-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                  className="bg-gradient-to-br from-[#DFF3EA] to-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
                 >
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Icon className="w-10 h-10 text-white" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{benefit.title}</h3>
-                  <p className="text-[#6B7280]">{benefit.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0D2B3A] mb-2 sm:mb-3">{benefit.title}</h3>
+                  <p className="text-[#6B7280] text-sm sm:text-base">{benefit.description}</p>
                 </motion.div>
               );
             })}
@@ -470,7 +470,7 @@ export default function Home() {
       </section>
 
       {/* 700+ Herbs Section */}
-      <section className="py-20 bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div
@@ -478,19 +478,19 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="space-y-6"
+              className="space-y-4 sm:space-y-6"
             >
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
                 className="inline-block"
               >
-                <Sparkles className="w-16 h-16 text-[#DFF3EA] mx-auto mb-6" />
+                <Sparkles className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[#DFF3EA] mx-auto mb-4 sm:mb-6" />
               </motion.div>
-              <h2 className="text-4xl md:text-6xl font-bold">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold px-4 sm:px-0">
                 700+ Herbs & Remedies
               </h2>
-              <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed px-4 sm:px-6 md:px-0">
                 Explore our extensive collection of traditional herbs, natural remedies, 
                 and premium quality products. From ancient remedies to modern wellness, 
                 we have everything you need for a healthy lifestyle.
@@ -498,14 +498,14 @@ export default function Home() {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="pt-4"
+                className="pt-2 sm:pt-4"
               >
                 <Link
                   href="/herbal-remedies"
-                  className="inline-flex items-center space-x-2 bg-[#DFF3EA] hover:bg-white text-[#0D2B3A] px-10 py-5 rounded-full font-bold text-lg transition-all duration-300 shadow-xl"
+                  className="inline-flex items-center space-x-2 bg-[#DFF3EA] hover:bg-white text-[#0D2B3A] px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full font-bold text-sm sm:text-base md:text-lg transition-all duration-300 shadow-xl"
                 >
                   <span>Explore Herbs</span>
-                  <ArrowRight className="w-6 h-6" />
+                  <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Link>
               </motion.div>
             </motion.div>
@@ -514,25 +514,25 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Heart className="w-8 h-8 text-[#F97316]" />
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A]">
+            <div className="flex items-center justify-center space-x-2 mb-3 sm:mb-4">
+              <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-[#F97316]" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A]">
                 What Our Customers Say
               </h2>
             </div>
-            <p className="text-[#6B7280] text-lg md:text-xl">
+            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg lg:text-xl px-4 sm:px-0">
               Trusted by thousands of satisfied customers
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={testimonial.name}
@@ -541,19 +541,19 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-gradient-to-br from-[#F8F2DE] to-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300"
+                className="bg-gradient-to-br from-[#F8F2DE] to-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300"
               >
-                <div className="flex items-center space-x-1 mb-4">
+                <div className="flex items-center space-x-1 mb-3 sm:mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-[#F97316] text-[#F97316]" />
+                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-[#F97316] text-[#F97316]" />
                   ))}
                 </div>
-                <p className="text-[#6B7280] mb-6 italic text-lg leading-relaxed">
+                <p className="text-[#6B7280] mb-4 sm:mb-6 italic text-sm sm:text-base md:text-lg leading-relaxed">
                   "{testimonial.comment}"
                 </p>
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <p className="font-bold text-[#0D2B3A] text-lg">— {testimonial.name}</p>
-                  <p className="text-sm text-[#6B7280]">{testimonial.location}</p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 sm:pt-4 border-t border-gray-200 gap-2 sm:gap-0">
+                  <p className="font-bold text-[#0D2B3A] text-base sm:text-lg">— {testimonial.name}</p>
+                  <p className="text-xs sm:text-sm text-[#6B7280]">{testimonial.location}</p>
                 </div>
               </motion.div>
             ))}

@@ -10,15 +10,15 @@ export default function Newsletter() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-[#1A73A8] text-white py-8"
+      className="bg-[#1A73A8] text-white py-6 sm:py-8"
     >
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           {/* Left: Newsletter Text */}
-          <div className="flex items-center space-x-4 flex-1">
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center space-x-3 sm:space-x-4 flex-1 w-full md:w-auto">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -31,9 +31,9 @@ export default function Newsletter() {
                 />
               </svg>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-1">Sign up to Newsletter</h3>
-              <p className="text-white/90 text-sm">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1">Sign up to Newsletter</h3>
+              <p className="text-white/90 text-xs sm:text-sm">
                 Subscribe to our newsletter and receive Rs. 500 coupon for your first shopping
               </p>
             </div>
@@ -46,10 +46,10 @@ export default function Newsletter() {
             rel="noopener noreferrer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center space-x-3 bg-white/20 hover:bg-white/30 px-6 py-3 rounded-full transition-colors duration-300"
+            className="flex items-center space-x-2 sm:space-x-3 bg-white/20 hover:bg-white/30 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full transition-colors duration-300 w-full md:w-auto justify-center"
           >
-            <MessageCircle className="w-5 h-5" />
-            <span className="font-medium">0342 3344040</span>
+            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="font-medium text-sm sm:text-base">0342 3344040</span>
           </motion.a>
         </div>
       </div>

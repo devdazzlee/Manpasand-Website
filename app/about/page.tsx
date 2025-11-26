@@ -158,40 +158,123 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline Section */}
-      <section className="py-20 bg-gradient-to-b from-[#F8F2DE] to-white">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#F8F2DE] via-white to-[#F8F2DE] relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-1/4 left-10 w-72 h-72 bg-[#1A73A8] rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-10 w-72 h-72 bg-[#F97316] rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Our Journey</h2>
-            <p className="text-[#6B7280] text-lg">Milestones that shaped our success</p>
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', delay: 0.2 }}
+              className="inline-block mb-4"
+            >
+              <Sparkles className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[#F97316] mx-auto" />
+            </motion.div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">
+              Our Journey
+            </h2>
+            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg">
+              Milestones that shaped our success
+            </p>
+            <div className="w-24 h-1 bg-gradient-to-r from-[#1A73A8] to-[#F97316] mx-auto mt-4 rounded-full"></div>
           </motion.div>
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-8">
-              {milestones.map((milestone, index) => (
-                <motion.div
-                  key={milestone.year}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className={`flex items-center gap-8 ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
-                >
-                  <div className="flex-1 bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="flex items-center space-x-4 mb-3">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">{milestone.year}</span>
+          
+          <div className="max-w-5xl mx-auto">
+            {/* Vertical Timeline */}
+            <div className="relative">
+              {/* Timeline Line */}
+              <div className="absolute left-4 sm:left-1/2 transform sm:-translate-x-1/2 w-0.5 sm:w-1 h-full bg-gradient-to-b from-[#1A73A8] via-[#F97316] to-[#1A73A8] hidden sm:block"></div>
+              
+              <div className="space-y-8 sm:space-y-12">
+                {milestones.map((milestone, index) => {
+                  const isEven = index % 2 === 0;
+                  return (
+                    <motion.div
+                      key={milestone.year}
+                      initial={{ opacity: 0, y: 50 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-100px" }}
+                      transition={{ duration: 0.6, delay: index * 0.15 }}
+                      className="relative"
+                    >
+                      {/* Timeline Dot */}
+                      <div className="absolute left-4 sm:left-1/2 transform sm:-translate-x-1/2 -translate-y-1/2 top-1/2 z-20">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          whileInView={{ scale: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.15 + 0.3, type: 'spring' }}
+                          className="relative"
+                        >
+                          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-[#1A73A8] to-[#F97316] rounded-full shadow-xl flex items-center justify-center border-4 border-white">
+                            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-white rounded-full"></div>
+                          </div>
+                          {/* Pulse animation */}
+                          <motion.div
+                            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                            className="absolute inset-0 bg-[#1A73A8] rounded-full"
+                          ></motion.div>
+                        </motion.div>
                       </div>
-                      <h3 className="text-2xl font-bold text-[#0D2B3A]">{milestone.title}</h3>
-                    </div>
-                    <p className="text-[#6B7280]">{milestone.description}</p>
-                  </div>
-                  <div className="w-4 h-4 bg-[#1A73A8] rounded-full flex-shrink-0"></div>
-                </motion.div>
-              ))}
+
+                      {/* Content Card */}
+                      <div className={`ml-12 sm:ml-0 sm:w-5/12 ${isEven ? 'sm:mr-auto' : 'sm:ml-auto'}`}>
+                        <motion.div
+                          whileHover={{ scale: 1.02, y: -5 }}
+                          className="relative group"
+                        >
+                          {/* Card */}
+                          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 relative overflow-hidden">
+                            {/* Gradient overlay on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-[#1A73A8]/0 to-[#F97316]/0 group-hover:from-[#1A73A8]/5 group-hover:to-[#F97316]/5 transition-all duration-300 rounded-2xl sm:rounded-3xl"></div>
+                            
+                            <div className="relative z-10">
+                              {/* Year Badge */}
+                              <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                whileInView={{ scale: 1, rotate: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.15 + 0.2, type: 'spring' }}
+                                className="inline-block mb-4"
+                              >
+                                <div className="bg-gradient-to-br from-[#1A73A8] to-[#F97316] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-lg">
+                                  <span className="font-bold text-sm sm:text-base md:text-lg">{milestone.year}</span>
+                                </div>
+                              </motion.div>
+                              
+                              {/* Title */}
+                              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-3 sm:mb-4 flex items-center gap-3">
+                                <div className="w-1 h-8 sm:h-10 bg-gradient-to-b from-[#1A73A8] to-[#F97316] rounded-full"></div>
+                                {milestone.title}
+                              </h3>
+                              
+                              {/* Description */}
+                              <p className="text-[#6B7280] text-sm sm:text-base leading-relaxed">
+                                {milestone.description}
+                              </p>
+                              
+                              {/* Decorative corner */}
+                              <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-[#1A73A8]/10 to-transparent rounded-bl-3xl"></div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

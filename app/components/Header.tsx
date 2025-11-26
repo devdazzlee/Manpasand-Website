@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Apple, Calendar, Droplets, UtensilsCrossed, Wheat, Sparkles, Package } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Apple, Calendar, Droplets, UtensilsCrossed, Wheat, Sparkles, Package, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const categories = [
@@ -20,6 +20,26 @@ const categories = [
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  // Get wishlist count from localStorage
+  useEffect(() => {
+    const updateWishlistCount = () => {
+      if (typeof window !== 'undefined') {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        setWishlistCount(wishlist.length);
+      }
+    };
+
+    updateWishlistCount();
+    
+    // Listen for wishlist updates
+    window.addEventListener('wishlistUpdated', updateWishlistCount);
+    
+    return () => {
+      window.removeEventListener('wishlistUpdated', updateWishlistCount);
+    };
+  }, []);
 
   const menuItems = [
     { name: 'Home', href: '/' },
@@ -30,10 +50,10 @@ export default function Header() {
 
   return (
     <header className="bg-[#0D2B3A] text-white sticky top-0 z-50 shadow-lg">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-24 md:h-28">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex items-center justify-between h-20 sm:h-24 md:h-28">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -41,7 +61,7 @@ export default function Header() {
               <img
                 src="/Manpasand-Logo.png"
                 alt="Manpasand Store"
-                className="h-16 md:h-20 w-auto"
+                className="h-12 sm:h-16 md:h-20 w-auto"
                 width={180}
                 height={80}
               />
@@ -144,7 +164,7 @@ export default function Header() {
           </nav>
 
           {/* Right Icons */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -165,15 +185,31 @@ export default function Header() {
               </motion.button>
             </Link>
 
+            <Link href="/wishlist">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="relative p-1.5 sm:p-2 hover:bg-white/10 rounded-full transition-colors"
+                aria-label="Wishlist"
+              >
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                {wishlistCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-[#F97316] text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-semibold">
+                    {wishlistCount > 9 ? '9+' : wishlistCount}
+                  </span>
+                )}
+              </motion.button>
+            </Link>
+
             <Link href="/cart">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="relative p-1.5 sm:p-2 hover:bg-white/10 rounded-full transition-colors"
                 aria-label="Shopping Cart"
               >
-                <ShoppingCart className="w-5 h-5" />
-                <span className="absolute top-0 right-0 bg-[#F97316] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="absolute top-0 right-0 bg-[#F97316] text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                   0
                 </span>
               </motion.button>
@@ -182,10 +218,10 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
+              className="lg:hidden p-1.5 sm:p-2 hover:bg-white/10 rounded-full transition-colors"
               aria-label="Menu"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
         </div>
@@ -200,7 +236,7 @@ export default function Header() {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden bg-[#0D2B3A] border-t border-white/10"
           >
-            <nav className="container mx-auto px-4 py-6 space-y-4">
+            <nav className="container mx-auto px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
               {menuItems.map((item) => {
                 // Render Shop link
                 if (item.name === 'Shop') {

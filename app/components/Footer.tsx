@@ -41,8 +41,8 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#0D2B3A] text-white">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* About Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -54,15 +54,15 @@ export default function Footer() {
             <img
               src="/Manpasand-Logo.png"
               alt="Manpasand Store"
-              className="h-12 w-auto mb-4"
+              className="h-10 sm:h-12 w-auto mb-3 sm:mb-4"
               width={120}
               height={48}
             />
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
               Manpasand Store - Your trusted source for premium quality dry fruits, dates, nuts, and spices. 
               Serving customers for over 25 years with excellence.
             </p>
-            <div className="flex space-x-4 pt-4">
+            <div className="flex space-x-3 sm:space-x-4 pt-3 sm:pt-4">
               <motion.a
                 href="#"
                 whileHover={{ scale: 1.2, y: -2 }}
@@ -100,13 +100,13 @@ export default function Footer() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="space-y-4"
             >
-              <h3 className="text-lg font-semibold text-white">{section.title}</h3>
-              <ul className="space-y-2">
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-0">{section.title}</h3>
+              <ul className="space-y-1.5 sm:space-y-2">
                 {section.links.map((link) => (
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-gray-300 hover:text-[#DFF3EA] transition-colors text-sm"
+                      className="text-gray-300 hover:text-[#DFF3EA] transition-colors text-xs sm:text-sm"
                     >
                       {link.name}
                     </Link>
@@ -155,12 +155,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-white/10 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-400 text-sm">
+        <div className="border-t border-white/10 mt-6 sm:mt-8 md:mt-12 pt-6 sm:pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-3 sm:space-y-4 md:space-y-0">
+            <p className="text-gray-400 text-xs sm:text-sm text-center md:text-left">
               © {new Date().getFullYear()} Manpasand Store. All rights reserved.
             </p>
-            <div className="flex space-x-6 text-sm text-gray-400">
+            <div className="flex space-x-4 sm:space-x-6 text-xs sm:text-sm text-gray-400">
               <Link href="/privacy-policy" className="hover:text-white transition-colors">
                 Privacy
               </Link>

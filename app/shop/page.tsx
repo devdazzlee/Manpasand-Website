@@ -106,9 +106,9 @@ export default function ShopPage() {
       <Header />
 
       {/* Page Header */}
-      <section className="relative bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-12 sm:py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#DFF3EA] rounded-full blur-3xl"></div>
+          <div className="absolute top-0 right-0 w-48 h-48 sm:w-96 sm:h-96 bg-[#DFF3EA] rounded-full blur-3xl"></div>
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -117,66 +117,85 @@ export default function ShopPage() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Shop</h1>
-            <p className="text-xl text-white/90">Discover our premium collection</p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4">Shop</h1>
+            <p className="text-base sm:text-lg md:text-xl text-white/90">Discover our premium collection</p>
           </motion.div>
         </div>
       </section>
 
       {/* Filters and View Toggle */}
-      <section className="py-8 bg-[#F8F2DE] sticky top-24 z-40 shadow-md">
+      <section className="py-4 sm:py-6 md:py-8 bg-white sticky top-20 sm:top-24 z-40 shadow-sm border-b border-gray-100">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
-            {/* Category Filter */}
-            <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
-              {categories.map((cat) => (
-                <motion.button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
-                    selectedCategory === cat
-                      ? 'bg-[#1A73A8] text-white shadow-lg scale-105'
-                      : 'bg-white text-[#0D2B3A] hover:bg-[#DFF3EA]'
-                  }`}
-                >
-                  {cat}
-                </motion.button>
-              ))}
+          <div className="flex flex-col gap-4">
+            {/* Top Row: Categories */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 overflow-x-auto scrollbar-hide -mx-4 px-4">
+                <div className="flex gap-2 sm:gap-3 min-w-max">
+                  {categories.map((cat) => (
+                    <motion.button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 rounded-lg font-medium transition-all duration-300 text-xs sm:text-sm whitespace-nowrap relative overflow-hidden group ${
+                        selectedCategory === cat
+                          ? 'bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white shadow-lg shadow-[#1A73A8]/30'
+                          : 'bg-gray-50 text-[#0D2B3A] hover:bg-gray-100 border border-gray-200'
+                      }`}
+                    >
+                      <span className="relative z-10">{cat}</span>
+                      {selectedCategory === cat && (
+                        <motion.div
+                          layoutId="activeCategory"
+                          className="absolute inset-0 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] rounded-lg"
+                          transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* View Toggle */}
-            <div className="flex items-center space-x-3">
+            {/* Bottom Row: Filters and View Toggle */}
+            <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
               <motion.button
                 onClick={() => setShowFilters(!showFilters)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-5 py-2.5 bg-white rounded-full hover:bg-[#DFF3EA] transition-colors shadow-md"
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium transition-all duration-300 text-xs sm:text-sm ${
+                  showFilters
+                    ? 'bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white shadow-md'
+                    : 'bg-gray-50 text-[#0D2B3A] hover:bg-gray-100 border border-gray-200'
+                }`}
               >
-                <Filter className="w-5 h-5 text-[#0D2B3A]" />
-                <span className="text-[#0D2B3A] font-medium">Filters</span>
+                <Filter className={`w-4 h-4 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
+                <span>Filters</span>
               </motion.button>
-              <div className="flex items-center bg-white rounded-full p-1 shadow-md">
+              
+              <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-200">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2.5 rounded-full transition-all duration-300 ${
+                  className={`p-2 sm:p-2.5 rounded-md transition-all duration-300 ${
                     viewMode === 'grid'
-                      ? 'bg-[#1A73A8] text-white shadow-md'
-                      : 'text-[#0D2B3A] hover:bg-[#DFF3EA]'
+                      ? 'bg-white text-[#1A73A8] shadow-sm'
+                      : 'text-gray-600 hover:text-[#1A73A8]'
                   }`}
+                  aria-label="Grid view"
                 >
-                  <Grid className="w-5 h-5" />
+                  <Grid className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
+                <div className="w-px h-6 bg-gray-300"></div>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2.5 rounded-full transition-all duration-300 ${
+                  className={`p-2 sm:p-2.5 rounded-md transition-all duration-300 ${
                     viewMode === 'list'
-                      ? 'bg-[#1A73A8] text-white shadow-md'
-                      : 'text-[#0D2B3A] hover:bg-[#DFF3EA]'
+                      ? 'bg-white text-[#1A73A8] shadow-sm'
+                      : 'text-gray-600 hover:text-[#1A73A8]'
                   }`}
+                  aria-label="List view"
                 >
-                  <List className="w-5 h-5" />
+                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
@@ -189,26 +208,26 @@ export default function ShopPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-6 bg-white rounded-2xl p-6 shadow-xl"
+                className="mt-4 sm:mt-6 bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl"
               >
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-[#0D2B3A] flex items-center space-x-2">
-                    <Filter className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0D2B3A] flex items-center space-x-2">
+                    <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Advanced Filters</span>
                   </h3>
                   <button
                     onClick={() => setShowFilters(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors"
                   >
-                    <X className="w-5 h-5 text-[#6B7280]" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5 text-[#6B7280]" />
                   </button>
                 </div>
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label className="block text-[#0D2B3A] font-semibold mb-3">
+                    <label className="block text-[#0D2B3A] font-semibold mb-2 sm:mb-3 text-sm sm:text-base">
                       Price Range: Rs. {priceRange[0]} - Rs. {priceRange[1]}
                     </label>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 sm:space-x-4">
                       <input
                         type="range"
                         min="0"
@@ -228,15 +247,15 @@ export default function ShopPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[#0D2B3A] font-semibold mb-3">
+                    <label className="block text-[#0D2B3A] font-semibold mb-2 sm:mb-3 text-sm sm:text-base">
                       Minimum Rating: {minRating > 0 ? `${minRating}+` : 'Any'}
                     </label>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap gap-2">
                       {[0, 3, 4, 4.5].map((rating) => (
                         <button
                           key={rating}
                           onClick={() => setMinRating(rating)}
-                          className={`px-4 py-2 rounded-lg transition-all ${
+                          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm ${
                             minRating === rating
                               ? 'bg-[#1A73A8] text-white'
                               : 'bg-gray-100 text-[#0D2B3A] hover:bg-[#DFF3EA]'
@@ -266,25 +285,25 @@ export default function ShopPage() {
       </section>
 
       {/* Special Offer Banner */}
-      <section className="py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
+      <section className="py-6 sm:py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-4"
+            className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6"
           >
-            <div className="flex items-center space-x-4">
-              <Gift className="w-12 h-12" />
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <Gift className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0" />
               <div>
-                <h3 className="text-2xl md:text-3xl font-bold">Special Offer!</h3>
-                <p className="text-white/90">Get Rs. 500 off on orders above Rs. 2000</p>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">Special Offer!</h3>
+                <p className="text-white/90 text-sm sm:text-base">Get Rs. 500 off on orders above Rs. 2000</p>
               </div>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white text-[#0D2B3A] px-8 py-4 rounded-full font-bold text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl"
+              className="bg-white text-[#0D2B3A] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base md:text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto"
             >
               Shop Now
             </motion.button>
@@ -293,10 +312,10 @@ export default function ShopPage() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="mb-6 flex items-center justify-between">
-            <p className="text-[#6B7280] text-lg">
+      <section className="py-8 sm:py-12 bg-white">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="mb-4 sm:mb-6 flex items-center justify-between">
+            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg">
               Showing <span className="font-bold text-[#0D2B3A]">{filteredProducts.length}</span> product{filteredProducts.length !== 1 ? 's' : ''}
             </p>
             {filteredProducts.length === 0 && (
@@ -306,8 +325,8 @@ export default function ShopPage() {
           <div
             className={
               viewMode === 'grid'
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-                : 'space-y-4'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
+                : 'space-y-3 sm:space-y-4'
             }
           >
             {filteredProducts.map((product, index) => (
