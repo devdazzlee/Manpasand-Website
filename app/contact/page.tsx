@@ -32,28 +32,28 @@ export default function ContactPage() {
       icon: MapPin,
       title: 'Visit Us',
       info: 'Bahadurabad, Karachi, Pakistan',
-      color: 'from-[#1A73A8] to-[#0D2B3A]',
+      bgColor: 'bg-[#1A73A8]',
     },
     {
       icon: Phone,
       title: 'Call Us',
       info: '0342 3344040',
       href: 'tel:+923423344040',
-      color: 'from-[#F97316] to-[#1A73A8]',
+      bgColor: 'bg-[#F97316]',
     },
     {
       icon: Mail,
       title: 'Email Us',
       info: 'info@manpasandstore.com',
       href: 'mailto:info@manpasandstore.com',
-      color: 'from-[#1A73A8] to-[#F97316]',
+      bgColor: 'bg-[#1A73A8]',
     },
     {
       icon: MessageCircle,
       title: 'WhatsApp',
       info: '0342 3344040',
       href: 'https://wa.me/923423344040',
-      color: 'from-[#DFF3EA] to-[#1A73A8]',
+      bgColor: 'bg-[#25D366]',
     },
   ];
 
@@ -109,7 +109,7 @@ export default function ContactPage() {
                   whileHover={{ y: -10, scale: 1.05 }}
                   className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
                 >
-                  <div className={`w-20 h-20 bg-gradient-to-br ${method.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}>
+                  <div className={`w-20 h-20 ${method.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg hover:shadow-xl transition-shadow duration-300`}>
                     <Icon className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-[#0D2B3A] mb-2">{method.title}</h3>

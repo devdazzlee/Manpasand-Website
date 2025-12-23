@@ -54,7 +54,7 @@ export default function Footer() {
             <img
               src="/Manpasand-Logo.png"
               alt="Manpasand Store"
-              className="h-10 sm:h-12 w-auto mb-3 sm:mb-4"
+              className="h-16 sm:h-20 md:h-24 w-auto mb-3 sm:mb-4"
               width={120}
               height={48}
             />

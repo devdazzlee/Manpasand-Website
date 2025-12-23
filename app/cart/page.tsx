@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -8,43 +8,37 @@ import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-
-const cartItems = [
-  {
-    id: '1',
-    name: 'Premium Almonds',
-    price: 2500,
-    image: '/Almonds-Banner-1.jpg',
-    quantity: 2,
-  },
-  {
-    id: '2',
-    name: 'Ajwa Dates',
-    price: 1800,
-    image: '/Ajwa-Dates-Banner-1.jpg',
-    quantity: 1,
-  },
-];
+import { cartUtils, CartItem } from '../../lib/utils/cart';
 
 export default function CartPage() {
-  const [items, setItems] = useState(cartItems);
+  const [items, setItems] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    const loadCart = () => {
+      setItems(cartUtils.getCart());
+    };
+
+    loadCart();
+    window.addEventListener('cartUpdated', loadCart);
+    return () => window.removeEventListener('cartUpdated', loadCart);
+  }, []);
 
   const updateQuantity = (id: string, change: number) => {
-    setItems(
-      items.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
+    const item = items.find((item) => item.id === id);
+    if (item) {
+      const newQuantity = Math.max(1, item.quantity + change);
+      cartUtils.updateQuantity(id, newQuantity);
+      setItems(cartUtils.getCart());
+    }
   };
 
   const removeItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
+    cartUtils.removeFromCart(id);
+    setItems(cartUtils.getCart());
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 2000 ? 0 : 200;
+  const shipping = subtotal > 5000 ? 0 : 200;
   const total = subtotal + shipping;
 
   return (
@@ -83,7 +77,7 @@ export default function CartPage() {
                   >
                     <div className="relative w-full md:w-32 h-32 rounded-xl overflow-hidden bg-[#F8F2DE] flex-shrink-0">
                       <img
-                        src={item.image}
+                        src={item.image || '/Banner-01.jpg'}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />
@@ -150,9 +144,9 @@ export default function CartPage() {
                         )}
                       </span>
                     </div>
-                    {subtotal < 2000 && (
+                    {subtotal < 5000 && (
                       <p className="text-sm text-[#6B7280]">
-                        Add Rs. {(2000 - subtotal).toLocaleString()} more for free shipping
+                        Add Rs. {(5000 - subtotal).toLocaleString()} more for free shipping
                       </p>
                     )}
                     <div className="border-t border-gray-300 pt-4">
@@ -214,4 +208,3 @@ export default function CartPage() {
     </div>
   );
 }
-

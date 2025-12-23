@@ -1,90 +1,96 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
 import ProductCard from '../../components/ProductCard';
-
-const categoryData: Record<string, { name: string; description: string }> = {
-  'dry-fruits': {
-    name: 'Dry Fruits',
-    description: 'Premium quality dry fruits, carefully selected for freshness and taste.',
-  },
-  dates: {
-    name: 'Dates',
-    description: 'Authentic dates from the finest sources, including Ajwa and Medjool varieties.',
-  },
-  nuts: {
-    name: 'Nuts',
-    description: 'Fresh, crunchy nuts packed with nutrition and flavor.',
-  },
-  honey: {
-    name: 'Honey',
-    description: 'Pure, natural honey with authentic taste and health benefits.',
-  },
-  saffron: {
-    name: 'Saffron',
-    description: 'Premium quality saffron threads, the world\'s most expensive spice.',
-  },
-  herbs: {
-    name: 'Herbs',
-    description: 'Traditional herbs and natural remedies for wellness and health.',
-  },
-  spices: {
-    name: 'Spices',
-    description: 'Aromatic spices to enhance the flavor of your dishes.',
-  },
-  'pulses-rice': {
-    name: 'Pulses & Rice',
-    description: 'High-quality pulses and rice for your daily nutrition needs.',
-  },
-  oil: {
-    name: 'Oil',
-    description: 'Pure cooking oils for healthy and delicious meals.',
-  },
-};
-
-const allProducts = [
-  {
-    id: '1',
-    name: 'Premium Almonds',
-    price: 2500,
-    originalPrice: 3000,
-    image: '/Almonds-Banner-1.jpg',
-    category: 'Dry Fruits',
-  },
-  {
-    id: '2',
-    name: 'Ajwa Dates',
-    price: 1800,
-    originalPrice: 2200,
-    image: '/Ajwa-Dates-Banner-1.jpg',
-    category: 'Dates',
-  },
-  {
-    id: '3',
-    name: 'Cashew Nuts',
-    price: 3200,
-    originalPrice: 3800,
-    image: '/Cashew-kaju-Banner-1.jpg',
-    category: 'Nuts',
-  },
-];
+import Loader from '../../components/Loader';
+import { productApi, Product } from '../../../lib/api/productApi';
+import { categoryApi, Category } from '../../../lib/api/categoryApi';
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const category = categoryData[slug] || {
-    name: 'Category',
-    description: 'Explore our premium products in this category.',
-  };
+  const [category, setCategory] = useState<Category | null>(null);
+  const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filter products by category (simplified)
-  const categoryProducts = allProducts.filter((p) =>
-    p.category.toLowerCase().includes(slug.replace('-', ' '))
-  );
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch all categories to find the one matching the slug
+        const categories = await categoryApi.getCategories();
+        const foundCategory = categories.find(
+          (cat) => cat.slug === slug || cat.name.toLowerCase().replace(/\s+/g, '-') === slug
+        );
+        
+        if (foundCategory) {
+          setCategory(foundCategory);
+          
+          // Fetch products for this category
+          // Get all products and filter by category client-side
+          const allProducts = await productApi.listProducts({
+            fetch_all: true,
+            search: '',
+          });
+          const productsResult = {
+            data: allProducts.data.filter(p => p.category_id === foundCategory.id),
+            meta: allProducts.meta,
+          };
+          
+          // Map products to include image URL and normalize price fields
+          const mappedProducts = productsResult.data.map((product: Product) => {
+            // Get price from API response
+            const priceValue = product.sales_rate_inc_dis_and_tax 
+              ? parseFloat(String(product.sales_rate_inc_dis_and_tax))
+              : product.sales_rate_exc_dis_and_tax
+              ? parseFloat(String(product.sales_rate_exc_dis_and_tax))
+              : product.selling_price || product.price || 0;
+            
+            // Calculate original price if discount exists
+            const discountAmount = product.discount_amount 
+              ? parseFloat(String(product.discount_amount))
+              : 0;
+            const originalPrice = discountAmount > 0 && priceValue > 0
+              ? priceValue + discountAmount
+              : undefined;
+            
+            // Extract image from ProductImage array or use fallback
+            const productImage = product.ProductImage && Array.isArray(product.ProductImage) && product.ProductImage.length > 0
+              ? product.ProductImage[0].image
+              : product.image || '/Banner-01.jpg';
+            
+            return {
+              ...product,
+              price: priceValue,
+              selling_price: priceValue,
+              image: productImage,
+              originalPrice,
+              // Keep category as object, not string
+              category: product.category || undefined,
+            };
+          });
+          
+          setCategoryProducts(mappedProducts);
+        } else {
+          setError('Category not found');
+        }
+      } catch (err) {
+        console.error('Error fetching category data:', err);
+        setError('Failed to load category. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [slug]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -99,8 +105,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.name}</h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto">{category.description}</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{category?.name || 'Category'}</h1>
+            <p className="text-xl text-white/90 max-w-2xl mx-auto">{category?.description || 'Explore our premium products in this category.'}</p>
           </motion.div>
         </div>
       </section>
@@ -108,8 +114,14 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
       {/* Products */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          {categoryProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {loading ? (
+            <Loader size="lg" text="Loading category products..." />
+          ) : error ? (
+            <div className="text-center py-16">
+              <p className="text-red-500">{error}</p>
+            </div>
+          ) : categoryProducts.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
               {categoryProducts.map((product, index) => (
                 <motion.div
                   key={product.id}
@@ -118,7 +130,17 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                 >
-                  <ProductCard {...product} />
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    price={product.price || product.selling_price || 0}
+                    originalPrice={product.originalPrice}
+                    image={product.image || '/Banner-01.jpg'}
+                    category={product.category?.name || (product.category as any)}
+                    sales_rate_inc_dis_and_tax={product.sales_rate_inc_dis_and_tax}
+                    sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
+                    selling_price={product.selling_price}
+                  />
                 </motion.div>
               ))}
             </div>

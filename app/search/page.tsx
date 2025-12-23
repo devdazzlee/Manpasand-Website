@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader';
 import { Search as SearchIcon } from 'lucide-react';
 
 const searchResults = [
@@ -28,13 +30,25 @@ const searchResults = [
   },
 ];
 
-export default function SearchPage() {
+function SearchContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [query, setQuery] = useState('');
 
-  return (
-    <div className="min-h-screen bg-white">
-      <Header />
+  useEffect(() => {
+    const urlQuery = searchParams.get('q') || '';
+    setQuery(urlQuery);
+  }, [searchParams]);
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    }
+  };
+
+  return (
+    <>
       <section className="bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-16">
         <div className="container mx-auto px-4">
           <motion.div
@@ -44,7 +58,7 @@ export default function SearchPage() {
             className="text-center max-w-2xl mx-auto"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Search Products</h1>
-            <div className="relative">
+            <form onSubmit={handleSearchSubmit} className="relative">
               <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-[#6B7280]" />
               <input
                 type="text"
@@ -53,7 +67,7 @@ export default function SearchPage() {
                 placeholder="Search for products..."
                 className="w-full pl-14 pr-4 py-4 rounded-xl text-[#0D2B3A] focus:outline-none focus:ring-2 focus:ring-white/20"
               />
-            </div>
+            </form>
           </motion.div>
         </div>
       </section>
@@ -77,7 +91,19 @@ export default function SearchPage() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
+export default function SearchPage() {
+  return (
+    <div className="min-h-screen bg-white">
+      <Header />
+      <Suspense fallback={
+        <Loader size="xl" text="Loading search results..." fullScreen />
+      }>
+        <SearchContent />
+      </Suspense>
       <Newsletter />
       <Services />
       <Footer />

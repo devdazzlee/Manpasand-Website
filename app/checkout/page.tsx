@@ -1,16 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
-import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
+import { CheckCircle, ArrowRight, Lock, Truck } from 'lucide-react';
 import Link from 'next/link';
+import { cartUtils, CartItem } from '../../lib/utils/cart';
+import { orderApi } from '../../lib/api/orderApi';
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -19,18 +25,110 @@ export default function CheckoutPage() {
     address: '',
     city: '',
     postalCode: '',
-    paymentMethod: 'cash',
+    notes: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const items = cartUtils.getCart();
+    if (items.length === 0) {
+      router.push('/cart');
+      return;
+    }
+    setCartItems(items);
+  }, [router]);
+
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = subtotal > 5000 ? 0 : 200;
+  const total = subtotal + shipping;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (step === 1) {
+      // Validate step 1
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.postalCode) {
+        alert('Please fill in all required fields');
+        return;
+      }
       setStep(2);
     } else {
-      // Handle order placement
-      alert('Order placed successfully!');
+      // Place order
+      setLoading(true);
+      try {
+        // Prepare order data for API
+        const orderData = {
+          items: cartItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+          })),
+          customer: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+          },
+          shipping: {
+            address: formData.address,
+            city: formData.city,
+            postalCode: formData.postalCode,
+          },
+          paymentMethod: 'cash' as const,
+          subtotal,
+          shippingCost: shipping,
+          total,
+          orderNotes: formData.notes || undefined,
+        };
+
+        // Call API to create order
+        const orderResponse = await orderApi.createGuestOrder(orderData);
+
+        // Save order to localStorage for thank you page
+        const orderDetails = {
+          orderId: orderResponse.id,
+          orderNumber: orderResponse.order_number,
+          orderDate: new Date().toISOString(),
+          customerInfo: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+          },
+          shippingAddress: {
+            address: formData.address,
+            city: formData.city,
+            postalCode: formData.postalCode,
+          },
+          orderNotes: formData.notes,
+          items: cartItems,
+          subtotal,
+          shipping,
+          total,
+          paymentMethod: 'cash',
+          status: orderResponse.status,
+        };
+
+        localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+
+        // Clear cart
+        cartUtils.clearCart();
+
+        // Redirect to thank you page with order number
+        router.push(`/checkout/thank-you?order=${orderResponse.order_number}`);
+      } catch (error: any) {
+        console.error('Error placing order:', error);
+        const errorMessage = error.response?.data?.message || error.message || 'Failed to place order. Please try again.';
+        alert(errorMessage);
+        setLoading(false);
+      }
     }
   };
+
+  if (cartItems.length === 0) {
+    return null; // Will redirect
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -135,23 +233,25 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[#0D2B3A] font-medium mb-2">Phone *</label>
+                      <label className="block text-[#0D2B3A] font-medium mb-2">Phone Number *</label>
                       <input
                         type="tel"
                         required
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                        placeholder="+92 300 1234567"
                       />
                     </div>
                     <div>
-                      <label className="block text-[#0D2B3A] font-medium mb-2">Address *</label>
-                      <input
-                        type="text"
+                      <label className="block text-[#0D2B3A] font-medium mb-2">Delivery Address *</label>
+                      <textarea
                         required
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                        rows={3}
+                        placeholder="House/Street address, Area, Landmark"
                       />
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
@@ -180,6 +280,16 @@ export default function CheckoutPage() {
                         />
                       </div>
                     </div>
+                    <div>
+                      <label className="block text-[#0D2B3A] font-medium mb-2">Order Notes (Optional)</label>
+                      <textarea
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                        rows={3}
+                        placeholder="Any special instructions for delivery..."
+                      />
+                    </div>
                   </motion.div>
                 )}
 
@@ -191,38 +301,36 @@ export default function CheckoutPage() {
                   >
                     <h2 className="text-2xl font-bold text-[#0D2B3A] mb-6">Payment Method</h2>
                     <div className="space-y-4">
-                      <label className="flex items-center space-x-4 p-4 border-2 border-[#1A73A8] rounded-xl cursor-pointer">
-                        <input
-                          type="radio"
-                          name="payment"
-                          value="cash"
-                          checked={formData.paymentMethod === 'cash'}
-                          onChange={(e) =>
-                            setFormData({ ...formData, paymentMethod: e.target.value })
-                          }
-                          className="w-5 h-5 text-[#1A73A8]"
-                        />
-                        <div>
-                          <p className="font-semibold text-[#0D2B3A]">Cash on Delivery</p>
-                          <p className="text-sm text-[#6B7280]">Pay when you receive your order</p>
+                      <div className="flex items-start space-x-4 p-6 border-2 border-[#1A73A8] rounded-xl bg-[#DFF3EA]/30">
+                        <Truck className="w-6 h-6 text-[#1A73A8] mt-1 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="font-bold text-[#0D2B3A] text-lg">Cash on Delivery</p>
+                          <p className="text-sm text-[#6B7280] mt-1">
+                            Pay with cash when your order is delivered. Our delivery person will collect the payment.
+                          </p>
+                          <div className="mt-3 flex items-center gap-2 text-sm text-[#1A73A8]">
+                            <CheckCircle className="w-4 h-4" />
+                            <span>No online payment required</span>
+                          </div>
                         </div>
-                      </label>
-                      <label className="flex items-center space-x-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#1A73A8] transition-colors">
-                        <input
-                          type="radio"
-                          name="payment"
-                          value="card"
-                          checked={formData.paymentMethod === 'card'}
-                          onChange={(e) =>
-                            setFormData({ ...formData, paymentMethod: e.target.value })
-                          }
-                          className="w-5 h-5 text-[#1A73A8]"
-                        />
-                        <div>
-                          <p className="font-semibold text-[#0D2B3A]">Credit/Debit Card</p>
-                          <p className="text-sm text-[#6B7280]">Secure online payment</p>
+                      </div>
+                    </div>
+
+                    {/* Order Review */}
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                      <h3 className="text-lg font-bold text-[#0D2B3A] mb-4">Order Review</h3>
+                      <div className="space-y-3">
+                        {cartItems.map((item) => (
+                          <div key={item.id} className="flex justify-between items-center text-sm">
+                            <span className="text-[#6B7280]">
+                              {item.name} x {item.quantity}
+                            </span>
+                            <span className="font-semibold text-[#0D2B3A]">
+                              Rs. {(item.price * item.quantity).toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
                         </div>
-                      </label>
                     </div>
                   </motion.div>
                 )}
@@ -232,20 +340,31 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setStep(step - 1)}
-                      className="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-[#0D2B3A] rounded-full font-semibold transition-colors"
+                      disabled={loading}
+                      className="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-[#0D2B3A] rounded-full font-semibold transition-colors disabled:opacity-50"
                     >
                       Back
                     </button>
                   )}
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex-1 bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-8 py-4 rounded-full font-semibold transition-colors flex items-center justify-center space-x-2"
+                    disabled={loading}
+                    whileHover={{ scale: loading ? 1 : 1.05 }}
+                    whileTap={{ scale: loading ? 1 : 0.95 }}
+                    className="flex-1 bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-8 py-4 rounded-full font-semibold transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Placing Order...</span>
+                      </>
+                    ) : (
+                      <>
                     <span>{step === 1 ? 'Continue to Payment' : 'Place Order'}</span>
                     {step === 2 && <Lock className="w-5 h-5" />}
                     {step === 1 && <ArrowRight className="w-5 h-5" />}
+                      </>
+                    )}
                   </motion.button>
                 </div>
               </form>
@@ -261,18 +380,45 @@ export default function CheckoutPage() {
               <div className="bg-[#F8F2DE] rounded-2xl p-6 sticky top-24">
                 <h2 className="text-2xl font-bold text-[#0D2B3A] mb-6">Order Summary</h2>
                 <div className="space-y-4 mb-6">
-                  <div className="flex justify-between text-[#6B7280]">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3 pb-3 border-b border-gray-200">
+                      <img
+                        src={item.image || '/Banner-01.jpg'}
+                        alt={item.name}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="font-semibold text-[#0D2B3A] text-sm">{item.name}</p>
+                        <p className="text-xs text-[#6B7280]">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="font-bold text-[#1A73A8]">
+                        Rs. {(item.price * item.quantity).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                  <div className="flex justify-between text-[#6B7280] pt-2">
                     <span>Subtotal</span>
-                    <span>Rs. 6,800</span>
+                    <span>Rs. {subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-[#6B7280]">
                     <span>Shipping</span>
+                    <span>
+                      {shipping === 0 ? (
                     <span className="text-green-600 font-semibold">Free</span>
+                      ) : (
+                        `Rs. ${shipping.toLocaleString()}`
+                      )}
+                    </span>
                   </div>
+                  {subtotal < 5000 && (
+                    <p className="text-sm text-[#6B7280]">
+                      Add Rs. {(5000 - subtotal).toLocaleString()} more for free shipping
+                    </p>
+                  )}
                   <div className="border-t border-gray-300 pt-4">
                     <div className="flex justify-between text-xl font-bold text-[#0D2B3A]">
                       <span>Total</span>
-                      <span>Rs. 6,800</span>
+                      <span>Rs. {total.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -288,4 +434,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

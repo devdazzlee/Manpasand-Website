@@ -10,10 +10,10 @@ import Link from 'next/link';
 
 export default function AboutPage() {
   const stats = [
-    { icon: Award, number: '25+', label: 'Years of Excellence', color: 'from-[#F97316] to-[#1A73A8]' },
-    { icon: Users, number: '10K+', label: 'Happy Customers', color: 'from-[#1A73A8] to-[#0D2B3A]' },
-    { icon: Heart, number: '700+', label: 'Herbs & Remedies', color: 'from-[#DFF3EA] to-[#1A73A8]' },
-    { icon: TrendingUp, number: '98%', label: 'Satisfaction Rate', color: 'from-[#1A73A8] to-[#F97316]' },
+    { icon: Award, number: '25+', label: 'Years of Excellence', color: 'bg-[#F97316]' },
+    { icon: Users, number: '10K+', label: 'Happy Customers', color: 'bg-[#1A73A8]' },
+    { icon: Heart, number: '700+', label: 'Herbs & Remedies', color: 'bg-[#0D2B3A]' },
+    { icon: TrendingUp, number: '98%', label: 'Satisfaction Rate', color: 'bg-[#1A73A8]' },
   ];
 
   const milestones = [
@@ -28,19 +28,19 @@ export default function AboutPage() {
       icon: Shield,
       title: 'Quality First',
       description: 'We never compromise on quality. Every product is carefully selected and tested to ensure it meets our high standards.',
-      color: 'from-[#1A73A8] to-[#0D2B3A]',
+      bgColor: 'bg-[#1A73A8]',
     },
     {
       icon: Heart,
       title: 'Customer Trust',
       description: 'Building long-term relationships with our customers through honesty, transparency, and exceptional service.',
-      color: 'from-[#F97316] to-[#1A73A8]',
+      bgColor: 'bg-[#F97316]',
     },
     {
       icon: Award,
       title: 'Authenticity',
       description: 'We source authentic products from trusted suppliers, ensuring you get the real deal every time.',
-      color: 'from-[#DFF3EA] to-[#1A73A8]',
+      bgColor: 'bg-[#0D2B3A]',
     },
   ];
 
@@ -92,7 +92,7 @@ export default function AboutPage() {
                   whileHover={{ y: -10, scale: 1.05 }}
                   className="text-center p-8 bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300"
                 >
-                  <div className={`w-20 h-20 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+                  <div className={`w-20 h-20 ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md hover:shadow-lg transition-shadow`}>
                     <Icon className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="text-4xl font-bold text-[#0D2B3A] mb-2">{stat.number}</h3>
@@ -105,9 +105,9 @@ export default function AboutPage() {
       </section>
 
       {/* Story Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-b from-white to-[#F8F2DE]">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -115,41 +115,75 @@ export default function AboutPage() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-6">Our Story</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-[#1A73A8] to-[#F97316] mx-auto mb-8"></div>
+              <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Our Story</h2>
+              <div className="flex items-center justify-center gap-2 mb-8">
+                <div className="w-12 h-1 bg-[#1A73A8] rounded-full"></div>
+                <div className="w-16 h-1 bg-[#F97316] rounded-full"></div>
+              </div>
             </motion.div>
-            <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="space-y-6"
+                className="space-y-6 order-2 lg:order-1"
               >
-                <p className="text-lg text-[#6B7280] leading-relaxed">
-                  Manpasand Store was established over 25 years ago in the heart of Bahadurabad, Karachi. 
-                  What started as a small family business has grown into one of the most trusted names 
-                  in premium dry fruits, dates, nuts, and spices.
-                </p>
-                <p className="text-lg text-[#6B7280] leading-relaxed">
-                  Our commitment to quality, authenticity, and customer satisfaction has been the cornerstone 
-                  of our success. We carefully source our products from the finest suppliers, ensuring that 
-                  every item meets our high standards of freshness and quality.
-                </p>
+                <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                  <p className="text-lg md:text-xl text-[#6B7280] leading-relaxed mb-6">
+                    Manpasand Store was established over <span className="font-bold text-[#1A73A8]">25 years ago</span> in the heart of Bahadurabad, Karachi. 
+                    What started as a small family business has grown into one of the most trusted names 
+                    in premium dry fruits, dates, nuts, and spices.
+                  </p>
+                  <p className="text-lg md:text-xl text-[#6B7280] leading-relaxed">
+                    Our commitment to <span className="font-semibold text-[#0D2B3A]">quality, authenticity, and customer satisfaction</span> has been the cornerstone 
+                    of our success. We carefully source our products from the finest suppliers, ensuring that 
+                    every item meets our high standards of freshness and quality.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 pt-4">
+                  <div className="flex-1 h-1 bg-gradient-to-r from-[#1A73A8] to-[#F97316] rounded-full"></div>
+                  <Award className="w-8 h-8 text-[#F97316]" />
+                  <div className="flex-1 h-1 bg-gradient-to-r from-[#F97316] to-[#1A73A8] rounded-full"></div>
+                </div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="relative"
+                className="relative order-1 lg:order-2"
               >
-                <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                  <img
-                    src="/Manpasand-Banner-design-01-min.jpg"
-                    alt="Manpasand Store"
-                    className="w-full h-full object-cover"
-                  />
+                {/* Container with padding to accommodate badge */}
+                <div className="relative bg-white rounded-3xl shadow-2xl p-6 pb-20">
+                  {/* Image container - no overflow hidden, allows full image display */}
+                  <div className="relative w-full rounded-2xl bg-gray-50 flex items-center justify-center overflow-visible">
+                    <img
+                      src="/Manpasand-Banner-design-01-min.jpg"
+                      alt="Manpasand Store - Premium Quality Products"
+                      className="w-full h-auto object-contain rounded-2xl"
+                      style={{ maxHeight: 'none' }}
+                    />
+                  </div>
+                  
+                  {/* Floating badge - positioned relative to container, not cut off */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3, type: 'spring' }}
+                    className="absolute bottom-4 right-4 bg-white rounded-2xl p-5 shadow-xl border-2 border-[#DFF3EA] z-10"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Award className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-shrink-0">
+                        <p className="text-2xl font-bold text-[#0D2B3A] leading-tight">25+</p>
+                        <p className="text-sm text-[#6B7280] leading-tight">Years</p>
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
               </motion.div>
             </div>
@@ -158,129 +192,6 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#F8F2DE] via-white to-[#F8F2DE] relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-1/4 left-10 w-72 h-72 bg-[#1A73A8] rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-10 w-72 h-72 bg-[#F97316] rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: 'spring', delay: 0.2 }}
-              className="inline-block mb-4"
-            >
-              <Sparkles className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[#F97316] mx-auto" />
-            </motion.div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">
-              Our Journey
-            </h2>
-            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg">
-              Milestones that shaped our success
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-[#1A73A8] to-[#F97316] mx-auto mt-4 rounded-full"></div>
-          </motion.div>
-          
-          <div className="max-w-5xl mx-auto">
-            {/* Vertical Timeline */}
-            <div className="relative">
-              {/* Timeline Line */}
-              <div className="absolute left-4 sm:left-1/2 transform sm:-translate-x-1/2 w-0.5 sm:w-1 h-full bg-gradient-to-b from-[#1A73A8] via-[#F97316] to-[#1A73A8] hidden sm:block"></div>
-              
-              <div className="space-y-8 sm:space-y-12">
-                {milestones.map((milestone, index) => {
-                  const isEven = index % 2 === 0;
-                  return (
-                    <motion.div
-                      key={milestone.year}
-                      initial={{ opacity: 0, y: 50 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-100px" }}
-                      transition={{ duration: 0.6, delay: index * 0.15 }}
-                      className="relative"
-                    >
-                      {/* Timeline Dot */}
-                      <div className="absolute left-4 sm:left-1/2 transform sm:-translate-x-1/2 -translate-y-1/2 top-1/2 z-20">
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          whileInView={{ scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: index * 0.15 + 0.3, type: 'spring' }}
-                          className="relative"
-                        >
-                          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-[#1A73A8] to-[#F97316] rounded-full shadow-xl flex items-center justify-center border-4 border-white">
-                            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-white rounded-full"></div>
-                          </div>
-                          {/* Pulse animation */}
-                          <motion.div
-                            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-                            className="absolute inset-0 bg-[#1A73A8] rounded-full"
-                          ></motion.div>
-                        </motion.div>
-                      </div>
-
-                      {/* Content Card */}
-                      <div className={`ml-12 sm:ml-0 sm:w-5/12 ${isEven ? 'sm:mr-auto' : 'sm:ml-auto'}`}>
-                        <motion.div
-                          whileHover={{ scale: 1.02, y: -5 }}
-                          className="relative group"
-                        >
-                          {/* Card */}
-                          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 relative overflow-hidden">
-                            {/* Gradient overlay on hover */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#1A73A8]/0 to-[#F97316]/0 group-hover:from-[#1A73A8]/5 group-hover:to-[#F97316]/5 transition-all duration-300 rounded-2xl sm:rounded-3xl"></div>
-                            
-                            <div className="relative z-10">
-                              {/* Year Badge */}
-                              <motion.div
-                                initial={{ scale: 0, rotate: -180 }}
-                                whileInView={{ scale: 1, rotate: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.15 + 0.2, type: 'spring' }}
-                                className="inline-block mb-4"
-                              >
-                                <div className="bg-gradient-to-br from-[#1A73A8] to-[#F97316] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-lg">
-                                  <span className="font-bold text-sm sm:text-base md:text-lg">{milestone.year}</span>
-                                </div>
-                              </motion.div>
-                              
-                              {/* Title */}
-                              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-3 sm:mb-4 flex items-center gap-3">
-                                <div className="w-1 h-8 sm:h-10 bg-gradient-to-b from-[#1A73A8] to-[#F97316] rounded-full"></div>
-                                {milestone.title}
-                              </h3>
-                              
-                              {/* Description */}
-                              <p className="text-[#6B7280] text-sm sm:text-base leading-relaxed">
-                                {milestone.description}
-                              </p>
-                              
-                              {/* Decorative corner */}
-                              <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-[#1A73A8]/10 to-transparent rounded-bl-3xl"></div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -289,10 +200,84 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Our Journey</h2>
+            <p className="text-lg text-[#6B7280] mb-6">Milestones that shaped our success</p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-12 h-1 bg-[#1A73A8] rounded-full"></div>
+              <div className="w-16 h-1 bg-[#F97316] rounded-full"></div>
+            </div>
+          </motion.div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-8">
+              {milestones.map((milestone, index) => {
+                return (
+                  <motion.div
+                    key={milestone.year}
+                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="relative"
+                  >
+                    <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                      <div className="flex flex-col md:flex-row md:items-center gap-6">
+                        {/* Year Badge */}
+                        <div className="flex-shrink-0">
+                          <div className="w-24 h-24 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex flex-col items-center justify-center shadow-md">
+                            <span className="text-2xl font-bold text-white">{milestone.year}</span>
+                            <div className="w-12 h-0.5 bg-white/30 mt-1"></div>
+                          </div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1">
+                          <h3 className="text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-3">
+                            {milestone.title}
+                          </h3>
+                          <p className="text-lg text-[#6B7280] leading-relaxed">
+                            {milestone.description}
+                          </p>
+                        </div>
+                        
+                        {/* Icon */}
+                        <div className="flex-shrink-0">
+                          <div className="w-16 h-16 bg-[#F8F2DE] rounded-xl flex items-center justify-center">
+                            <Award className="w-8 h-8 text-[#F97316]" />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Connecting line (except for last item) */}
+                      {index < milestones.length - 1 && (
+                        <div className="absolute left-12 top-full w-0.5 h-8 bg-gradient-to-b from-[#1A73A8] to-[#F97316] mt-4"></div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Values Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-[#F8F2DE]">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
             <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Our Values</h2>
-            <p className="text-lg text-[#6B7280] max-w-2xl mx-auto">
+            <p className="text-lg text-[#6B7280] max-w-2xl mx-auto mb-6">
               The principles that guide everything we do
             </p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-12 h-1 bg-[#1A73A8] rounded-full"></div>
+              <div className="w-16 h-1 bg-[#F97316] rounded-full"></div>
+            </div>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {values.map((value, index) => {
@@ -304,10 +289,10 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  className="bg-gradient-to-br from-[#F8F2DE] to-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-300"
+                  whileHover={{ y: -8 }}
+                  className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
                 >
-                  <div className={`w-20 h-20 bg-gradient-to-br ${value.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}>
+                  <div className={`w-20 h-20 ${value.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md`}>
                     <Icon className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-[#0D2B3A] mb-4">{value.title}</h3>
@@ -320,20 +305,32 @@ export default function AboutPage() {
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="py-20 bg-gradient-to-b from-white to-[#F8F2DE]">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Mission & Vision</h2>
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="w-12 h-1 bg-[#1A73A8] rounded-full"></div>
+              <div className="w-16 h-1 bg-[#F97316] rounded-full"></div>
+            </div>
+          </motion.div>
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-300"
+              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mb-6">
-                <Target className="w-10 h-10 text-white" />
+              <div className="w-16 h-16 bg-[#1A73A8] rounded-xl flex items-center justify-center mb-6">
+                <Target className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-[#0D2B3A] mb-4">Our Mission</h3>
+              <h3 className="text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-4">Our Mission</h3>
               <p className="text-lg text-[#6B7280] leading-relaxed">
                 To enrich lives by providing access to the highest quality natural products, fostering health 
                 and well-being in every community we serve. We are committed to excellence, authenticity, 
@@ -345,12 +342,12 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-300"
+              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-[#F97316] to-[#1A73A8] rounded-2xl flex items-center justify-center mb-6">
-                <Eye className="w-10 h-10 text-white" />
+              <div className="w-16 h-16 bg-[#F97316] rounded-xl flex items-center justify-center mb-6">
+                <Eye className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-[#0D2B3A] mb-4">Our Vision</h3>
+              <h3 className="text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-4">Our Vision</h3>
               <p className="text-lg text-[#6B7280] leading-relaxed">
                 To be the leading provider of premium natural foods, recognized for our unwavering commitment 
                 to quality, customer satisfaction, and community health. We envision a future where everyone 
