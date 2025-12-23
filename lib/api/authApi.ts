@@ -1,5 +1,5 @@
 import axiosInstance from './axios';
-import { ApiResponse } from './productApi';
+import { ApiResponse } from './categoryApi';
 
 export interface Customer {
   id: string;
@@ -44,7 +44,7 @@ class AuthApi {
       '/customer/login',
       { email, password }
     );
-    const { email: userEmail, token } = response.data.data;
+    const { token } = response.data.data;
     
     // Store token temporarily to use in next request
     if (typeof window !== 'undefined') {

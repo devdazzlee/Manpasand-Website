@@ -1,5 +1,5 @@
 import axiosInstance from './axios';
-import { ApiResponse } from './productApi';
+import { ApiResponse } from './categoryApi';
 
 export interface OrderItem {
   id: string;
