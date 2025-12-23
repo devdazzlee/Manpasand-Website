@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Apple, Calendar, Droplets, UtensilsCrossed, Wheat, Sparkles, Package, Heart, Phone, Mail, MapPin, Box } from 'lucide-react';
+import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Apple, Calendar, Droplets, UtensilsCrossed, Wheat, Sparkles, Package, Heart, Phone, Mail, MapPin, Box, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { categoryApi, Category } from '../../lib/api/categoryApi';
+import { productApi, Product } from '../../lib/api/productApi';
 import { cartUtils } from '../../lib/utils/cart';
 import { useCategoryStore } from '../../lib/store/categoryStore';
+import { useAuthStore } from '../../lib/store/authStore';
 
 // Icon mapping function - maps category names to icons
 const getCategoryIcon = (categoryName: string) => {
@@ -39,11 +41,28 @@ export default function Header() {
   const [cartCount, setCartCount] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [categories, setCategories] = useState<Array<Category & { icon: any; description: string }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const { getCategories } = useCategoryStore();
+  const { isAuthenticated, user, logout, fetchCurrentUser, token } = useAuthStore();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  // Initialize auth state on mount if token exists
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('authToken');
+      if (storedToken && !isAuthenticated && !user) {
+        fetchCurrentUser().catch(() => {
+          // If fetch fails, token is invalid, clear it
+          localStorage.removeItem('authToken');
+        });
+      }
+    }
+  }, [fetchCurrentUser, isAuthenticated, user]);
 
   // Fetch categories from API (uses cache)
   useEffect(() => {
@@ -127,12 +146,74 @@ export default function Header() {
     { name: 'Contact', href: '/contact' },
   ];
 
+  // Debounced search function
+  useEffect(() => {
+    if (!isSearchOpen) return;
+
+    const searchProducts = async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const result = await productApi.listProducts({
+          search: searchQuery.trim(),
+          limit: 10,
+          is_active: true,
+        });
+        
+        // Map products to include image and price
+        const mappedProducts = result.data.map((product: Product) => {
+          const priceValue = product.sales_rate_inc_dis_and_tax 
+            ? parseFloat(String(product.sales_rate_inc_dis_and_tax))
+            : product.sales_rate_exc_dis_and_tax
+            ? parseFloat(String(product.sales_rate_exc_dis_and_tax))
+            : product.selling_price || product.price || 0;
+          
+          const productImage = product.ProductImage && Array.isArray(product.ProductImage) && product.ProductImage.length > 0
+            ? product.ProductImage[0].image
+            : product.image || '/Banner-01.jpg';
+          
+          return {
+            ...product,
+            price: priceValue,
+            image: productImage,
+          };
+        });
+        
+        setSearchResults(mappedProducts);
+      } catch (error) {
+        console.error('Error searching products:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    // Debounce search by 500ms
+    const timeoutId = setTimeout(() => {
+      searchProducts();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, isSearchOpen]);
+
   const performSearch = (query: string) => {
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
       setIsSearchOpen(false);
       setSearchQuery('');
+      setSearchResults([]);
     }
+  };
+
+  const handleProductClick = (product: Product) => {
+    router.push(`/products/${product.id}`);
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -153,6 +234,7 @@ export default function Header() {
   const closeSearchModal = () => {
     setIsSearchOpen(false);
     setSearchQuery('');
+    setSearchResults([]);
   };
 
   useEffect(() => {
@@ -369,17 +451,75 @@ export default function Header() {
                 <span className="text-sm font-medium text-gray-600 group-hover:text-white hidden lg:block">Search</span>
             </motion.button>
             
-              {/* User Account */}
-            <Link href="/login">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+              {/* User Account / Profile */}
+            {isAuthenticated ? (
+              <div className="relative hidden md:block">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white rounded-full transition-all duration-300 hover:shadow-lg group"
+                  aria-label="Profile"
+                >
+                  <User className="w-5 h-5" />
+                </motion.button>
+                
+                <AnimatePresence>
+                  {isProfileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100 z-50"
+                    >
+                      <div className="p-4 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white">
+                        <p className="font-semibold truncate">{user?.email}</p>
+                        {user?.name && (
+                          <p className="text-sm text-white/90 truncate">{user.name}</p>
+                        )}
+                      </div>
+                      <div className="py-2">
+                        <Link
+                          href="/account/profile"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="block px-4 py-2 text-[#0D2B3A] hover:bg-gray-50 transition-colors"
+                        >
+                          My Profile
+                        </Link>
+                        <Link
+                          href="/account/orders"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="block px-4 py-2 text-[#0D2B3A] hover:bg-gray-50 transition-colors"
+                        >
+                          My Orders
+                        </Link>
+                        <button
+                          onClick={async () => {
+                            await logout();
+                            setIsProfileMenuOpen(false);
+                            router.push('/');
+                          }}
+                          className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link href="/login">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   className="hidden md:flex items-center justify-center w-10 h-10 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300 group"
-                aria-label="Account"
-              >
+                  aria-label="Account"
+                >
                   <User className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-              </motion.button>
-            </Link>
+                </motion.button>
+              </Link>
+            )}
 
               {/* Wishlist */}
             <Link href="/wishlist">
@@ -615,7 +755,10 @@ export default function Header() {
                     {searchQuery && (
                       <button
                         type="button"
-                        onClick={() => setSearchQuery('')}
+                        onClick={() => {
+                          setSearchQuery('');
+                          setSearchResults([]);
+                        }}
                         className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
                         aria-label="Clear search"
                       >
@@ -624,29 +767,88 @@ export default function Header() {
                     )}
                   </div>
 
-                  <div className="mt-6">
-                    <p className="text-sm font-semibold text-gray-600 mb-3">Popular Searches</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Almonds', 'Dates', 'Honey', 'Saffron', 'Nuts', 'Spices'].map((term) => (
-                        <button
-                          key={term}
-                          type="button"
-                          onClick={() => performSearch(term)}
-                            className="px-4 py-2 bg-gray-100 hover:bg-gradient-to-r hover:from-[#DFF3EA] hover:to-[#F8F2DE] text-gray-700 hover:text-[#0D2B3A] rounded-full text-sm font-medium transition-all"
-                        >
-                          {term}
-                        </button>
-                      ))}
+                  {/* Search Results */}
+                  {searchQuery && (
+                    <div className="mt-4 max-h-96 overflow-y-auto">
+                      {isSearching ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1A73A8]"></div>
+                          <span className="ml-3 text-gray-600">Searching...</span>
+                        </div>
+                      ) : searchResults.length > 0 ? (
+                        <div className="space-y-2">
+                          {searchResults.map((product) => (
+                            <button
+                              key={product.id}
+                              type="button"
+                              onClick={() => handleProductClick(product)}
+                              className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors text-left group"
+                            >
+                              <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                                <img
+                                  src={product.image || '/Banner-01.jpg'}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/Banner-01.jpg';
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-[#0D2B3A] truncate group-hover:text-[#1A73A8] transition-colors">
+                                  {product.name}
+                                </h3>
+                                {product.category && (
+                                  <p className="text-sm text-gray-500 truncate">{product.category.name}</p>
+                                )}
+                                <p className="text-lg font-bold text-[#1A73A8] mt-1">
+                                  Rs. {product.price?.toLocaleString() || '0'}
+                                </p>
+                              </div>
+                              <div className="flex-shrink-0">
+                                <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-[#1A73A8] transition-colors" />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">No products found</p>
+                          <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  )}
 
-                  <button
-                    type="submit"
-                    disabled={!searchQuery.trim()}
-                      className="mt-6 w-full py-4 bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white rounded-xl font-bold text-lg hover:from-[#1A73A8] hover:to-[#0D2B3A] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-                  >
-                    Search
-                  </button>
+                  {/* Popular Searches - Only show when no search query */}
+                  {!searchQuery && (
+                    <div className="mt-6">
+                      <p className="text-sm font-semibold text-gray-600 mb-3">Popular Searches</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['Almonds', 'Dates', 'Honey', 'Saffron', 'Nuts', 'Spices'].map((term) => (
+                          <button
+                            key={term}
+                            type="button"
+                            onClick={() => {
+                              setSearchQuery(term);
+                            }}
+                            className="px-4 py-2 bg-gray-100 hover:bg-gradient-to-r hover:from-[#DFF3EA] hover:to-[#F8F2DE] text-gray-700 hover:text-[#0D2B3A] rounded-full text-sm font-medium transition-all"
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {searchQuery && searchResults.length > 0 && (
+                    <button
+                      type="submit"
+                      className="mt-4 w-full py-3 bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white rounded-xl font-bold hover:from-[#1A73A8] hover:to-[#0D2B3A] transition-all shadow-lg hover:shadow-xl"
+                    >
+                      View All Results
+                    </button>
+                  )}
                 </form>
 
                   <div className="px-6 pb-4">

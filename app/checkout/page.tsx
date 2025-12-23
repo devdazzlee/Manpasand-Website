@@ -11,9 +11,11 @@ import { CheckCircle, ArrowRight, Lock, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { cartUtils, CartItem } from '../../lib/utils/cart';
 import { orderApi } from '../../lib/api/orderApi';
+import { useAuthStore } from '../../lib/store/authStore';
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { isAuthenticated, user } = useAuthStore();
   const [step, setStep] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,6 +38,23 @@ export default function CheckoutPage() {
     }
     setCartItems(items);
   }, [router]);
+
+  // Pre-fill form if user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const nameParts = user.name?.split(' ') || [];
+      setFormData(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: user.email || '',
+        phone: user.phone_number || user.mobile_number || '',
+        address: user.address || '',
+        city: '', // City not in Customer schema, user will fill manually
+        postalCode: '', // Postal code not in Customer schema, user will fill manually
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = subtotal > 5000 ? 0 : 200;
