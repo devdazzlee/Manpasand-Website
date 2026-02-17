@@ -26,7 +26,7 @@ const orderDetails: Record<string, any> = {
       address: '123 Main Street',
       city: 'Karachi',
       postalCode: '75500',
-      phone: '0300 1234567',
+      phone: '+92 342 3344040',
     },
     tracking: 'TRK123456789',
   },

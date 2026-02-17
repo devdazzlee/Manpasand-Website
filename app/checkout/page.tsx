@@ -259,7 +259,7 @@ export default function CheckoutPage() {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
-                        placeholder="+92 300 1234567"
+                        placeholder="+92 342 3344040"
                       />
                     </div>
                     <div>

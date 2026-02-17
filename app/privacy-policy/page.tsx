@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
             className="text-center max-w-3xl mx-auto"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Privacy Policy</h1>
-            <p className="text-xl text-white/90">Last updated: {new Date().toLocaleDateString()}</p>
+            <p className="text-xl text-white/90">Manpasand Store | Privacy Policy</p>
           </motion.div>
         </div>
       </section>
@@ -35,69 +35,71 @@ export default function PrivacyPolicyPage() {
             viewport={{ once: true }}
             className="bg-white rounded-2xl p-8 md:p-12 space-y-8"
           >
-            <div className="space-y-6 text-[#6B7280] leading-relaxed">
+            <div className="space-y-8 text-[#6B7280] leading-relaxed">
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Introduction</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">1. Introduction</h2>
                 <p>
-                  At Manpasand Store, we are committed to protecting your privacy. This Privacy
-                  Policy explains how we collect, use, disclose, and safeguard your information when
-                  you visit our website and use our services.
+                  At Manpasand Store, protecting the privacy of our customers is a cornerstone of our 25-year legacy of trust. This policy outlines how we collect, safeguard, and utilize your information when you shop for our premium dry fruits, spices, and herbal remedies. By using our services, you consent to the practices described in this policy.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Information We Collect</h2>
-                <p>We collect information that you provide directly to us, including:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Name, email address, phone number, and shipping address</li>
-                  <li>Payment information (processed securely through our payment partners)</li>
-                  <li>Order history and preferences</li>
-                  <li>Communication records when you contact us</li>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">2. Information We Collect</h2>
+                <p className="mb-3">We collect only the essential data required to provide you with a seamless shopping experience:</p>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Personal Identification:</strong> Name, email address, phone number, and physical shipping address.</li>
+                  <li><strong>Payment Data:</strong> Credit/debit card details or bank information, which are processed exclusively through secure, licensed payment partners.</li>
+                  <li><strong>Purchase History:</strong> Records of your 1400+ product selections and wellness preferences to better serve your future needs.</li>
+                  <li><strong>Technical Data:</strong> IP addresses and browser types to enhance site security and performance.</li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">How We Use Your Information</h2>
-                <p>We use the information we collect to:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Process and fulfill your orders</li>
-                  <li>Send you order confirmations and updates</li>
-                  <li>Respond to your inquiries and provide customer support</li>
-                  <li>Improve our website and services</li>
-                  <li>Send you promotional communications (with your consent)</li>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">3. How We Use Your Information</h2>
+                <p className="mb-3">Your data is used to ensure the quality and delivery of our products:</p>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Order Fulfillment:</strong> To process transactions, manage shipping from our Bahadurabad facility, and send order updates.</li>
+                  <li><strong>Customer Excellence:</strong> To respond to your inquiries and provide personalized support for your health and pantry needs.</li>
+                  <li><strong>Service Optimization:</strong> To analyze website traffic and improve our digital storefront.</li>
+                  <li><strong>Marketing:</strong> To send exclusive offers and wellness tips, only if you have explicitly opted-in to receive them.</li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Data Security</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">4. Data Security & Retention</h2>
                 <p>
-                  We implement appropriate technical and organizational measures to protect your
-                  personal information against unauthorized access, alteration, disclosure, or
-                  destruction. However, no method of transmission over the Internet is 100% secure.
+                  We implement advanced encryption and auditing measures to protect your personal information from unauthorized access. In accordance with PECA 2016, we retain transaction and traffic data for a minimum of one year to comply with local regulatory requirements. While we strive for absolute security, please note that no digital transmission is 100% immune to risks.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Your Rights</h2>
-                <p>You have the right to:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Access and receive a copy of your personal data</li>
-                  <li>Request correction of inaccurate data</li>
-                  <li>Request deletion of your personal data</li>
-                  <li>Object to processing of your personal data</li>
-                  <li>Withdraw consent at any time</li>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">5. Your Rights</h2>
+                <p className="mb-3">As a Manpasand customer, you hold the following rights regarding your digital identity:</p>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Access & Portability:</strong> You may request a copy of the personal data we hold about you.</li>
+                  <li><strong>Correction:</strong> You have the right to update any inaccurate or incomplete information.</li>
+                  <li><strong>Erasure:</strong> You may request the deletion of your data when it is no longer necessary for transaction or legal purposes.</li>
+                  <li><strong>Withdrawal of Consent:</strong> You can opt-out of promotional communications at any time via the &quot;unsubscribe&quot; link or by contacting us.</li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Contact Us</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">6. Third-Party Disclosures</h2>
                 <p>
-                  If you have any questions about this Privacy Policy, please contact us at:
-                  <br />
-                  Email: info@manpasandstore.com
-                  <br />
-                  Phone: 0342 3344040
+                  We do not sell, rent, or trade your personal information to third-party marketing firms. We only share data with trusted logistics partners to facilitate delivery or when required by Pakistani law enforcement through valid legal processes.
                 </p>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">7. Contact Us</h2>
+                <p>
+                  For any questions regarding your privacy or to exercise your data rights, please contact our Karachi headquarters:
+                </p>
+                <div className="mt-3 space-y-1">
+                  <p><strong>Email:</strong> Contact@manpasandstore.com</p>
+                  <p><strong>Phone:</strong> +92 342 3344040</p>
+                  <p><strong>Address:</strong> Bahadurabad, Karachi, Pakistan</p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -110,4 +112,3 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
-

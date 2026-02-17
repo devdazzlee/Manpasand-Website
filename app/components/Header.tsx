@@ -269,11 +269,11 @@ export default function Header() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Phone className="w-3 h-3" />
-                <span>+92 300 1234567</span>
+                <span>+92 342 3344040</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3 h-3" />
-                <span>info@manpasand.com</span>
+                <span>Contact@manpasandstore.com</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -289,9 +289,9 @@ export default function Header() {
         isScrolled ? 'shadow-lg border-b border-gray-100' : 'shadow-sm'
       }`}>
         <div className="container mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-20 sm:h-24 md:h-28">
+        <div className="flex items-center justify-between h-16 sm:h-18 md:h-20">
           {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -300,15 +300,15 @@ export default function Header() {
               <img
                 src="/Manpasand-Logo.png"
                 alt="Manpasand Store"
-                  className="h-16 sm:h-20 md:h-24 w-auto transition-transform duration-300 group-hover:brightness-110"
+                  className="h-12 sm:h-14 md:h-16 w-auto transition-transform duration-300 group-hover:brightness-110"
                 width={180}
                 height={80}
               />
             </motion.div>
           </Link>
 
-          {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-1">
+          {/* Desktop Navigation — centered */}
+            <nav className="hidden lg:flex items-center justify-center flex-1 space-x-1">
             {menuItems.map((item) => {
               if (item.name === 'Shop') {
                 return (

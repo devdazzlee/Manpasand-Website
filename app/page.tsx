@@ -4,10 +4,8 @@ import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Newsletter from './components/Newsletter';
-import Services from './components/Services';
 import HeroSection from './components/HeroSection';
 import StatsSection from './components/StatsSection';
-import SpecialOfferBanner from './components/SpecialOfferBanner';
 import CategoriesSection from './components/CategoriesSection';
 import WhyChooseUsSection from './components/WhyChooseUsSection';
 import FeaturedProductsSection from './components/FeaturedProductsSection';
@@ -194,7 +192,6 @@ export default function Home() {
       <Header />
       <HeroSection />
       <StatsSection />
-      <SpecialOfferBanner />
       <CategoriesSection categories={categories} loading={loading} error={error} />
       <WhyChooseUsSection />
       <FeaturedProductsSection featuredProducts={featuredProducts} loading={loading} />
@@ -202,7 +199,6 @@ export default function Home() {
       <HerbsSection />
       <TestimonialsSection />
       <Newsletter />
-      <Services />
       <Footer />
     </div>
   );

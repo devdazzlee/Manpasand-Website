@@ -15,7 +15,7 @@ const addresses = [
     address: '123 Main Street',
     city: 'Karachi',
     postalCode: '75500',
-    phone: '0300 1234567',
+    phone: '+92 342 3344040',
     isDefault: true,
   },
   {
@@ -24,7 +24,7 @@ const addresses = [
     address: '456 Second Avenue',
     city: 'Lahore',
     postalCode: '54000',
-    phone: '0300 7654321',
+    phone: '+92 342 3344040',
     isDefault: false,
   },
 ];

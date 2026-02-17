@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Zap } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import ProductCard from './ProductCard';
 import Loader from './Loader';
 import { Product } from '../../lib/api/productApi';
@@ -30,22 +30,19 @@ export default function FeaturedProductsSection({ featuredProducts, loading }: F
   }, [featuredProducts, cacheProductList]);
   
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-[#F8F2DE] to-white">
+    <section className="py-10 sm:py-12 md:py-14 bg-gradient-to-b from-[#F8F2DE]/60 to-white">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-8 sm:mb-12"
+          className="text-center mb-6 sm:mb-8"
         >
-          <div className="flex items-center justify-center space-x-2 mb-3 sm:mb-4">
-            <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-[#F97316]" />
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A]">
-              Featured Products
-            </h2>
-          </div>
-          <p className="text-[#6B7280] text-sm sm:text-base md:text-lg lg:text-xl px-4 sm:px-0">
-            Handpicked premium selections for you
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
+            The Manpasand Favorites
+          </h2>
+          <p className="text-[#6B7280] text-xs sm:text-sm md:text-base max-w-xl mx-auto">
+            Discover the premium staples and natural remedies that have defined our legacy for 25 years.
           </p>
         </motion.div>
         {loading ? (
@@ -95,11 +92,11 @@ export default function FeaturedProductsSection({ featuredProducts, loading }: F
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center mt-12"
+          className="text-center mt-8"
         >
           <Link
             href="/shop"
-            className="inline-flex items-center space-x-2 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-lg group"
+            className="inline-flex items-center space-x-2 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm group"
           >
             <span>View All Products</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />

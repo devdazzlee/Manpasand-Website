@@ -44,7 +44,7 @@ export default function SupportPage() {
                 href="tel:+923423344040"
                 className="text-[#1A73A8] hover:text-[#0D2B3A] font-semibold"
               >
-                0342 3344040
+                +92 342 3344040
               </a>
             </motion.div>
 
@@ -59,10 +59,10 @@ export default function SupportPage() {
               <h3 className="text-xl font-bold text-[#0D2B3A] mb-2">Email Support</h3>
               <p className="text-[#6B7280] mb-4">Send us an email</p>
               <a
-                href="mailto:info@manpasandstore.com"
+                href="mailto:Contact@manpasandstore.com"
                 className="text-[#1A73A8] hover:text-[#0D2B3A] font-semibold"
               >
-                info@manpasandstore.com
+                Contact@manpasandstore.com
               </a>
             </motion.div>
 

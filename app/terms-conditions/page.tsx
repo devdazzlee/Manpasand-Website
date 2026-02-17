@@ -21,7 +21,7 @@ export default function TermsConditionsPage() {
             className="text-center max-w-3xl mx-auto"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Terms & Conditions</h1>
-            <p className="text-xl text-white/90">Last updated: {new Date().toLocaleDateString()}</p>
+            <p className="text-xl text-white/90">Manpasand Store | Terms & Conditions</p>
           </motion.div>
         </div>
       </section>
@@ -35,89 +35,91 @@ export default function TermsConditionsPage() {
             viewport={{ once: true }}
             className="bg-white rounded-2xl p-8 md:p-12 space-y-8"
           >
-            <div className="space-y-6 text-[#6B7280] leading-relaxed">
+            <div className="space-y-8 text-[#6B7280] leading-relaxed">
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Agreement to Terms</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">1. Agreement to Terms</h2>
                 <p>
-                  By accessing and using Manpasand Store's website, you accept and agree to be bound
-                  by the terms and provision of this agreement. If you do not agree to these terms,
-                  please do not use our services.
+                  By accessing and using the Manpasand Store website, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. These terms constitute a legally binding agreement between you and Manpasand Store. If you do not agree to these terms, please discontinue use of our services immediately.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Use License</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">2. Use License</h2>
                 <p>
-                  Permission is granted to temporarily access the materials on Manpasand Store's
-                  website for personal, non-commercial transitory viewing only. This is the grant of
-                  a license, not a transfer of title.
+                  Permission is granted to temporarily access the materials on this website for personal, non-commercial transitory viewing only. This is a grant of a license, not a transfer of title. Under this license, you may not modify the materials, use them for commercial purposes, or attempt to decompile any software contained on the site.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Product Information</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">3. Product Information & Accuracy</h2>
                 <p>
-                  We strive to provide accurate product descriptions and images. However, we do not
-                  warrant that product descriptions or other content on this site is accurate,
-                  complete, reliable, current, or error-free.
+                  We strive for absolute accuracy in our descriptions of 1400+ herbs, spices, and dry fruits. However, as these are natural products, Manpasand Store does not warrant that product descriptions, images, or other content are entirely error-free. We reserve the right to correct any errors and update information without prior notice.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Pricing</h2>
-                <p>
-                  All prices are listed in Pakistani Rupees (PKR) and are subject to change without
-                  notice. We reserve the right to modify prices at any time. Prices do not include
-                  shipping charges unless otherwise stated.
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">4. Pricing & Currency</h2>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li>All prices are listed in Pakistani Rupees (PKR).</li>
+                  <li>Prices are subject to change without notice due to market fluctuations in premium harvests.</li>
+                  <li>We reserve the right to modify or discontinue products at any time.</li>
+                  <li>Prices do not include shipping charges unless the order qualifies for our Complimentary Shipping (over Rs. 5,000).</li>
+                </ul>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">5. Payment Terms</h2>
+                <p className="mb-3">Payment must be secured at the time of order placement. We accept:</p>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li>Cash on Delivery (COD)</li>
+                  <li>Credit/Debit Cards & Bank Transfers</li>
+                </ul>
+                <p className="mt-3">
+                  All digital payments are processed via licensed, secure gateways to ensure the protection of your financial data.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Payment Terms</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">6. Shipping & Delivery</h2>
                 <p>
-                  Payment must be made at the time of order placement. We accept cash on delivery,
-                  credit/debit cards, and bank transfers. All payments are processed securely.
+                  Estimated delivery times are provided at checkout. While we ensure timely dispatch from our Bahadurabad facility, Manpasand Store is not liable for delays caused by external shipping carriers or unforeseen logistics issues. Title and risk of loss pass to the customer upon successful delivery to the provided address.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Shipping & Delivery</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">7. Returns & Refunds</h2>
+                <p className="mb-3">In accordance with Sindh Consumer Rights, we stand behind the quality of our goods:</p>
+                <ul className="list-disc list-inside space-y-2 ml-2">
+                  <li><strong>Eligibility:</strong> Returns are accepted within 7 days of delivery for unopened items in original packaging.</li>
+                  <li><strong>Faulty Goods:</strong> If a product is found to be defective or misrepresented, consumers are entitled to a full refund as per the Sindh Consumer Protection Act.</li>
+                  <li><strong>Processing:</strong> Approved refunds will be processed within 5–7 business days to the original payment method.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">8. Limitation of Liability</h2>
                 <p>
-                  Shipping charges and delivery times are provided at checkout. We are not
-                  responsible for delays caused by shipping carriers or customs. Risk of loss and
-                  title for products pass to you upon delivery.
+                  Manpasand Store, its directors, and employees shall not be held liable for any indirect, incidental, or consequential damages resulting from the use of our website or the consumption of our products beyond the purchase price of the items.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Returns & Refunds</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">9. Governing Law</h2>
                 <p>
-                  Returns are accepted within 7 days of delivery for unopened items in original
-                  packaging. Please refer to our Returns Policy for detailed information. Refunds
-                  will be processed within 5-7 business days.
+                  These terms are governed by the laws of Pakistan. Any disputes arising from these terms shall be subject to the exclusive jurisdiction of the Consumer Courts in Karachi.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Limitation of Liability</h2>
+                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">10. Contact Information</h2>
                 <p>
-                  Manpasand Store shall not be liable for any indirect, incidental, special, or
-                  consequential damages arising out of or in connection with the use of our website
-                  or products.
+                  For inquiries regarding these Terms, please visit our flagship store or contact us:
                 </p>
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-4">Contact Information</h2>
-                <p>
-                  For any questions regarding these Terms & Conditions, please contact us at:
-                  <br />
-                  Email: info@manpasandstore.com
-                  <br />
-                  Phone: 0342 3344040
-                  <br />
-                  Address: Bahadurabad, Karachi, Pakistan
-                </p>
+                <div className="mt-3 space-y-1">
+                  <p><strong>Email:</strong> Contact@manpasandstore.com</p>
+                  <p><strong>Phone:</strong> +92 342 3344040</p>
+                  <p><strong>Address:</strong> Bahadurabad, Karachi, Pakistan</p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -130,4 +132,3 @@ export default function TermsConditionsPage() {
     </div>
   );
 }
-

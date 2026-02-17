@@ -31,27 +31,28 @@ export default function ContactPage() {
     {
       icon: MapPin,
       title: 'Visit Us',
-      info: 'Bahadurabad, Karachi, Pakistan',
+      info: 'Bahadurabad & DHA, Karachi',
+      href: 'https://www.google.com/maps/place/Manpasand+Store+Bahadurabad/@24.8827589,67.069352,17z/data=!3m1!4b1!4m6!3m5!1s0x3eb33ff52d5284f9:0x9a310ddf5383b6c2!8m2!3d24.8827589!4d67.069352!16s%2Fg%2F11ynv90wxj',
       bgColor: 'bg-[#1A73A8]',
     },
     {
       icon: Phone,
       title: 'Call Us',
-      info: '0342 3344040',
+      info: '+92 342 3344040',
       href: 'tel:+923423344040',
       bgColor: 'bg-[#F97316]',
     },
     {
       icon: Mail,
       title: 'Email Us',
-      info: 'info@manpasandstore.com',
-      href: 'mailto:info@manpasandstore.com',
+      info: 'Contact@manpasandstore.com',
+      href: 'mailto:Contact@manpasandstore.com',
       bgColor: 'bg-[#1A73A8]',
     },
     {
       icon: MessageCircle,
       title: 'WhatsApp',
-      info: '0342 3344040',
+      info: '+92 342 3344040',
       href: 'https://wa.me/923423344040',
       bgColor: 'bg-[#25D366]',
     },
@@ -62,7 +63,7 @@ export default function ContactPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#0D2B3A] via-[#1A73A8] to-[#0D2B3A] text-white py-24 overflow-hidden">
+      <section className="relative bg-gradient-to-r from-[#0D2B3A] via-[#1A73A8] to-[#0D2B3A] text-white py-12 sm:py-14 md:py-16 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#DFF3EA] rounded-full blur-3xl"></div>
         </div>
@@ -73,8 +74,8 @@ export default function ContactPage() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">Contact Us</h1>
-            <p className="text-xl md:text-2xl text-white/90">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Contact Us</h1>
+            <p className="text-base sm:text-lg md:text-xl text-white/90">
               We'd love to hear from you. Get in touch with us today!
             </p>
           </motion.div>
@@ -82,19 +83,19 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Methods */}
-      <section className="py-16 bg-gradient-to-b from-white to-[#F8F2DE]">
+      <section className="py-10 sm:py-14 bg-gradient-to-b from-white to-[#F8F2DE]">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-10"
           >
-            <Sparkles className="w-12 h-12 text-[#F97316] mx-auto mb-4" />
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-4">Get in Touch</h2>
-            <p className="text-[#6B7280] text-lg">Choose your preferred way to reach us</p>
+            <Sparkles className="w-8 h-8 sm:w-9 sm:h-9 text-[#F97316] mx-auto mb-3" />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-3">Get in Touch</h2>
+            <p className="text-[#6B7280] text-sm sm:text-base">Choose your preferred way to reach us</p>
           </motion.div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-10 sm:mb-14">
             {contactMethods.map((method, index) => {
               const Icon = method.icon;
               const Component = method.href ? motion.a : motion.div;
@@ -106,14 +107,14 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -10, scale: 1.05 }}
-                  className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  className="bg-white rounded-2xl p-5 sm:p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
                 >
-                  <div className={`w-20 h-20 ${method.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg hover:shadow-xl transition-shadow duration-300`}>
-                    <Icon className="w-10 h-10 text-white" />
+                  <div className={`w-14 h-14 ${method.bgColor} rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md`}>
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-2">{method.title}</h3>
-                  <p className="text-[#6B7280]">{method.info}</p>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0D2B3A] mb-1">{method.title}</h3>
+                  <p className="text-[#6B7280] text-sm">{method.info}</p>
                 </Component>
               );
             })}
@@ -122,9 +123,9 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form Section */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-14 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 max-w-6xl mx-auto">
             {/* Contact Form */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -132,12 +133,12 @@ export default function ContactPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-6">Send us a Message</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-4 sm:mb-5">Send us a Message</h2>
               {!submitted ? (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                  <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
                     <div>
-                      <label htmlFor="name" className="block text-[#0D2B3A] font-semibold mb-2">
+                      <label htmlFor="name" className="block text-[#0D2B3A] font-semibold mb-1.5 text-sm">
                         Name *
                       </label>
                       <input
@@ -146,11 +147,11 @@ export default function ContactPage() {
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all text-sm"
                       />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-[#0D2B3A] font-semibold mb-2">
+                      <label htmlFor="email" className="block text-[#0D2B3A] font-semibold mb-1.5 text-sm">
                         Email *
                       </label>
                       <input
@@ -159,12 +160,12 @@ export default function ContactPage() {
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all text-sm"
                       />
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="phone" className="block text-[#0D2B3A] font-semibold mb-2">
+                    <label htmlFor="phone" className="block text-[#0D2B3A] font-semibold mb-1.5 text-sm">
                       Phone
                     </label>
                     <input
@@ -172,11 +173,11 @@ export default function ContactPage() {
                       id="phone"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all text-sm"
                     />
                   </div>
                   <div>
-                    <label htmlFor="subject" className="block text-[#0D2B3A] font-semibold mb-2">
+                    <label htmlFor="subject" className="block text-[#0D2B3A] font-semibold mb-1.5 text-sm">
                       Subject *
                     </label>
                     <input
@@ -185,29 +186,29 @@ export default function ContactPage() {
                       required
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all text-sm"
                     />
                   </div>
                   <div>
-                    <label htmlFor="message" className="block text-[#0D2B3A] font-semibold mb-2">
+                    <label htmlFor="message" className="block text-[#0D2B3A] font-semibold mb-1.5 text-sm">
                       Message *
                     </label>
                     <textarea
                       id="message"
                       required
-                      rows={6}
+                      rows={5}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all resize-none"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none transition-all resize-none text-sm"
                     />
                   </div>
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-8 py-5 rounded-full font-bold text-lg transition-colors flex items-center justify-center space-x-2 shadow-xl"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-6 py-3 sm:py-3.5 rounded-full font-bold text-sm sm:text-base transition-colors flex items-center justify-center space-x-2 shadow-lg"
                   >
-                    <Send className="w-6 h-6" />
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Send Message</span>
                   </motion.button>
                 </form>
@@ -215,11 +216,11 @@ export default function ContactPage() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-[#DFF3EA] rounded-3xl p-12 text-center"
+                  className="bg-[#DFF3EA] rounded-2xl p-8 sm:p-10 text-center"
                 >
-                  <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-6" />
-                  <h3 className="text-2xl font-bold text-[#0D2B3A] mb-2">Thank You!</h3>
-                  <p className="text-[#6B7280] text-lg">We'll get back to you soon.</p>
+                  <CheckCircle className="w-14 h-14 text-green-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-2">Thank You!</h3>
+                  <p className="text-[#6B7280] text-sm sm:text-base">We'll get back to you soon.</p>
                 </motion.div>
               )}
             </motion.div>
@@ -233,59 +234,59 @@ export default function ContactPage() {
               className="space-y-8"
             >
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-6">Get in Touch</h2>
-                <p className="text-lg text-[#6B7280] leading-relaxed mb-8">
-                  Visit our store in Bahadurabad, Karachi, or reach out to us through any of the 
-                  following channels. We're here to help!
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-4">Get in Touch</h2>
+                <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed mb-6">
+                  Visit our stores in Bahadurabad or DHA, Karachi, or reach out to us through any of the 
+                  following channels. We&apos;re here to help!
                 </p>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <motion.div
-                  whileHover={{ x: 5 }}
-                  className="flex items-start space-x-4 p-6 bg-gradient-to-br from-[#F8F2DE] to-white rounded-2xl shadow-lg"
+                  whileHover={{ x: 3 }}
+                  className="flex items-start space-x-3 p-4 sm:p-5 bg-gradient-to-br from-[#F8F2DE] to-white rounded-xl shadow-md"
                 >
-                  <div className="w-14 h-14 bg-[#DFF3EA] rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-7 h-7 text-[#0D2B3A]" />
+                  <div className="w-11 h-11 bg-[#DFF3EA] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-[#0D2B3A]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#0D2B3A] mb-2 text-lg">Address</h3>
-                    <p className="text-[#6B7280]">
-                      Bahadurabad, Karachi
+                    <h3 className="font-bold text-[#0D2B3A] mb-1 text-sm sm:text-base">Our Stores</h3>
+                    <p className="text-[#6B7280] text-sm">
+                      <a href="https://www.google.com/maps/place/Manpasand+Store+Bahadurabad/@24.8827589,67.069352,17z/data=!3m1!4b1!4m6!3m5!1s0x3eb33ff52d5284f9:0x9a310ddf5383b6c2!8m2!3d24.8827589!4d67.069352!16s%2Fg%2F11ynv90wxj" target="_blank" rel="noopener noreferrer" className="hover:text-[#1A73A8] transition-colors">Bahadurabad, Karachi</a> — <a href="tel:02134892110" className="text-[#1A73A8] font-medium">021-34892110</a>
                       <br />
-                      Pakistan
+                      <a href="https://www.google.com/maps/place/Manpasand+dry+fruit/@24.8237151,67.0618563,17z/data=!3m1!4b1!4m6!3m5!1s0x3eb33c44fa4896dd:0x7151d4b8979aea1a!8m2!3d24.8237151!4d67.0618563!16s%2Fg%2F11cs69j876" target="_blank" rel="noopener noreferrer" className="hover:text-[#1A73A8] transition-colors">Phase 4, DHA, Karachi</a> — <a href="tel:02135384433" className="text-[#1A73A8] font-medium">021-35384433</a>
                     </p>
                   </div>
                 </motion.div>
 
                 <motion.a
                   href="tel:+923423344040"
-                  whileHover={{ x: 5 }}
-                  className="flex items-start space-x-4 p-6 bg-gradient-to-br from-[#F8F2DE] to-white rounded-2xl shadow-lg hover:shadow-xl transition-all block"
+                  whileHover={{ x: 3 }}
+                  className="flex items-start space-x-3 p-4 sm:p-5 bg-gradient-to-br from-[#F8F2DE] to-white rounded-xl shadow-md hover:shadow-lg transition-all block"
                 >
-                  <div className="w-14 h-14 bg-[#DFF3EA] rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-7 h-7 text-[#0D2B3A]" />
+                  <div className="w-11 h-11 bg-[#DFF3EA] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-[#0D2B3A]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#0D2B3A] mb-2 text-lg">Phone</h3>
-                    <p className="text-[#1A73A8] hover:text-[#0D2B3A] transition-colors font-semibold">
-                      0342 3344040
+                    <h3 className="font-bold text-[#0D2B3A] mb-1 text-sm sm:text-base">Phone</h3>
+                    <p className="text-[#1A73A8] hover:text-[#0D2B3A] transition-colors font-semibold text-sm">
+                      +92 342 3344040
                     </p>
                   </div>
                 </motion.a>
 
                 <motion.a
-                  href="mailto:info@manpasandstore.com"
-                  whileHover={{ x: 5 }}
-                  className="flex items-start space-x-4 p-6 bg-gradient-to-br from-[#F8F2DE] to-white rounded-2xl shadow-lg hover:shadow-xl transition-all block"
+                  href="mailto:Contact@manpasandstore.com"
+                  whileHover={{ x: 3 }}
+                  className="flex items-start space-x-3 p-4 sm:p-5 bg-gradient-to-br from-[#F8F2DE] to-white rounded-xl shadow-md hover:shadow-lg transition-all block"
                 >
-                  <div className="w-14 h-14 bg-[#DFF3EA] rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-7 h-7 text-[#0D2B3A]" />
+                  <div className="w-11 h-11 bg-[#DFF3EA] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-[#0D2B3A]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#0D2B3A] mb-2 text-lg">Email</h3>
-                    <p className="text-[#1A73A8] hover:text-[#0D2B3A] transition-colors font-semibold break-all">
-                      info@manpasandstore.com
+                    <h3 className="font-bold text-[#0D2B3A] mb-1 text-sm sm:text-base">Email</h3>
+                    <p className="text-[#1A73A8] hover:text-[#0D2B3A] transition-colors font-semibold break-all text-sm">
+                      Contact@manpasandstore.com
                     </p>
                   </div>
                 </motion.a>
@@ -294,27 +295,27 @@ export default function ContactPage() {
                   href="https://wa.me/923423344040"
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-4 bg-[#1A73A8] hover:bg-[#0D2B3A] text-white rounded-2xl p-6 transition-all shadow-xl"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center space-x-3 bg-[#1A73A8] hover:bg-[#0D2B3A] text-white rounded-xl p-4 sm:p-5 transition-all shadow-lg"
                 >
-                  <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-7 h-7" />
+                  <div className="w-11 h-11 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <MessageCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold mb-1 text-lg">WhatsApp Us</h3>
-                    <p className="text-white/90">0342 3344040</p>
+                    <h3 className="font-bold mb-0.5 text-sm sm:text-base">WhatsApp Us</h3>
+                    <p className="text-white/90 text-sm">+92 342 3344040</p>
                   </div>
                 </motion.a>
               </div>
 
               {/* Business Hours */}
-              <div className="bg-gradient-to-br from-[#F8F2DE] to-white rounded-2xl p-6 shadow-lg">
-                <div className="flex items-center space-x-3 mb-4">
-                  <Clock className="w-6 h-6 text-[#1A73A8]" />
-                  <h3 className="font-bold text-[#0D2B3A] text-lg">Business Hours</h3>
+              <div className="bg-gradient-to-br from-[#F8F2DE] to-white rounded-xl p-4 sm:p-5 shadow-md">
+                <div className="flex items-center space-x-2.5 mb-3">
+                  <Clock className="w-5 h-5 text-[#1A73A8]" />
+                  <h3 className="font-bold text-[#0D2B3A] text-sm sm:text-base">Business Hours</h3>
                 </div>
-                <div className="space-y-2 text-[#6B7280]">
+                <div className="space-y-1.5 text-[#6B7280] text-sm">
                   <p>Monday - Saturday: 9:00 AM - 9:00 PM</p>
                   <p>Sunday: 10:00 AM - 6:00 PM</p>
                 </div>
@@ -325,20 +326,20 @@ export default function ContactPage() {
       </section>
 
       {/* Why Contact Us Section */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-14 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-10"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Why Contact Us?</h2>
-            <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-3">Why Contact Us?</h2>
+            <p className="text-[#6B7280] text-sm sm:text-base max-w-2xl mx-auto">
               We're here to help with any questions or concerns
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
             {[
               { icon: Zap, title: 'Quick Response', desc: 'We respond within 24 hours' },
               { icon: Star, title: 'Expert Advice', desc: 'Get guidance from our experts' },
@@ -352,14 +353,14 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                  whileHover={{ y: -5 }}
+                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-5 sm:p-7 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <Icon className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{item.title}</h3>
-                  <p className="text-[#6B7280]">{item.desc}</p>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0D2B3A] mb-2">{item.title}</h3>
+                  <p className="text-[#6B7280] text-xs sm:text-sm">{item.desc}</p>
                 </motion.div>
               );
             })}

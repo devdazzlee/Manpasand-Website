@@ -10,44 +10,34 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: 'What payment methods do you accept?',
+    question: 'How do I return a product?',
     answer:
-      'We accept cash on delivery, credit/debit cards, and bank transfers. All online payments are processed securely.',
+      'If you are not satisfied with your purchase, you can initiate a return within 7 days of delivery. To be eligible, items must be unopened, in their original packaging, and accompanied by the original receipt. Because we deal in food items like dry fruits and spices, we cannot accept returns on opened products to ensure health and safety standards.',
   },
   {
-    question: 'Do you offer free shipping?',
+    question: 'What if my order is damaged or incorrect?',
     answer:
-      'Yes! We offer free shipping on orders over Rs. 2,000. For orders below this amount, a shipping fee of Rs. 200 applies.',
+      'We take great care in packaging, but if you receive a damaged, defective, or incorrect item, you are entitled to a full refund or exchange without any deductions under Karachi\'s consumer laws. Please contact us at +92 342 3344040 within 24 hours of delivery with a photo of the issue.',
   },
   {
-    question: 'How long does delivery take?',
+    question: 'How long does the refund process take?',
     answer:
-      'Standard delivery within Karachi takes 2-3 business days. For other cities, delivery may take 5-7 business days.',
+      'Once we receive and inspect your returned item at our Bahadurabad facility, we will notify you of the approval or rejection of your refund. Approved refunds are processed within 5–7 business days to your original payment method.',
   },
   {
-    question: 'Can I visit your physical store?',
+    question: 'Are there any items that cannot be returned?',
     answer:
-      'Absolutely! Our store is located in Bahadurabad, Karachi. You can visit us during our business hours or call us at 0342 3344040.',
+      'For hygiene and safety reasons, we cannot accept returns on: Items where the vacuum seal or safety seal has been broken; Custom-made Gift Packaging or bespoke hampers; Perishable items that show signs of use.',
   },
   {
-    question: 'Are your products fresh?',
+    question: 'Who pays for return shipping?',
     answer:
-      'Yes, we ensure all our products are fresh and of premium quality. We source directly from trusted suppliers and maintain strict quality control.',
+      'If the item is faulty: Manpasand Store will cover all shipping costs for the return and replacement. If you changed your mind: For "change of mind" returns, the customer is responsible for the return shipping charges to our Karachi store.',
   },
   {
-    question: 'Do you have a return policy?',
+    question: 'Can I exchange an item instead of a refund?',
     answer:
-      'Yes, we offer returns within 7 days of purchase if the product is unopened and in its original packaging. Please contact us for return instructions.',
-  },
-  {
-    question: 'Do you offer bulk discounts?',
-    answer:
-      'Yes, we offer special pricing for bulk orders. Please contact us directly at 0342 3344040 or email us for bulk order inquiries.',
-  },
-  {
-    question: 'How do I track my order?',
-    answer:
-      'Once your order is shipped, you will receive a tracking number via email or SMS. You can also contact us directly for order updates.',
+      'Yes! If you would prefer a different grade of saffron, a different type of honey, or any other product from our 1400+ item collection, we can process an exchange. Any price difference will be settled before the new item is dispatched.',
   },
 ];
 
@@ -67,9 +57,9 @@ export default function FAQPage() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Frequently Asked Questions</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Returns & Refunds</h1>
             <p className="text-xl text-white/90">
-              Find answers to common questions about our products and services
+              Your Questions Answered
             </p>
           </motion.div>
         </div>
@@ -129,7 +119,7 @@ export default function FAQPage() {
           >
             <h2 className="text-3xl font-bold text-[#0D2B3A] mb-4">Still have questions?</h2>
             <p className="text-lg text-[#6B7280] mb-8">
-              Can't find the answer you're looking for? Please contact our friendly team.
+              Can&apos;t find the answer you&apos;re looking for? Contact our friendly team at +92 342 3344040 or email us at Contact@manpasandstore.com
             </p>
             <a
               href="/contact"
@@ -147,4 +137,3 @@ export default function FAQPage() {
     </div>
   );
 }
-

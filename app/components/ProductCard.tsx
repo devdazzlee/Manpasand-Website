@@ -210,91 +210,90 @@ export default function ProductCard({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -3 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group h-full flex flex-col"
+      className="bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden group h-full flex flex-col"
     >
       <Link 
         href={`/products/${id}`}
         onMouseEnter={() => prefetchProduct(id)}
         onTouchStart={() => prefetchProduct(id)}
       >
-        <div className="relative aspect-square overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
           <img
             src={image || '/Banner-01.jpg'}
             alt={name}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             onError={(e) => {
-              // Fallback to default image if image fails to load
               if ((e.target as HTMLImageElement).src !== '/Banner-01.jpg') {
                 (e.target as HTMLImageElement).src = '/Banner-01.jpg';
               }
             }}
           />
           {discount > 0 && (
-            <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-[#F97316] text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold">
+            <div className="absolute top-2 left-2 bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
               -{discount}%
             </div>
           )}
-          <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
+          <div className="absolute top-2 right-2 z-10">
             <motion.button
               onClick={toggleWishlist}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className={`w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#DFF3EA] transition-colors ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors ${
                 isInWishlist ? 'bg-red-50 hover:bg-red-100' : ''
               }`}
               aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
             >
-              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-[#0D2B3A]'}`} />
+              <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
             </motion.button>
           </div>
         </div>
       </Link>
-      <div className="p-3 sm:p-4 md:p-5 flex flex-col flex-grow">
+      <div className="p-2.5 sm:p-3 flex flex-col flex-grow">
         {category && (
-          <p className="text-[#6B7280] text-[10px] sm:text-xs mb-1 sm:mb-2 uppercase tracking-wide">
+          <p className="text-[#1A73A8] text-[10px] sm:text-[11px] font-medium mb-1 uppercase tracking-wider">
             {typeof category === 'string' ? category : (category as { id: string; name: string }).name}
           </p>
         )}
         <Link href={`/products/${id}`}>
-          <h3 className="font-semibold text-[#0D2B3A] mb-2 sm:mb-3 hover:text-[#1A73A8] transition-colors line-clamp-2 text-xs sm:text-sm md:text-base leading-tight min-h-[2.5rem] sm:min-h-[3rem]">
+          <h3 className="font-semibold text-[#0D2B3A] mb-1.5 sm:mb-2 hover:text-[#1A73A8] transition-colors line-clamp-2 text-xs sm:text-sm leading-snug">
             {name}
           </h3>
         </Link>
-        <div className="flex items-center justify-between gap-1 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
-          <div className="flex items-center space-x-1 sm:space-x-2 flex-1 min-w-0">
-            <span className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-[#0D2B3A]">
-              Rs. {displayPrice.toLocaleString()}
+        <div className="flex items-center gap-1.5 mb-2.5 sm:mb-3">
+          <span className="text-sm sm:text-base font-bold text-[#0D2B3A]">
+            Rs. {displayPrice.toLocaleString()}
+          </span>
+          {originalPrice && (
+            <span className="text-[10px] sm:text-xs text-[#9CA3AF] line-through">
+              Rs. {originalPrice.toLocaleString()}
             </span>
-            {originalPrice && (
-              <span className="text-[10px] sm:text-xs md:text-sm text-[#6B7280] line-through">
-                Rs. {originalPrice.toLocaleString()}
-              </span>
-            )}
-          </div>
+          )}
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 mt-auto">
+        <div className="flex items-center gap-1 sm:gap-1.5 mt-auto">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={handleAddToCart}
-            className={`flex-1 px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 bg-[#1A73A8] text-white rounded-full flex items-center justify-center hover:bg-[#0D2B3A] transition-colors font-semibold text-[10px] sm:text-xs md:text-sm ${
-              addedToCart ? 'bg-green-500 hover:bg-green-600' : ''
+            className={`flex-1 py-1.5 sm:py-2 rounded-md sm:rounded-lg flex items-center justify-center font-semibold text-[9px] sm:text-xs transition-colors ${
+              addedToCart 
+                ? 'bg-green-500 text-white' 
+                : 'bg-[#0D2B3A] text-white hover:bg-[#1A73A8]'
             }`}
             aria-label="Add to cart"
           >
-            <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
+            <ShoppingCart className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1 flex-shrink-0" />
             <span className="truncate">{addedToCart ? 'Added!' : 'Add to Cart'}</span>
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={handleBuyNow}
-            className="flex-1 px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white rounded-full flex items-center justify-center hover:from-[#FF6B35] hover:to-[#F97316] transition-all font-semibold text-[10px] sm:text-xs md:text-sm shadow-md hover:shadow-lg"
+            className="flex-1 py-1.5 sm:py-2 bg-[#1A73A8] text-white rounded-md sm:rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors font-semibold text-[9px] sm:text-xs"
             aria-label="Buy now"
           >
-            <Zap className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
+            <Zap className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1 flex-shrink-0" />
             <span className="truncate">Buy Now</span>
           </motion.button>
         </div>

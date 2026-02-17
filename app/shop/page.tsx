@@ -154,7 +154,7 @@ export default function ShopPage() {
       <Header />
 
       {/* Page Header */}
-      <section className="relative bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-12 sm:py-16 md:py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-8 sm:py-10 md:py-14 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-48 h-48 sm:w-96 sm:h-96 bg-[#DFF3EA] rounded-full blur-3xl"></div>
         </div>
@@ -165,148 +165,106 @@ export default function ShopPage() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4">Shop</h1>
-            <p className="text-base sm:text-lg md:text-xl text-white/90">Discover our premium collection</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3">Shop</h1>
+            <p className="text-sm sm:text-base md:text-lg text-white/90">Discover our premium collection</p>
           </motion.div>
         </div>
       </section>
 
       {/* Filters and View Toggle */}
-      <section className="py-4 sm:py-6 md:py-8 bg-gradient-to-b from-white to-gray-50/50 border-b border-gray-200/60">
+      <section className="py-3 sm:py-4 md:py-5 bg-white border-b border-gray-100">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col gap-6">
-            {/* Top Row: Categories - Professional Tab Style */}
-            <div className="flex flex-col gap-3 sm:gap-4">
-              <div className="flex items-center justify-between mb-1 sm:mb-2">
-                <h2 className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">Shop by Category</h2>
-                <span className="text-xs text-gray-400 hidden sm:block">
-                  {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+          <div className="flex flex-col gap-3">
+            {/* Top Row: Categories - Compact Pill Style */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[10px] sm:text-xs font-medium text-gray-400 uppercase tracking-widest">Categories</h2>
+                <span className="text-[10px] sm:text-xs text-gray-400">
+                  {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'}
                 </span>
               </div>
               <div className="relative">
-                {/* Scrollable Category Tabs */}
-                <div className="flex-1 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2 snap-x snap-mandatory">
-                <div className="flex gap-2 sm:gap-3 min-w-max">
-                    <motion.button
+                <div className="flex-1 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1 snap-x snap-mandatory">
+                  <div className="flex gap-1.5 sm:gap-2 min-w-max">
+                    <button
                       key="All"
                       onClick={() => {
                         setSelectedCategory('All');
                         setCurrentPage(1);
                       }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`relative px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm md:text-base whitespace-nowrap snap-start ${
+                      className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-all duration-200 text-[11px] sm:text-xs whitespace-nowrap snap-start ${
                         selectedCategory === 'All'
-                          ? 'bg-gradient-to-r from-[#1A73A8] via-[#0D2B3A] to-[#1A73A8] text-white shadow-lg shadow-[#1A73A8]/30'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200 hover:border-[#1A73A8]/30 shadow-sm'
+                          ? 'bg-[#0D2B3A] text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
-                      {selectedCategory === 'All' && (
-                        <motion.div
-                          layoutId="activeCategory"
-                          className="absolute inset-0 rounded-full bg-gradient-to-r from-[#1A73A8] via-[#0D2B3A] to-[#1A73A8]"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                        />
-                      )}
-                      <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
-                        <span className="hidden sm:inline">All Products</span>
-                        <span className="sm:hidden">All</span>
-                        {selectedCategory === 'All' && (
-                          <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full"
-                          />
-                        )}
-                      </span>
-                    </motion.button>
+                      All
+                    </button>
                     {categories.map((cat) => (
-                      <motion.button
+                      <button
                         key={cat.id || cat.name}
                         onClick={() => {
                           setSelectedCategory(cat.name);
                           setCurrentPage(1);
                         }}
-                        whileHover={{ scale: 1.02, y: -1 }}
-                        whileTap={{ scale: 0.98 }}
-                        className={`relative px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-full font-semibold transition-all duration-300 text-xs sm:text-sm md:text-base whitespace-nowrap snap-start ${
+                        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-all duration-200 text-[11px] sm:text-xs whitespace-nowrap snap-start ${
                           selectedCategory === cat.name
-                            ? 'bg-gradient-to-r from-[#1A73A8] via-[#0D2B3A] to-[#1A73A8] text-white shadow-lg shadow-[#1A73A8]/30'
-                            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200 hover:border-[#1A73A8]/30 shadow-sm'
+                            ? 'bg-[#0D2B3A] text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
-                        {selectedCategory === cat.name && (
-                          <motion.div
-                            layoutId="activeCategory"
-                            className="absolute inset-0 rounded-full bg-gradient-to-r from-[#1A73A8] via-[#0D2B3A] to-[#1A73A8]"
-                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                          />
-                        )}
-                        <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
-                          <span className="truncate max-w-[120px] sm:max-w-none">{cat.name}</span>
-                          {selectedCategory === cat.name && (
-                            <motion.span
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full flex-shrink-0"
-                            />
-                          )}
-                        </span>
-                    </motion.button>
-                  ))}
+                        {cat.name}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                {/* Gradient fade effect for scroll */}
-                <div className="absolute right-0 top-0 bottom-2 w-8 sm:w-12 bg-gradient-to-l from-gray-50/50 to-transparent pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-1 w-6 sm:w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
               </div>
             </div>
 
             {/* Bottom Row: Filters and View Toggle */}
-            <div className="flex items-center justify-between gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-200/60">
-              <motion.button
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+              <button
                 onClick={() => setShowFilters(!showFilters)}
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                className={`group flex items-center gap-2 sm:gap-2.5 px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-xl font-semibold transition-all duration-300 text-xs sm:text-sm md:text-base ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg font-medium transition-all duration-200 text-[11px] sm:text-xs ${
                   showFilters
-                    ? 'bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white shadow-lg shadow-[#1A73A8]/20'
-                    : 'bg-white text-[#0D2B3A] hover:bg-gray-50 border-2 border-gray-200 hover:border-[#1A73A8]/40 shadow-sm'
+                    ? 'bg-[#0D2B3A] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                <Filter className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
+                <Filter className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Filters</span>
                 {filteredProducts.length < allProducts.length && (
-                  <span className={`px-1.5 py-0.5 sm:px-2 rounded-full text-xs font-bold ${
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                     showFilters ? 'bg-white/20 text-white' : 'bg-[#1A73A8]/10 text-[#1A73A8]'
                   }`}>
                     {allProducts.length - filteredProducts.length}
                   </span>
                 )}
-              </motion.button>
+              </button>
               
-              <div className="flex items-center gap-1 bg-white rounded-xl p-1 sm:p-1.5 border-2 border-gray-200 shadow-sm">
+              <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 sm:p-2.5 md:p-3 rounded-lg transition-all duration-300 ${
+                  className={`p-1.5 sm:p-2 rounded-md transition-all duration-200 ${
                     viewMode === 'grid'
-                      ? 'bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] text-white shadow-md'
-                      : 'text-gray-600 hover:text-[#1A73A8] hover:bg-gray-50'
+                      ? 'bg-white text-[#0D2B3A] shadow-sm'
+                      : 'text-gray-400 hover:text-gray-600'
                   }`}
                   aria-label="Grid view"
                 >
-                  <Grid className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                  <Grid className="w-3.5 h-3.5" />
                 </button>
-                <div className="w-px h-6 sm:h-8 bg-gray-200"></div>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 sm:p-2.5 md:p-3 rounded-lg transition-all duration-300 ${
+                  className={`p-1.5 sm:p-2 rounded-md transition-all duration-200 ${
                     viewMode === 'list'
-                      ? 'bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] text-white shadow-md'
-                      : 'text-gray-600 hover:text-[#1A73A8] hover:bg-gray-50'
+                      ? 'bg-white text-[#0D2B3A] shadow-sm'
+                      : 'text-gray-400 hover:text-gray-600'
                   }`}
                   aria-label="List view"
                 >
-                  <List className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                  <List className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -319,75 +277,100 @@ export default function ShopPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-4 sm:mt-6 bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl"
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                className="overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#0D2B3A] flex items-center space-x-2">
-                    <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>Advanced Filters</span>
-                  </h3>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X className="w-4 h-4 sm:w-5 sm:h-5 text-[#6B7280]" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <label className="block text-[#0D2B3A] font-semibold mb-2 sm:mb-3 text-sm sm:text-base">
-                      Price Range: Rs. {priceRange[0]} - Rs. {priceRange[1]}
-                    </label>
-                    <div className="flex items-center space-x-2 sm:space-x-4">
-                      <input
-                        type="range"
-                        min="0"
-                        max={priceRange[1] || 50000}
-                        value={priceRange[0]}
-                        onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                        className="flex-1"
-                      />
-                      <input
-                        type="range"
-                        min="0"
-                        max={priceRange[1] || 50000}
-                        value={priceRange[1]}
-                        onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                        className="flex-1"
-                      />
+                <div className="mt-3 sm:mt-4 bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-100">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4 sm:mb-5">
+                    <h3 className="text-xs sm:text-sm font-semibold text-[#0D2B3A] uppercase tracking-wider">Refine Results</h3>
+                    <button
+                      onClick={() => setShowFilters(false)}
+                      className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                    {/* Price Range */}
+                    <div>
+                      <label className="block text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                        Price Range
+                      </label>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex-1 bg-white rounded-lg border border-gray-200 px-3 py-2 text-center">
+                          <span className="text-[10px] text-gray-400 block">Min</span>
+                          <span className="text-sm font-bold text-[#0D2B3A]">Rs. {priceRange[0].toLocaleString()}</span>
+                        </div>
+                        <div className="w-4 h-px bg-gray-300"></div>
+                        <div className="flex-1 bg-white rounded-lg border border-gray-200 px-3 py-2 text-center">
+                          <span className="text-[10px] text-gray-400 block">Max</span>
+                          <span className="text-sm font-bold text-[#0D2B3A]">Rs. {priceRange[1].toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2 px-1">
+                        <input
+                          type="range"
+                          min="0"
+                          max={priceRange[1] || 50000}
+                          value={priceRange[0]}
+                          onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                          className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#1A73A8] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1A73A8] [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
+                        />
+                        <input
+                          type="range"
+                          min="0"
+                          max={priceRange[1] || 50000}
+                          value={priceRange[1]}
+                          onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                          className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#1A73A8] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1A73A8] [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Rating Filter */}
+                    <div>
+                      <label className="block text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                        Minimum Rating
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { value: 0, label: 'Any' },
+                          { value: 3, label: '3+' },
+                          { value: 4, label: '4+' },
+                          { value: 4.5, label: '4.5+' },
+                        ].map((rating) => (
+                          <button
+                            key={rating.value}
+                            onClick={() => setMinRating(rating.value)}
+                            className={`flex items-center gap-1 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium ${
+                              minRating === rating.value
+                                ? 'bg-[#0D2B3A] text-white shadow-sm'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1A73A8]/30 hover:bg-[#F8F2DE]/50'
+                            }`}
+                          >
+                            {rating.value > 0 && <Star className={`w-3 h-3 ${minRating === rating.value ? 'text-yellow-300 fill-yellow-300' : 'text-yellow-400 fill-yellow-400'}`} />}
+                            {rating.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[#0D2B3A] font-semibold mb-2 sm:mb-3 text-sm sm:text-base">
-                      Minimum Rating: {minRating > 0 ? `${minRating}+` : 'Any'}
-                    </label>
-                    <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap gap-2">
-                      {[0, 3, 4, 4.5].map((rating) => (
-                        <button
-                          key={rating}
-                          onClick={() => setMinRating(rating)}
-                          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all text-xs sm:text-sm ${
-                            minRating === rating
-                              ? 'bg-[#1A73A8] text-white'
-                              : 'bg-gray-100 text-[#0D2B3A] hover:bg-[#DFF3EA]'
-                          }`}
-                        >
-                          {rating === 0 ? 'Any' : `${rating}+`}
-                        </button>
-                      ))}
-                    </div>
+
+                  {/* Reset Button */}
+                  <div className="mt-4 sm:mt-5 pt-3 border-t border-gray-200 flex justify-end">
+                    <button
+                      onClick={() => {
+                        setPriceRange([0, priceRange[1] || 50000]);
+                        setMinRating(0);
+                      }}
+                      className="text-xs text-gray-400 hover:text-[#1A73A8] font-medium transition-colors flex items-center gap-1"
+                    >
+                      <X className="w-3 h-3" />
+                      Clear all filters
+                    </button>
                   </div>
-                </div>
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={() => {
-                      setPriceRange([0, priceRange[1] || 50000]);
-                      setMinRating(0);
-                    }}
-                    className="px-6 py-2 text-[#6B7280] hover:text-[#0D2B3A] font-medium transition-colors"
-                  >
-                    Reset Filters
-                  </button>
                 </div>
               </motion.div>
             )}
@@ -396,25 +379,25 @@ export default function ShopPage() {
       </section>
 
       {/* Special Offer Banner */}
-      <section className="py-6 sm:py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
+      <section className="py-4 sm:py-6 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6"
+            className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-5"
           >
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Gift className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0" />
+            <div className="flex items-center space-x-3">
+              <Gift className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0" />
               <div>
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">Special Offer!</h3>
-                <p className="text-white/90 text-sm sm:text-base">Get Rs. 500 off on orders above Rs. 2000</p>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Special Offer!</h3>
+                <p className="text-white/90 text-xs sm:text-sm">Get Rs. 500 off on orders above Rs. 2000</p>
               </div>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white text-[#0D2B3A] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base md:text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto"
+              className="bg-white text-[#0D2B3A] px-5 sm:px-7 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto"
             >
               Shop Now
             </motion.button>
@@ -423,10 +406,10 @@ export default function ShopPage() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-8 sm:py-12 bg-white">
+      <section className="py-6 sm:py-8 bg-white">
         <div className="container mx-auto px-3 sm:px-4">
-          <div className="mb-4 sm:mb-6 flex items-center justify-between">
-            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg">
+          <div className="mb-3 sm:mb-5 flex items-center justify-between">
+            <p className="text-[#6B7280] text-xs sm:text-sm">
               Showing <span className="font-bold text-[#0D2B3A]">{indexOfFirstProduct + 1}-{Math.min(indexOfLastProduct, filteredProducts.length)}</span> of <span className="font-bold text-[#0D2B3A]">{filteredProducts.length}</span> product{filteredProducts.length !== 1 ? 's' : ''}
             </p>
             {filteredProducts.length === 0 && (
@@ -481,21 +464,21 @@ export default function ShopPage() {
 
           {/* Pagination */}
           {filteredProducts.length > productsPerPage && (
-            <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-[#6B7280] text-sm sm:text-base">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-[#6B7280] text-xs sm:text-sm">
                 Page {currentPage} of {totalPages}
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg font-medium transition-all text-sm ${
                     currentPage === 1
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-[#1A73A8] text-white hover:bg-[#0D2B3A]'
                   }`}
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
                 
                 <div className="flex items-center gap-1">
@@ -515,7 +498,7 @@ export default function ShopPage() {
                       <button
                         key={pageNum}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all text-sm ${
                           currentPage === pageNum
                             ? 'bg-[#1A73A8] text-white'
                             : 'bg-gray-100 text-[#0D2B3A] hover:bg-gray-200'
@@ -530,13 +513,13 @@ export default function ShopPage() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg font-medium transition-all text-sm ${
                     currentPage === totalPages
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-[#1A73A8] text-white hover:bg-[#0D2B3A]'
                   }`}
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -545,21 +528,21 @@ export default function ShopPage() {
       </section>
 
       {/* Top Sellers Section */}
-      <section className="py-16 bg-gradient-to-b from-[#F8F2DE] to-white">
+      <section className="py-10 sm:py-14 bg-gradient-to-b from-[#F8F2DE] to-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-10"
           >
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <TrendingUp className="w-8 h-8 text-[#F97316]" />
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A]">Top Sellers</h2>
+            <div className="flex items-center justify-center space-x-2 mb-3">
+              <TrendingUp className="w-6 h-6 text-[#F97316]" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A]">Top Sellers</h2>
             </div>
-            <p className="text-[#6B7280] text-lg">Our most popular products this month</p>
+            <p className="text-[#6B7280] text-sm sm:text-base">Our most popular products this month</p>
           </motion.div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {allProducts
               .slice(0, 4)
               .map((product, index) => (
@@ -569,7 +552,7 @@ export default function ShopPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
+                  whileHover={{ y: -5 }}
                 >
                   <ProductCard
                     id={product.id}
@@ -589,21 +572,21 @@ export default function ShopPage() {
       </section>
 
       {/* Why Shop With Us */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-14 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-10"
           >
-            <Sparkles className="w-12 h-12 text-[#F97316] mx-auto mb-4" />
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0D2B3A] mb-4">Why Shop With Us?</h2>
-            <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+            <Sparkles className="w-8 h-8 sm:w-9 sm:h-9 text-[#F97316] mx-auto mb-3" />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-3">Why Shop With Us?</h2>
+            <p className="text-[#6B7280] text-sm sm:text-base max-w-2xl mx-auto">
               Experience the difference with our premium service
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
             {[
               { icon: Zap, title: 'Fast Delivery', desc: 'Quick and reliable shipping' },
               { icon: Star, title: 'Premium Quality', desc: 'Handpicked products' },
@@ -617,14 +600,14 @@ export default function ShopPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                  whileHover={{ y: -5 }}
+                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-5 sm:p-7 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <Icon className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{item.title}</h3>
-                  <p className="text-[#6B7280]">{item.desc}</p>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0D2B3A] mb-2">{item.title}</h3>
+                  <p className="text-[#6B7280] text-xs sm:text-sm">{item.desc}</p>
                 </motion.div>
               );
             })}

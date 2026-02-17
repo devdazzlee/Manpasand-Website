@@ -8,7 +8,7 @@ import Footer from '../../components/Footer';
 import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
 import ProductCard from '../../components/ProductCard';
-import { ShoppingCart, Heart, Minus, Plus, Star, Truck, Shield, RotateCcw, CheckCircle, TrendingUp, Award, Gift, Zap, Sparkles } from 'lucide-react';
+import { ShoppingCart, Heart, Minus, Plus, Star, Shield, RotateCcw, CheckCircle, TrendingUp, Award, Gift, Zap, Sparkles } from 'lucide-react';
 import Loader from '../../components/Loader';
 import Link from 'next/link';
 import { productApi, Product } from '../../../lib/api/productApi';
@@ -469,19 +469,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       <Header />
 
       {/* Product Details */}
-      <section className="py-6 sm:py-8 md:py-12 bg-white overflow-x-hidden">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12">
+      <section className="py-4 sm:py-6 md:py-8 bg-white overflow-x-hidden">
+        <div className="container mx-auto px-3 sm:px-4 max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 md:gap-10">
             {/* Product Images */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="space-y-4"
+              className="space-y-3"
             >
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="relative aspect-square rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl"
+                whileHover={{ scale: 1.01 }}
+                className="relative aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-md"
               >
                 <img
                   src={product.ProductImage && product.ProductImage[selectedImage] ? product.ProductImage[selectedImage].image : (product.image || '/Banner-01.jpg')}
@@ -489,31 +489,24 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   className="w-full h-full object-cover object-center"
                 />
                 {discount > 0 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: 'spring' }}
-                    className="absolute top-3 left-3 sm:top-6 sm:left-6 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white px-3 sm:px-6 py-1.5 sm:py-3 rounded-full font-bold text-sm sm:text-lg shadow-xl"
-                  >
-                    -{discount}% OFF
-                  </motion.div>
+                  <div className="absolute top-2.5 left-2.5 bg-[#F97316] text-white px-2.5 py-0.5 rounded-full font-bold text-xs">
+                    -{discount}%
+                  </div>
                 )}
               </motion.div>
-              <div className="grid grid-cols-4 gap-2 sm:gap-4">
+              <div className="grid grid-cols-4 gap-2">
                 {(product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage.map(img => img.image) : [product.image || '/Banner-01.jpg']).map((img: string, index: number) => (
-                  <motion.button
+                  <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
+                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                       selectedImage === index
-                        ? 'border-[#1A73A8] shadow-md sm:shadow-lg scale-105'
-                        : 'border-transparent hover:border-[#DFF3EA]'
+                        ? 'border-[#1A73A8] shadow-sm'
+                        : 'border-gray-200 hover:border-[#1A73A8]/50'
                     }`}
                   >
                     <img src={img} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover object-center" />
-                  </motion.button>
+                  </button>
                 ))}
               </div>
             </motion.div>
@@ -523,21 +516,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="space-y-6"
+              className="space-y-4"
             >
               <div>
                 <Link href={`/categories/${(product.category?.name || (product as any).category || '').toLowerCase().replace(/\s+/g, '-')}`}>
-                  <span className="inline-block text-[#1A73A8] text-xs sm:text-sm font-semibold uppercase tracking-wide mb-2 sm:mb-3 hover:text-[#0D2B3A] transition-colors">
+                  <span className="inline-block text-[#1A73A8] text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-1.5 hover:text-[#0D2B3A] transition-colors">
                     {product.category?.name || (product as any).category}
                   </span>
                 </Link>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4 leading-tight">{product.name}</h1>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-                  <div className="flex items-center space-x-1">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-[#0D2B3A] mb-2 leading-tight">{product.name}</h1>
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <div className="flex items-center space-x-0.5">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${
+                        className={`w-3.5 h-3.5 ${
                           i < Math.floor((product as any).rating || 4.5)
                             ? 'fill-[#F97316] text-[#F97316]'
                             : 'text-gray-300'
@@ -545,41 +538,39 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                       />
                     ))}
                   </div>
-                  <span className="text-[#6B7280] font-semibold text-sm sm:text-base">
+                  <span className="text-[#6B7280] text-xs sm:text-sm">
                     {(product as any).rating || 4.5} ({(product as any).reviews || 0} reviews)
                   </span>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 gap-3 sm:gap-4 p-4 sm:p-6 bg-gradient-to-r from-[#F8F2DE] to-white rounded-xl sm:rounded-2xl">
-                <div className="flex-1">
-                  <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#0D2B3A]">
-                    Rs. {(product.selling_price || product.price || 0).toLocaleString()}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="block text-lg sm:text-xl md:text-2xl text-[#6B7280] line-through mt-1">
-                      Rs. {product.originalPrice.toLocaleString()}
-                    </span>
-                  )}
-                </div>
+              <div className="flex items-center gap-3 p-3 bg-[#F8F2DE]/60 rounded-xl">
+                <span className="text-xl sm:text-2xl font-bold text-[#0D2B3A]">
+                  Rs. {(product.selling_price || product.price || 0).toLocaleString()}
+                </span>
                 {product.originalPrice && (
-                  <span className="bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap">
-                    Save Rs. {product.originalPrice && product.price ? (product.originalPrice - product.price).toLocaleString() : '0'}
+                  <span className="text-sm text-[#9CA3AF] line-through">
+                    Rs. {product.originalPrice.toLocaleString()}
+                  </span>
+                )}
+                {product.originalPrice && product.price && (
+                  <span className="bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[11px] font-bold ml-auto">
+                    Save Rs. {(product.originalPrice - product.price).toLocaleString()}
                   </span>
                 )}
               </div>
 
-              <p className="text-sm sm:text-base md:text-lg text-[#6B7280] leading-relaxed">{product.description}</p>
+              <p className="text-sm text-[#6B7280] leading-relaxed">{product.description}</p>
 
               {/* Key Features */}
               {product.features && product.features.length > 0 && (
-              <div className="bg-[#F8F2DE] rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                <h3 className="font-bold text-[#0D2B3A] mb-3 sm:mb-4 text-base sm:text-lg">Key Features:</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+              <div className="bg-[#F8F2DE]/50 rounded-xl p-3 sm:p-4">
+                <h3 className="font-bold text-[#0D2B3A] mb-2 text-sm">Key Features</h3>
+                <div className="grid grid-cols-2 gap-1.5">
                   {product.features.map((feature: string, index: number) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <CheckCircle className="w-5 h-5 text-[#1A73A8] flex-shrink-0" />
-                      <span className="text-[#6B7280]">{feature}</span>
+                    <div key={index} className="flex items-center space-x-1.5">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#1A73A8] flex-shrink-0" />
+                      <span className="text-[#6B7280] text-xs sm:text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -588,151 +579,121 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
               {/* Quantity/Unit Selector */}
               {product.unit ? (
-                // Show options for weight units (gm, kg)
                 quantityOptions.length > 0 ? (
-                  <div className="flex flex-col space-y-3 p-4 sm:p-6 bg-white border-2 border-gray-100 rounded-xl sm:rounded-2xl">
+                  <div className="flex flex-col space-y-2 p-3 bg-white border border-gray-200 rounded-xl">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#0D2B3A] text-base sm:text-lg">Select Quantity:</span>
-                      <span className="text-[#6B7280] text-sm sm:text-base">({product.stock} in stock)</span>
+                      <span className="font-semibold text-[#0D2B3A] text-sm">Select Quantity</span>
+                      <span className="text-[#9CA3AF] text-xs">{product.stock} in stock</span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+                    <div className="flex flex-wrap gap-2">
                       {quantityOptions.map((option) => (
-                        <motion.button
+                        <button
                           key={option.value}
                           onClick={() => {
                             setSelectedQuantityOption(option.value);
                             setQuantity(parseFloat(option.value));
                           }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`px-4 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 ${
+                          className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
                             selectedQuantityOption === option.value
-                              ? 'bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white shadow-lg'
-                              : 'bg-[#F8F2DE] text-[#0D2B3A] hover:bg-[#DFF3EA] border-2 border-transparent hover:border-[#1A73A8]'
+                              ? 'bg-[#0D2B3A] text-white'
+                              : 'bg-gray-100 text-[#0D2B3A] hover:bg-[#DFF3EA]'
                           }`}
                         >
                           {option.label}
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  // Show increment/decrement for pieces or units without options
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 space-y-3 p-4 sm:p-6 bg-white border-2 border-gray-100 rounded-xl sm:rounded-2xl">
-                    <span className="font-bold text-[#0D2B3A] text-base sm:text-lg">Quantity:</span>
-                    <div className="flex items-center space-x-3 bg-[#F8F2DE] rounded-full px-3 sm:px-4 py-2 sm:py-3">
-                      <motion.button
+                  <div className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl">
+                    <span className="font-semibold text-[#0D2B3A] text-sm">Quantity</span>
+                    <div className="flex items-center bg-gray-100 rounded-lg px-1 py-1">
+                      <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
+                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white transition-colors"
                       >
-                        <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D2B3A]" />
-                      </motion.button>
-                      <span className="font-bold text-[#0D2B3A] min-w-[60px] sm:min-w-[80px] text-center text-base sm:text-lg whitespace-nowrap flex items-center justify-center">
+                        <Minus className="w-3.5 h-3.5 text-[#0D2B3A]" />
+                      </button>
+                      <span className="font-bold text-[#0D2B3A] min-w-[50px] text-center text-sm">
                         {quantity} {isPiecesUnit ? product.unit.name : ''}
                       </span>
-                      <motion.button
+                      <button
                         onClick={() => setQuantity(quantity + 1)}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
+                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white transition-colors"
                       >
-                        <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D2B3A]" />
-                      </motion.button>
+                        <Plus className="w-3.5 h-3.5 text-[#0D2B3A]" />
+                      </button>
                     </div>
-                    <span className="text-[#6B7280] text-sm sm:text-base">({product.stock} in stock)</span>
+                    <span className="text-[#9CA3AF] text-xs ml-auto">{product.stock} in stock</span>
                   </div>
                 )
               ) : (
-                // Fallback if no unit
-              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 space-y-3 p-4 sm:p-6 bg-white border-2 border-gray-100 rounded-xl sm:rounded-2xl">
-                <span className="font-bold text-[#0D2B3A] text-base sm:text-lg">Quantity:</span>
-                <div className="flex items-center space-x-3 bg-[#F8F2DE] rounded-full px-3 sm:px-4 py-2 sm:py-3">
-                  <motion.button
+              <div className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl">
+                <span className="font-semibold text-[#0D2B3A] text-sm">Quantity</span>
+                <div className="flex items-center bg-gray-100 rounded-lg px-1 py-1">
+                  <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
+                    className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white transition-colors"
                   >
-                    <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D2B3A]" />
-                  </motion.button>
-                  <span className="font-bold text-[#0D2B3A] w-10 sm:w-12 text-center text-base sm:text-lg">{quantity}</span>
-                  <motion.button
+                    <Minus className="w-3.5 h-3.5 text-[#0D2B3A]" />
+                  </button>
+                  <span className="font-bold text-[#0D2B3A] min-w-[50px] text-center text-sm">{quantity}</span>
+                  <button
                     onClick={() => setQuantity(quantity + 1)}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
+                    className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white transition-colors"
                   >
-                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D2B3A]" />
-                  </motion.button>
+                    <Plus className="w-3.5 h-3.5 text-[#0D2B3A]" />
+                  </button>
                 </div>
-                <span className="text-[#6B7280] text-sm sm:text-base">({product.stock} in stock)</span>
+                <span className="text-[#9CA3AF] text-xs ml-auto">{product.stock} in stock</span>
               </div>
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <motion.button
+              <div className="flex items-center gap-2">
+                <button
                   onClick={handleAddToCart}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`flex-1 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] hover:from-[#0D2B3A] hover:to-[#1A73A8] text-white px-6 sm:px-8 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center space-x-2 shadow-xl ${
-                    addedToCart ? 'bg-green-500 hover:bg-green-600' : ''
+                  className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-1.5 ${
+                    addedToCart 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-[#0D2B3A] text-white hover:bg-[#1A73A8]'
                   }`}
                   aria-label="Add to cart"
                 >
-                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
-                  <span>{addedToCart ? 'Added to Cart!' : 'Add to Cart'}</span>
-                </motion.button>
-                <motion.button
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>{addedToCart ? 'Added!' : 'Add to Cart'}</span>
+                </button>
+                <button
                   onClick={handleBuyNow}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 bg-gradient-to-r from-[#F97316] to-[#FF6B35] hover:from-[#FF6B35] hover:to-[#F97316] text-white px-6 sm:px-8 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center space-x-2 shadow-xl"
+                  className="flex-1 py-2.5 bg-[#1A73A8] text-white rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-1.5 hover:bg-[#0D2B3A]"
                   aria-label="Buy now"
                 >
-                  <Zap className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <Zap className="w-4 h-4" />
                   <span>Buy Now</span>
-                </motion.button>
-                <motion.button
+                </button>
+                <button
                   onClick={toggleWishlist}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  className={`w-full sm:w-16 h-14 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all border ${
                     isInWishlist
-                      ? 'bg-red-100 hover:bg-red-200 text-red-600'
-                      : 'bg-[#DFF3EA] hover:bg-[#1A73A8] text-[#0D2B3A] hover:text-white'
+                      ? 'bg-red-50 border-red-200 text-red-500'
+                      : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-[#1A73A8] hover:text-[#1A73A8]'
                   }`}
                   aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
-                  <Heart className={`w-6 h-6 sm:w-7 sm:h-7 ${isInWishlist ? 'fill-red-600' : ''}`} />
-                </motion.button>
+                  <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-red-500' : ''}`} />
+                </button>
               </div>
 
               {/* Service Badges */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 sm:pt-6">
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border-2 border-gray-100 hover:border-[#1A73A8] transition-all"
-                >
-                  <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#1A73A8]" />
-                  <span className="text-xs sm:text-sm text-[#6B7280] font-medium text-center leading-tight">Free Shipping</span>
-                </motion.div>
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border-2 border-gray-100 hover:border-[#1A73A8] transition-all"
-                >
-                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-[#1A73A8]" />
-                  <span className="text-xs sm:text-sm text-[#6B7280] font-medium text-center leading-tight">Secure Payment</span>
-                </motion.div>
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border-2 border-gray-100 hover:border-[#1A73A8] transition-all"
-                >
-                  <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-[#1A73A8]" />
-                  <span className="text-xs sm:text-sm text-[#6B7280] font-medium text-center leading-tight">Easy Returns</span>
-                </motion.div>
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <div className="flex items-center gap-1.5 p-2 bg-gray-50 rounded-lg">
+                  <Shield className="w-4 h-4 text-[#1A73A8] flex-shrink-0" />
+                  <span className="text-[11px] text-[#6B7280] font-medium leading-tight">Secure Payment</span>
+                </div>
+                <div className="flex items-center gap-1.5 p-2 bg-gray-50 rounded-lg">
+                  <RotateCcw className="w-4 h-4 text-[#1A73A8] flex-shrink-0" />
+                  <span className="text-[11px] text-[#6B7280] font-medium leading-tight">Easy Returns</span>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -740,146 +701,128 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       </section>
 
       {/* Product Details Tabs */}
-      <section className="py-8 sm:py-12 bg-gradient-to-b from-white to-[#F8F2DE] overflow-x-hidden">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Tabs */}
-            <div className="flex space-x-2 sm:space-x-4 mb-6 sm:mb-8 border-b border-gray-200 overflow-x-auto scrollbar-hide">
-              {['description', 'nutrition', 'reviews'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 sm:px-6 py-2 sm:py-3 font-semibold capitalize transition-all text-sm sm:text-base whitespace-nowrap ${
-                    activeTab === tab
-                      ? 'text-[#1A73A8] border-b-2 border-[#1A73A8]'
-                      : 'text-[#6B7280] hover:text-[#0D2B3A]'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab Content */}
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl overflow-hidden"
-            >
-              {activeTab === 'description' && (
-                <div className="space-y-3 sm:space-y-4">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">Product Description</h3>
-                  <p className="text-[#6B7280] leading-relaxed text-sm sm:text-base md:text-lg">
-                    {(product as any).longDescription || product.description || 'No description available.'}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
-                    <div className="flex items-center space-x-3 p-4 bg-[#F8F2DE] rounded-xl">
-                      <Award className="w-6 h-6 text-[#1A73A8]" />
-                      <div>
-                        <p className="font-semibold text-[#0D2B3A]">Weight</p>
-                        <p className="text-[#6B7280]">{(product as any).weight || 'N/A'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3 p-4 bg-[#F8F2DE] rounded-xl">
-                      <TrendingUp className="w-6 h-6 text-[#1A73A8]" />
-                      <div>
-                        <p className="font-semibold text-[#0D2B3A]">Origin</p>
-                        <p className="text-[#6B7280]">{(product as any).origin || 'N/A'}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'nutrition' && (
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#0D2B3A] mb-4 sm:mb-6">Nutritional Information</h3>
-                  {product.nutrition && Array.isArray(product.nutrition) && product.nutrition.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {product.nutrition.map((item: any, index: number) => (
-                      <div key={index} className="flex justify-between items-center p-4 bg-[#F8F2DE] rounded-xl">
-                        <span className="font-semibold text-[#0D2B3A]">{item.label}</span>
-                        <span className="text-[#6B7280]">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-[#6B7280]">Nutritional information not available for this product.</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'reviews' && (
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#0D2B3A] mb-4 sm:mb-6">Customer Reviews</h3>
-                  <div className="space-y-3 sm:space-y-4">
-                    {[1, 2, 3].map((review) => (
-                      <div key={review} className="p-6 bg-[#F8F2DE] rounded-xl">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-10 h-10 bg-[#1A73A8] rounded-full flex items-center justify-center text-white font-bold">
-                              {review}
-                            </div>
-                            <span className="font-semibold text-[#0D2B3A]">Customer {review}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="w-4 h-4 fill-[#F97316] text-[#F97316]" />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-[#6B7280]">Great product! Highly recommended.</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </motion.div>
+      <section className="py-6 sm:py-8 bg-gray-50 overflow-x-hidden">
+        <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
+          {/* Tabs */}
+          <div className="flex space-x-1 mb-4 border-b border-gray-200 overflow-x-auto scrollbar-hide">
+            {['description', 'nutrition', 'reviews'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 font-medium capitalize transition-all text-sm whitespace-nowrap ${
+                  activeTab === tab
+                    ? 'text-[#1A73A8] border-b-2 border-[#1A73A8]'
+                    : 'text-[#6B7280] hover:text-[#0D2B3A]'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
+
+          {/* Tab Content */}
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white rounded-xl p-4 sm:p-5 shadow-sm"
+          >
+            {activeTab === 'description' && (
+              <div className="space-y-3">
+                <h3 className="text-base sm:text-lg font-bold text-[#0D2B3A]">Product Description</h3>
+                <p className="text-[#6B7280] leading-relaxed text-sm">
+                  {(product as any).longDescription || product.description || 'No description available.'}
+                </p>
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                    <Award className="w-4 h-4 text-[#1A73A8]" />
+                    <div>
+                      <p className="font-medium text-[#0D2B3A] text-xs">Weight</p>
+                      <p className="text-[#6B7280] text-xs">{(product as any).weight || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                    <TrendingUp className="w-4 h-4 text-[#1A73A8]" />
+                    <div>
+                      <p className="font-medium text-[#0D2B3A] text-xs">Origin</p>
+                      <p className="text-[#6B7280] text-xs">{(product as any).origin || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'nutrition' && (
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-[#0D2B3A] mb-3">Nutritional Information</h3>
+                {product.nutrition && Array.isArray(product.nutrition) && product.nutrition.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {product.nutrition.map((item: any, index: number) => (
+                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium text-[#0D2B3A] text-sm">{item.label}</span>
+                      <span className="text-[#6B7280] text-sm">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="text-[#6B7280] text-sm">Nutritional information not available for this product.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-[#0D2B3A] mb-3">Customer Reviews</h3>
+                <div className="space-y-2">
+                  {[1, 2, 3].map((review) => (
+                    <div key={review} className="p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 bg-[#1A73A8] rounded-full flex items-center justify-center text-white font-bold text-xs">
+                            {review}
+                          </div>
+                          <span className="font-medium text-[#0D2B3A] text-sm">Customer {review}</span>
+                        </div>
+                        <div className="flex items-center space-x-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="w-3 h-3 fill-[#F97316] text-[#F97316]" />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-[#6B7280] text-sm">Great product! Highly recommended.</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
         </div>
       </section>
 
       {/* Why Buy This Product */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-b from-white to-[#F8F2DE] overflow-x-hidden">
-        <div className="container mx-auto px-3 sm:px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-[#F97316] mx-auto mb-3 sm:mb-4" />
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">Why Choose This Product?</h2>
-            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4 sm:px-0">
-              Discover what makes this product special
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-6xl mx-auto">
+      <section className="py-6 sm:py-8 bg-white overflow-x-hidden">
+        <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
+          <h2 className="text-lg sm:text-xl font-bold text-[#0D2B3A] text-center mb-4">Why Choose This Product?</h2>
+          <div className="grid grid-cols-3 gap-3">
             {[
-              { icon: Award, title: 'Premium Quality', desc: 'Handpicked and tested for excellence' },
-              { icon: CheckCircle, title: '100% Authentic', desc: 'Genuine products guaranteed' },
-              { icon: Gift, title: 'Best Value', desc: 'Great quality at competitive prices' },
-            ].map((item, index) => {
+              { icon: Award, title: 'Premium Quality', desc: 'Handpicked & tested' },
+              { icon: CheckCircle, title: '100% Authentic', desc: 'Genuine guaranteed' },
+              { icon: Gift, title: 'Best Value', desc: 'Competitive prices' },
+            ].map((item) => {
               const Icon = item.icon;
               return (
-                <motion.div
+                <div
                   key={item.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                  className="bg-gray-50 rounded-xl p-4 text-center hover:shadow-sm transition-all"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <Icon className="w-8 h-8 text-white" />
+                  <div className="w-10 h-10 bg-[#0D2B3A] rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-3">{item.title}</h3>
-                  <p className="text-[#6B7280]">{item.desc}</p>
-                </motion.div>
+                  <h3 className="text-sm font-bold text-[#0D2B3A] mb-0.5">{item.title}</h3>
+                  <p className="text-[#6B7280] text-xs">{item.desc}</p>
+                </div>
               );
             })}
           </div>
@@ -887,49 +830,30 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       </section>
 
       {/* Special Offer Banner */}
-      <section className="py-6 sm:py-8 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white overflow-x-hidden">
+      <section className="py-4 bg-[#0D2B3A] text-white overflow-x-hidden">
         <div className="container mx-auto px-3 sm:px-4">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6"
-          >
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Gift className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0" />
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Gift className="w-6 h-6 flex-shrink-0" />
               <div>
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">Limited Time Offer!</h3>
-                <p className="text-white/90 text-sm sm:text-base">Buy 2 Get 1 Free on selected items</p>
+                <h3 className="text-sm sm:text-base font-bold">Limited Time Offer!</h3>
+                <p className="text-white/70 text-xs">Buy 2 Get 1 Free on selected items</p>
               </div>
             </div>
-            <Link href="/shop">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-[#0D2B3A] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base md:text-lg hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto"
-              >
-                Shop Now
-              </motion.button>
+            <Link href="/shop" className="bg-white text-[#0D2B3A] px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm hover:bg-[#DFF3EA] transition-colors whitespace-nowrap">
+              Shop Now
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Related Products */}
-      <section className="py-8 sm:py-12 md:py-16 bg-white overflow-x-hidden">
+      <section className="py-6 sm:py-8 bg-white overflow-x-hidden">
         <div className="container mx-auto px-3 sm:px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <div className="flex items-center justify-center space-x-2 mb-3 sm:mb-4">
-              <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-[#F97316]" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A]">You May Also Like</h2>
-            </div>
-            <p className="text-[#6B7280] text-sm sm:text-base md:text-lg px-4 sm:px-0">Related products you might be interested in</p>
-          </motion.div>
+          <div className="text-center mb-5">
+            <h2 className="text-lg sm:text-xl font-bold text-[#0D2B3A]">You May Also Like</h2>
+            <p className="text-[#6B7280] text-xs sm:text-sm mt-1">Related products you might be interested in</p>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch">
             {relatedProducts.length > 0 ? relatedProducts.map((product, index) => (
               <motion.div

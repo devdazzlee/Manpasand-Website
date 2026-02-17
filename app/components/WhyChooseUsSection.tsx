@@ -1,50 +1,50 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { Layers, ShieldCheck, Landmark, PackageCheck } from 'lucide-react';
 
 const features = [
-  { icon: CheckCircle, title: 'Premium Quality', description: 'Handpicked from trusted sources' },
-  { icon: CheckCircle, title: 'Fresh Products', description: 'Always fresh and authentic' },
-  { icon: CheckCircle, title: 'Best Prices', description: 'Competitive pricing guaranteed' },
-  { icon: CheckCircle, title: 'Fast Delivery', description: 'Quick and secure shipping' },
+  { icon: Layers, title: 'Unmatched Variety', description: 'Explore a curated collection of 1400+ premium herbs, exotic dry fruits, and essential kitchen staples.' },
+  { icon: ShieldCheck, title: 'Guaranteed Purity', description: 'We uphold a "Zero Compromise" policy on freshness. Our spices are pure, and our nuts are hand-graded for size and taste.' },
+  { icon: Landmark, title: "Karachi's Heritage", description: 'Proudly serving our community for 25+ years with the same commitment to excellence we started with.' },
+  { icon: PackageCheck, title: 'Delivered with Care', description: 'Expertly packaged to preserve aroma and crunch, delivered straight from our store to your doorstep across Pakistan.' },
 ];
 
 export default function WhyChooseUsSection() {
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-white">
+    <section className="py-10 sm:py-12 md:py-14 bg-white">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-8 sm:mb-12 md:mb-16"
+          className="text-center mb-6 sm:mb-8 md:mb-10"
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D2B3A] mb-3 sm:mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             Why Choose Manpasand?
           </h2>
-          <p className="text-[#6B7280] text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto px-4 sm:px-0">
-            We are committed to providing the best quality products and exceptional service
+          <p className="text-[#F97316] text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+            The &ldquo;Heritage&rdquo; Choice
           </p>
         </motion.div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -10 }}
-                className="bg-gradient-to-br from-[#F8F2DE] to-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                whileHover={{ y: -5 }}
+                className="bg-gradient-to-br from-[#F8F2DE]/50 to-white p-4 sm:p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 text-center"
               >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                  <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg, #1A73A8, #0D2B3A)' }}>
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-[#0D2B3A] mb-2 sm:mb-3">{feature.title}</h3>
-                <p className="text-[#6B7280] text-sm sm:text-base">{feature.description}</p>
+                <h3 className="text-sm sm:text-base font-bold text-[#0D2B3A] mb-1.5">{feature.title}</h3>
+                <p className="text-[#6B7280] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
               </motion.div>
             );
           })}
@@ -53,4 +53,3 @@ export default function WhyChooseUsSection() {
     </section>
   );
 }
-

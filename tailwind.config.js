@@ -17,8 +17,8 @@ module.exports = {
         accent: '#F97316',
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'monospace'],
+        sans: ['var(--font-body)', 'DM Sans', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-heading)', 'Cormorant Garamond', 'Georgia', 'serif'],
       },
     },
   },
