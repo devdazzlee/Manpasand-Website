@@ -264,22 +264,22 @@ export default function ProductCard({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1 sm:gap-1.5 mt-auto">
+        <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-1.5 mt-auto">
           <button
             onClick={handleAddToCart}
-            className="flex-1 py-1.5 sm:py-2 rounded-md sm:rounded-lg flex items-center justify-center font-semibold text-[9px] sm:text-xs transition-colors duration-200 bg-[#0D2B3A] text-white hover:bg-[#1A73A8]"
+            className="flex-1 py-2 sm:py-2 rounded-lg flex items-center justify-center font-semibold text-[11px] sm:text-xs transition-colors duration-200 bg-[#0D2B3A] text-white hover:bg-[#1A73A8]"
             aria-label="Add to cart"
           >
-            <ShoppingCart className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1 flex-shrink-0" />
-            <span className="truncate">Add to Cart</span>
+            <ShoppingCart className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+            <span>Add to Cart</span>
           </button>
           <button
             onClick={handleBuyNow}
-            className="flex-1 py-1.5 sm:py-2 bg-[#1A73A8] text-white rounded-md sm:rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors duration-200 font-semibold text-[9px] sm:text-xs"
+            className="flex-1 py-2 sm:py-2 bg-[#1A73A8] text-white rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors duration-200 font-semibold text-[11px] sm:text-xs"
             aria-label="Buy now"
           >
-            <Zap className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1 flex-shrink-0" />
-            <span className="truncate">Buy Now</span>
+            <Zap className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+            <span>Buy Now</span>
           </button>
         </div>
       </div>
