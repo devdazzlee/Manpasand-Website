@@ -15,6 +15,7 @@ import { productApi, Product } from '../../../lib/api/productApi';
 import { unitApi } from '../../../lib/api/unitApi';
 import { cartUtils } from '../../../lib/utils/cart';
 import { useProductStore } from '../../../lib/store/productStore';
+import { showCartToast } from '../../components/CartToast';
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -28,7 +29,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
   const [isInWishlist, setIsInWishlist] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
 
   const { getOrFetchProduct, cacheProduct } = useProductStore();
 
@@ -314,16 +314,17 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         || product.selling_price 
         || 0;
       
+      const productImage = product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : null) || '/Banner-01.jpg';
       cartUtils.addToCart({
         id: product.id,
         name: product.name,
         price: cartPrice,
-        image: product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : null) || '/Banner-01.jpg',
+        image: productImage,
         productId: product.id,
         quantity: quantity,
       });
-      setAddedToCart(true);
-      setTimeout(() => setAddedToCart(false), 2000);
+      // Show toast — no state change, no re-render of this component
+      showCartToast(product.name, productImage);
     }
   };
 
@@ -563,19 +564,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleAddToCart}
-                  className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-1.5 ${
-                    addedToCart 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-[#0D2B3A] text-white hover:bg-[#1A73A8]'
-                  }`}
+                  className="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors duration-200 flex items-center justify-center gap-1.5 bg-[#0D2B3A] text-white hover:bg-[#1A73A8]"
                   aria-label="Add to cart"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span>{addedToCart ? 'Added!' : 'Add to Cart'}</span>
+                  <span>Add to Cart</span>
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 py-2.5 bg-[#1A73A8] text-white rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-1.5 hover:bg-[#0D2B3A]"
+                  className="flex-1 py-2.5 bg-[#1A73A8] text-white rounded-lg font-semibold text-sm transition-colors duration-200 flex items-center justify-center gap-1.5 hover:bg-[#0D2B3A]"
                   aria-label="Buy now"
                 >
                   <Zap className="w-4 h-4" />

@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { cartUtils } from '../../lib/utils/cart';
 import { useProductStore } from '../../lib/store/productStore';
+import { showCartToast } from './CartToast';
 
 interface ProductCardProps {
   id: string;
@@ -47,7 +48,6 @@ export default function ProductCard({
     : 0;
   
   const [isInWishlist, setIsInWishlist] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
   const router = useRouter();
 
   // Check if product is in wishlist
@@ -61,15 +61,16 @@ export default function ProductCard({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    const productImage = image || '/Banner-01.jpg';
     cartUtils.addToCart({
       id,
       name,
       price: displayPrice,
-      image: image || '/Banner-01.jpg',
+      image: productImage,
       productId: id,
     });
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 1500);
+    // Toast notification — no state change, no re-render
+    showCartToast(name, productImage);
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -172,32 +173,24 @@ export default function ProductCard({
               >
                 <Heart className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-[#0D2B3A]'}`} />
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={handleAddToCart}
-                className={`px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 rounded-full flex items-center justify-center transition-colors font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base flex-1 sm:flex-initial ${
-                  addedToCart 
-                    ? 'bg-green-500 text-white' 
-                    : 'bg-[#1A73A8] text-white hover:bg-[#0D2B3A]'
-                }`}
+                className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 rounded-full flex items-center justify-center transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base flex-1 sm:flex-initial bg-[#1A73A8] text-white hover:bg-[#0D2B3A]"
                 aria-label="Add to cart"
               >
                 <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
-                <span className="hidden sm:inline">{addedToCart ? 'Added!' : 'Add to Cart'}</span>
-                <span className="sm:hidden">{addedToCart ? 'Added!' : 'Add'}</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                <span className="hidden sm:inline">Add to Cart</span>
+                <span className="sm:hidden">Add</span>
+              </button>
+              <button
                 onClick={handleBuyNow}
-                className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white rounded-full flex items-center justify-center hover:from-[#FF6B35] hover:to-[#F97316] transition-all font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base shadow-lg hover:shadow-xl flex-1 sm:flex-initial"
+                className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white rounded-full flex items-center justify-center hover:from-[#FF6B35] hover:to-[#F97316] transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base shadow-lg hover:shadow-xl flex-1 sm:flex-initial"
                 aria-label="Buy now"
               >
                 <Zap className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
                 <span className="hidden sm:inline">Buy Now</span>
                 <span className="sm:hidden">Buy</span>
-              </motion.button>
+              </button>
             </div>
           </div>
         </div>
@@ -272,30 +265,22 @@ export default function ProductCard({
           )}
         </div>
         <div className="flex items-center gap-1 sm:gap-1.5 mt-auto">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+          <button
             onClick={handleAddToCart}
-            className={`flex-1 py-1.5 sm:py-2 rounded-md sm:rounded-lg flex items-center justify-center font-semibold text-[9px] sm:text-xs transition-colors ${
-              addedToCart 
-                ? 'bg-green-500 text-white' 
-                : 'bg-[#0D2B3A] text-white hover:bg-[#1A73A8]'
-            }`}
+            className="flex-1 py-1.5 sm:py-2 rounded-md sm:rounded-lg flex items-center justify-center font-semibold text-[9px] sm:text-xs transition-colors duration-200 bg-[#0D2B3A] text-white hover:bg-[#1A73A8]"
             aria-label="Add to cart"
           >
             <ShoppingCart className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1 flex-shrink-0" />
-            <span className="truncate">{addedToCart ? 'Added!' : 'Add to Cart'}</span>
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            <span className="truncate">Add to Cart</span>
+          </button>
+          <button
             onClick={handleBuyNow}
-            className="flex-1 py-1.5 sm:py-2 bg-[#1A73A8] text-white rounded-md sm:rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors font-semibold text-[9px] sm:text-xs"
+            className="flex-1 py-1.5 sm:py-2 bg-[#1A73A8] text-white rounded-md sm:rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors duration-200 font-semibold text-[9px] sm:text-xs"
             aria-label="Buy now"
           >
             <Zap className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1 flex-shrink-0" />
             <span className="truncate">Buy Now</span>
-          </motion.button>
+          </button>
         </div>
       </div>
     </motion.div>
