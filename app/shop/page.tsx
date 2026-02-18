@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
-import { Filter, Grid, List, X, Star, Gift, TrendingUp, Zap, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Grid, List, X, Star, Gift, TrendingUp, Zap, Sparkles, ChevronLeft, ChevronRight, Search, SlidersHorizontal, ChevronDown, ArrowUpDown, LayoutGrid } from 'lucide-react';
 import Loader from '../components/Loader';
 import Link from 'next/link';
 import { productApi, Product } from '../../lib/api/productApi';
@@ -19,9 +19,11 @@ export default function ShopPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 50000]);
-  const [minRating, setMinRating] = useState(0);
+  const [selectedPriceTag, setSelectedPriceTag] = useState('all');
+  const [sortBy, setSortBy] = useState('default');
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showMobileCategories, setShowMobileCategories] = useState(false);
+  const [showMobilePrice, setShowMobilePrice] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,22 +96,7 @@ export default function ShopPage() {
         }));
         setCategories(mappedCategories);
         
-        // Update price range based on products
-        if (mappedProducts.length > 0) {
-          const prices = mappedProducts.map(p => p.price || 0).filter(p => p > 0);
-          if (prices.length > 0) {
-            const maxPrice = Math.max(...prices);
-            // Set price range to include all products (add 10% buffer)
-            const maxRange = Math.ceil(maxPrice * 1.1);
-            setPriceRange([0, maxRange]);
-          } else {
-            // If all prices are 0, set a reasonable default range
-            setPriceRange([0, 50000]);
-          }
-        } else {
-          // If no products, set default range
-          setPriceRange([0, 50000]);
-        }
+        // Products loaded successfully
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load products. Please try again later.');
@@ -121,14 +108,47 @@ export default function ShopPage() {
     fetchData();
   }, []);
 
-  const filteredProducts = allProducts.filter((product) => {
-    const productPrice = product.price || product.selling_price || 0;
-    const categoryMatch = selectedCategory === 'All' || product.category?.name === selectedCategory;
-    const priceMatch = productPrice >= priceRange[0] && productPrice <= priceRange[1];
-    const searchMatch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    return categoryMatch && priceMatch && searchMatch;
-  });
+  // Price tag presets
+  const priceTags = [
+    { id: 'all', label: 'All Prices', min: 0, max: Infinity },
+    { id: 'under500', label: 'Under Rs. 500', min: 0, max: 500 },
+    { id: '500-1000', label: 'Rs. 500 – 1,000', min: 500, max: 1000 },
+    { id: '1000-2500', label: 'Rs. 1,000 – 2,500', min: 1000, max: 2500 },
+    { id: '2500-5000', label: 'Rs. 2,500 – 5,000', min: 2500, max: 5000 },
+    { id: 'above5000', label: 'Above Rs. 5,000', min: 5000, max: Infinity },
+  ];
+
+  const sortOptions = [
+    { id: 'default', label: 'Relevance' },
+    { id: 'price-low', label: 'Price: Low to High' },
+    { id: 'price-high', label: 'Price: High to Low' },
+    { id: 'name-az', label: 'Name: A to Z' },
+    { id: 'name-za', label: 'Name: Z to A' },
+    { id: 'newest', label: 'Newest First' },
+  ];
+
+  const activeTag = priceTags.find(t => t.id === selectedPriceTag) || priceTags[0];
+
+  const filteredProducts = allProducts
+    .filter((product) => {
+      const productPrice = product.price || product.selling_price || 0;
+      const categoryMatch = selectedCategory === 'All' || product.category?.name === selectedCategory;
+      const priceMatch = productPrice >= activeTag.min && productPrice <= activeTag.max;
+      const searchMatch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return categoryMatch && priceMatch && searchMatch;
+    })
+    .sort((a, b) => {
+      const priceA = a.price || a.selling_price || 0;
+      const priceB = b.price || b.selling_price || 0;
+      switch (sortBy) {
+        case 'price-low': return priceA - priceB;
+        case 'price-high': return priceB - priceA;
+        case 'name-az': return a.name.localeCompare(b.name);
+        case 'name-za': return b.name.localeCompare(a.name);
+        case 'newest': return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        default: return 0;
+      }
+    });
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -136,18 +156,19 @@ export default function ShopPage() {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
-  // Debug logging (after currentProducts is defined)
-  console.log('All products:', allProducts.length);
-  console.log('Filtered products:', filteredProducts.length);
-  console.log('Selected category:', selectedCategory);
-  console.log('Price range:', priceRange);
-  console.log('Current page:', currentPage);
-  console.log('Current products:', currentProducts.length);
+  // Close sort menu when clicking outside
+  useEffect(() => {
+    const handleClick = () => setShowSortMenu(false);
+    if (showSortMenu) {
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [showSortMenu]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, searchQuery, priceRange]);
+  }, [selectedCategory, searchQuery, selectedPriceTag, sortBy]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -159,43 +180,166 @@ export default function ShopPage() {
           <div className="absolute top-0 right-0 w-48 h-48 sm:w-96 sm:h-96 bg-[#DFF3EA] rounded-full blur-3xl"></div>
         </div>
         <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
+          <div className="text-center">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3">Shop</h1>
             <p className="text-sm sm:text-base md:text-lg text-white/90">Discover our premium collection</p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Filters and View Toggle */}
-      <section className="py-3 sm:py-4 md:py-5 bg-white border-b border-gray-100">
+      {/* Shop Toolbar — NOT sticky, scrolls normally */}
+      <section className="py-4 sm:py-5 md:py-6 bg-white border-b border-gray-100">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col gap-3">
-            {/* Top Row: Categories - Compact Pill Style */}
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <h2 className="text-[10px] sm:text-xs font-medium text-gray-400 uppercase tracking-widest">Categories</h2>
-                <span className="text-[10px] sm:text-xs text-gray-400">
-                  {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'}
+
+          {/* Search + Sort + View */}
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#0D2B3A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1A73A8]/30 focus:border-[#1A73A8] transition-all"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Sort */}
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowSortMenu(!showSortMenu); }}
+                className="flex items-center gap-1.5 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#0D2B3A] hover:border-[#1A73A8]/40 transition-all whitespace-nowrap"
+              >
+                <ArrowUpDown className="w-3.5 h-3.5 text-gray-500" />
+                <span className="hidden sm:inline text-xs sm:text-sm font-medium">
+                  {sortOptions.find(s => s.id === sortBy)?.label || 'Sort'}
                 </span>
-              </div>
-              <div className="relative">
-                <div className="flex-1 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1 snap-x snap-mandatory">
-                  <div className="flex gap-1.5 sm:gap-2 min-w-max">
+                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showSortMenu ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {showSortMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-40"
+                  >
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => { setSortBy(option.id); setShowSortMenu(false); }}
+                        className={`w-full text-left px-3.5 py-2.5 text-xs sm:text-sm transition-colors ${
+                          sortBy === option.id
+                            ? 'bg-[#1A73A8]/10 text-[#1A73A8] font-semibold'
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* View Toggle */}
+            <div className="hidden sm:flex items-center gap-0.5 bg-gray-50 border border-gray-200 rounded-xl p-0.5">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'grid' ? 'bg-white text-[#0D2B3A] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                aria-label="Grid view"
+              >
+                <Grid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'list' ? 'bg-white text-[#0D2B3A] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                aria-label="List view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* ── Browse by Category ── */}
+          <div className="mb-4 sm:mb-5">
+            {/* Header — tappable dropdown on mobile, static on desktop */}
+            <button
+              onClick={() => setShowMobileCategories(!showMobileCategories)}
+              className="flex items-center gap-2 mb-0 sm:mb-2.5 w-full sm:pointer-events-none"
+            >
+              <LayoutGrid className="w-4 h-4 text-[#1A73A8] flex-shrink-0" />
+              <h3 className="text-xs sm:text-sm font-bold text-[#0D2B3A] uppercase tracking-wider">Browse by Category</h3>
+              {selectedCategory !== 'All' && (
+                <span className="text-[10px] bg-[#1A73A8] text-white px-1.5 py-0.5 rounded-full font-semibold">{selectedCategory}</span>
+              )}
+              <div className="flex-1 h-px bg-gray-200" />
+              {selectedCategory !== 'All' && (
+                <span
+                  onClick={(e) => { e.stopPropagation(); setSelectedCategory('All'); setCurrentPage(1); }}
+                  className="text-[11px] sm:text-xs text-[#1A73A8] hover:text-[#0D2B3A] font-medium transition-colors flex items-center gap-0.5 whitespace-nowrap cursor-pointer"
+                >
+                  <X className="w-3 h-3" /> Reset
+                </span>
+              )}
+              <ChevronDown className={`w-4 h-4 text-gray-400 sm:hidden transition-transform duration-200 flex-shrink-0 ${showMobileCategories ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Desktop: always visible horizontal scroll */}
+            <div className="hidden sm:block relative mt-2.5">
+              <div className="overflow-x-auto scrollbar-hide pb-1">
+                <div className="flex gap-2 min-w-max">
+                  <button
+                    onClick={() => { setSelectedCategory('All'); setCurrentPage(1); }}
+                    className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-sm whitespace-nowrap border ${
+                      selectedCategory === 'All'
+                        ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-[#1A73A8] hover:text-[#1A73A8]'
+                    }`}
+                  >
+                    All Products
+                  </button>
+                  {categories.map((cat) => (
                     <button
-                      key="All"
-                      onClick={() => {
-                        setSelectedCategory('All');
-                        setCurrentPage(1);
-                      }}
-                      className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-all duration-200 text-[11px] sm:text-xs whitespace-nowrap snap-start ${
+                      key={cat.id || cat.name}
+                      onClick={() => { setSelectedCategory(cat.name); setCurrentPage(1); }}
+                      className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-sm whitespace-nowrap border ${
+                        selectedCategory === cat.name
+                          ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-[#1A73A8] hover:text-[#1A73A8]'
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+            </div>
+
+            {/* Mobile: collapsible dropdown */}
+            <AnimatePresence>
+              {showMobileCategories && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  className="overflow-hidden sm:hidden"
+                >
+                  <div className="flex flex-wrap gap-2 pt-2.5">
+                    <button
+                      onClick={() => { setSelectedCategory('All'); setCurrentPage(1); setShowMobileCategories(false); }}
+                      className={`px-3 py-1.5 rounded-full font-medium transition-all text-xs border ${
                         selectedCategory === 'All'
-                          ? 'bg-[#0D2B3A] text-white shadow-sm'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
+                          : 'bg-white text-gray-600 border-gray-200 active:border-[#1A73A8] active:text-[#1A73A8]'
                       }`}
                     >
                       All
@@ -203,190 +347,124 @@ export default function ShopPage() {
                     {categories.map((cat) => (
                       <button
                         key={cat.id || cat.name}
-                        onClick={() => {
-                          setSelectedCategory(cat.name);
-                          setCurrentPage(1);
-                        }}
-                        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-all duration-200 text-[11px] sm:text-xs whitespace-nowrap snap-start ${
+                        onClick={() => { setSelectedCategory(cat.name); setCurrentPage(1); setShowMobileCategories(false); }}
+                        className={`px-3 py-1.5 rounded-full font-medium transition-all text-xs border ${
                           selectedCategory === cat.name
-                            ? 'bg-[#0D2B3A] text-white shadow-sm'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
+                            : 'bg-white text-gray-600 border-gray-200 active:border-[#1A73A8] active:text-[#1A73A8]'
                         }`}
                       >
                         {cat.name}
                       </button>
                     ))}
                   </div>
-                </div>
-                <div className="absolute right-0 top-0 bottom-1 w-6 sm:w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Bottom Row: Filters and View Toggle */}
-            <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg font-medium transition-all duration-200 text-[11px] sm:text-xs ${
-                  showFilters
-                    ? 'bg-[#0D2B3A] text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <Filter className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                <span>Filters</span>
-                {filteredProducts.length < allProducts.length && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                    showFilters ? 'bg-white/20 text-white' : 'bg-[#1A73A8]/10 text-[#1A73A8]'
-                  }`}>
-                    {allProducts.length - filteredProducts.length}
-                  </span>
-                )}
-              </button>
-              
-              <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-1.5 sm:p-2 rounded-md transition-all duration-200 ${
-                    viewMode === 'grid'
-                      ? 'bg-white text-[#0D2B3A] shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                  aria-label="Grid view"
-                >
-                  <Grid className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-1.5 sm:p-2 rounded-md transition-all duration-200 ${
-                    viewMode === 'list'
-                      ? 'bg-white text-[#0D2B3A] shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                  aria-label="List view"
-                >
-                  <List className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Advanced Filters Panel */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25, ease: 'easeInOut' }}
-                className="overflow-hidden"
+          {/* ── Filter by Price ── */}
+          <div className="mb-3">
+            {/* Header — tappable dropdown on mobile, static on desktop */}
+            <button
+              onClick={() => setShowMobilePrice(!showMobilePrice)}
+              className="flex items-center gap-2 mb-0 sm:mb-2.5 w-full sm:pointer-events-none"
+            >
+              <SlidersHorizontal className="w-4 h-4 text-[#F97316] flex-shrink-0" />
+              <h3 className="text-xs sm:text-sm font-bold text-[#0D2B3A] uppercase tracking-wider">Filter by Price</h3>
+              {selectedPriceTag !== 'all' && (
+                <span className="text-[10px] bg-[#F97316] text-white px-1.5 py-0.5 rounded-full font-semibold">{activeTag.label}</span>
+              )}
+              <div className="flex-1 h-px bg-gray-200" />
+              {selectedPriceTag !== 'all' && (
+                <span
+                  onClick={(e) => { e.stopPropagation(); setSelectedPriceTag('all'); }}
+                  className="text-[11px] sm:text-xs text-[#1A73A8] hover:text-[#0D2B3A] font-medium transition-colors flex items-center gap-0.5 whitespace-nowrap cursor-pointer"
+                >
+                  <X className="w-3 h-3" /> Reset
+                </span>
+              )}
+              <ChevronDown className={`w-4 h-4 text-gray-400 sm:hidden transition-transform duration-200 flex-shrink-0 ${showMobilePrice ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Desktop: always visible */}
+            <div className="hidden sm:flex flex-wrap gap-2 mt-2.5">
+              {priceTags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => setSelectedPriceTag(tag.id)}
+                  className={`px-3.5 py-2 rounded-lg font-medium transition-all duration-200 text-xs whitespace-nowrap border ${
+                    selectedPriceTag === tag.id
+                      ? 'bg-[#1A73A8] text-white border-[#1A73A8] shadow-md'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-[#1A73A8]/50 hover:text-[#1A73A8]'
+                  }`}
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile: collapsible dropdown */}
+            <AnimatePresence>
+              {showMobilePrice && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  className="overflow-hidden sm:hidden"
+                >
+                  <div className="flex flex-wrap gap-1.5 pt-2.5">
+                    {priceTags.map((tag) => (
+                      <button
+                        key={tag.id}
+                        onClick={() => { setSelectedPriceTag(tag.id); setShowMobilePrice(false); }}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all duration-200 text-[11px] whitespace-nowrap border ${
+                          selectedPriceTag === tag.id
+                            ? 'bg-[#1A73A8] text-white border-[#1A73A8] shadow-md'
+                            : 'bg-white text-gray-500 border-gray-200 active:border-[#1A73A8] active:text-[#1A73A8]'
+                        }`}
+                      >
+                        {tag.label}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Results summary + Clear All */}
+          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+            <p className="text-gray-400 text-[11px] sm:text-xs">
+              <span className="font-semibold text-[#0D2B3A]">{filteredProducts.length}</span> {filteredProducts.length === 1 ? 'product' : 'products'} found
+              {selectedCategory !== 'All' && <span> in <span className="text-[#0D2B3A] font-medium">{selectedCategory}</span></span>}
+              {selectedPriceTag !== 'all' && <span> · <span className="text-[#1A73A8] font-medium">{activeTag.label}</span></span>}
+              {searchQuery && <span> · &ldquo;<span className="text-[#0D2B3A] font-medium">{searchQuery}</span>&rdquo;</span>}
+            </p>
+            {(selectedCategory !== 'All' || selectedPriceTag !== 'all' || searchQuery || sortBy !== 'default') && (
+              <button
+                onClick={() => {
+                  setSelectedCategory('All');
+                  setSelectedPriceTag('all');
+                  setSearchQuery('');
+                  setSortBy('default');
+                  setCurrentPage(1);
+                }}
+                className="flex items-center gap-1 px-2.5 py-1 text-[11px] sm:text-xs text-red-500 hover:text-red-700 font-medium whitespace-nowrap transition-colors"
               >
-                <div className="mt-3 sm:mt-4 bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-100">
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-4 sm:mb-5">
-                    <h3 className="text-xs sm:text-sm font-semibold text-[#0D2B3A] uppercase tracking-wider">Refine Results</h3>
-                    <button
-                      onClick={() => setShowFilters(false)}
-                      className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-                    {/* Price Range */}
-                    <div>
-                      <label className="block text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                        Price Range
-                      </label>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex-1 bg-white rounded-lg border border-gray-200 px-3 py-2 text-center">
-                          <span className="text-[10px] text-gray-400 block">Min</span>
-                          <span className="text-sm font-bold text-[#0D2B3A]">Rs. {priceRange[0].toLocaleString()}</span>
-                        </div>
-                        <div className="w-4 h-px bg-gray-300"></div>
-                        <div className="flex-1 bg-white rounded-lg border border-gray-200 px-3 py-2 text-center">
-                          <span className="text-[10px] text-gray-400 block">Max</span>
-                          <span className="text-sm font-bold text-[#0D2B3A]">Rs. {priceRange[1].toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <div className="space-y-2 px-1">
-                        <input
-                          type="range"
-                          min="0"
-                          max={priceRange[1] || 50000}
-                          value={priceRange[0]}
-                          onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                          className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#1A73A8] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1A73A8] [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
-                        />
-                        <input
-                          type="range"
-                          min="0"
-                          max={priceRange[1] || 50000}
-                          value={priceRange[1]}
-                          onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                          className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#1A73A8] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1A73A8] [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Rating Filter */}
-                    <div>
-                      <label className="block text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                        Minimum Rating
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          { value: 0, label: 'Any' },
-                          { value: 3, label: '3+' },
-                          { value: 4, label: '4+' },
-                          { value: 4.5, label: '4.5+' },
-                        ].map((rating) => (
-                          <button
-                            key={rating.value}
-                            onClick={() => setMinRating(rating.value)}
-                            className={`flex items-center gap-1 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium ${
-                              minRating === rating.value
-                                ? 'bg-[#0D2B3A] text-white shadow-sm'
-                                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1A73A8]/30 hover:bg-[#F8F2DE]/50'
-                            }`}
-                          >
-                            {rating.value > 0 && <Star className={`w-3 h-3 ${minRating === rating.value ? 'text-yellow-300 fill-yellow-300' : 'text-yellow-400 fill-yellow-400'}`} />}
-                            {rating.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Reset Button */}
-                  <div className="mt-4 sm:mt-5 pt-3 border-t border-gray-200 flex justify-end">
-                    <button
-                      onClick={() => {
-                        setPriceRange([0, priceRange[1] || 50000]);
-                        setMinRating(0);
-                      }}
-                      className="text-xs text-gray-400 hover:text-[#1A73A8] font-medium transition-colors flex items-center gap-1"
-                    >
-                      <X className="w-3 h-3" />
-                      Clear all filters
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+                <X className="w-3 h-3" />
+                Clear All
+              </button>
             )}
-          </AnimatePresence>
+          </div>
         </div>
       </section>
 
       {/* Special Offer Banner */}
       <section className="py-4 sm:py-6 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-5"
-          >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-5">
             <div className="flex items-center space-x-3">
               <Gift className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0" />
               <div>
@@ -394,28 +472,23 @@ export default function ShopPage() {
                 <p className="text-white/90 text-xs sm:text-sm">Get Rs. 500 off on orders above Rs. 2000</p>
               </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white text-[#0D2B3A] px-5 sm:px-7 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto"
+            <button
+              className="bg-white text-[#0D2B3A] px-5 sm:px-7 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto hover:scale-[1.05] active:scale-[0.95]"
             >
               Shop Now
-            </motion.button>
-          </motion.div>
+            </button>
+          </div>
         </div>
       </section>
 
       {/* Products Grid */}
       <section className="py-6 sm:py-8 bg-white">
         <div className="container mx-auto px-3 sm:px-4">
-          <div className="mb-3 sm:mb-5 flex items-center justify-between">
-            <p className="text-[#6B7280] text-xs sm:text-sm">
-              Showing <span className="font-bold text-[#0D2B3A]">{indexOfFirstProduct + 1}-{Math.min(indexOfLastProduct, filteredProducts.length)}</span> of <span className="font-bold text-[#0D2B3A]">{filteredProducts.length}</span> product{filteredProducts.length !== 1 ? 's' : ''}
+          {filteredProducts.length > 0 && (
+            <p className="text-gray-400 text-xs mb-3">
+              Showing {indexOfFirstProduct + 1}–{Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length}
             </p>
-            {filteredProducts.length === 0 && (
-              <p className="text-[#F97316] font-medium">No products match your filters</p>
-            )}
-          </div>
+          )}
           <div
             className={
               viewMode === 'grid'
@@ -436,13 +509,9 @@ export default function ShopPage() {
                 <p className="text-[#6B7280]">No products found matching your criteria.</p>
               </div>
             ) : (
-              currentProducts.map((product, index) => (
-              <motion.div
+              currentProducts.map((product) => (
+              <div
                 key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
                   className={viewMode === 'grid' ? 'h-full' : ''}
                 >
                   <ProductCard
@@ -457,7 +526,7 @@ export default function ShopPage() {
                     sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
                     selling_price={product.selling_price}
                   />
-              </motion.div>
+              </div>
               ))
             )}
           </div>
@@ -530,10 +599,7 @@ export default function ShopPage() {
       {/* Top Sellers Section */}
       <section className="py-10 sm:py-14 bg-gradient-to-b from-[#F8F2DE] to-white">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <div
             className="text-center mb-8 sm:mb-10"
           >
             <div className="flex items-center justify-center space-x-2 mb-3">
@@ -541,18 +607,13 @@ export default function ShopPage() {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A]">Top Sellers</h2>
             </div>
             <p className="text-[#6B7280] text-sm sm:text-base">Our most popular products this month</p>
-          </motion.div>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {allProducts
               .slice(0, 4)
-              .map((product, index) => (
-                <motion.div
+              .map((product) => (
+                <div
                   key={product.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
                 >
                   <ProductCard
                     id={product.id}
@@ -565,7 +626,7 @@ export default function ShopPage() {
                     sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
                     selling_price={product.selling_price}
                   />
-                </motion.div>
+                </div>
               ))}
           </div>
         </div>
@@ -574,10 +635,7 @@ export default function ShopPage() {
       {/* Why Shop With Us */}
       <section className="py-10 sm:py-14 bg-white">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <div
             className="text-center mb-8 sm:mb-10"
           >
             <Sparkles className="w-8 h-8 sm:w-9 sm:h-9 text-[#F97316] mx-auto mb-3" />
@@ -585,22 +643,17 @@ export default function ShopPage() {
             <p className="text-[#6B7280] text-sm sm:text-base max-w-2xl mx-auto">
               Experience the difference with our premium service
             </p>
-          </motion.div>
+          </div>
           <div className="grid md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
             {[
               { icon: Zap, title: 'Fast Delivery', desc: 'Quick and reliable shipping' },
               { icon: Star, title: 'Premium Quality', desc: 'Handpicked products' },
               { icon: Gift, title: 'Best Prices', desc: 'Competitive pricing' },
-            ].map((item, index) => {
+            ].map((item) => {
               const Icon = item.icon;
               return (
-                <motion.div
+                <div
                   key={item.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
                   className="bg-gradient-to-br from-[#F8F2DE] to-white p-5 sm:p-7 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center"
                 >
                   <div className="w-12 h-12 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -608,7 +661,7 @@ export default function ShopPage() {
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-[#0D2B3A] mb-2">{item.title}</h3>
                   <p className="text-[#6B7280] text-xs sm:text-sm">{item.desc}</p>
-                </motion.div>
+                </div>
               );
             })}
           </div>

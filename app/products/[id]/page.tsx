@@ -855,13 +855,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <p className="text-[#6B7280] text-xs sm:text-sm mt-1">Related products you might be interested in</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch">
-            {relatedProducts.length > 0 ? relatedProducts.map((product, index) => (
-              <motion.div
+            {relatedProducts.length > 0 ? relatedProducts.map((product) => (
+              <div
                 key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="h-full"
               >
                 <ProductCard
@@ -875,7 +871,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
                   selling_price={product.selling_price}
                 />
-              </motion.div>
+              </div>
             )) : (
               <div className="col-span-full text-center py-8">
                 <p className="text-[#6B7280]">No related products available.</p>
