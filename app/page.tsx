@@ -169,15 +169,8 @@ export default function Home() {
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load data. Please try again later.');
-        // Fallback to default data on error
-        setCategories([
-          { id: '1', name: 'Dry Fruits', slug: 'dry-fruits', code: 'CAT-1', is_active: true, image: '/category-images/dry_fruits.jpg', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-          { id: '2', name: 'Dates', slug: 'dates', code: 'CAT-2', is_active: true, image: '/category-images/dates.jpg', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-          { id: '3', name: 'Nuts', slug: 'nuts', code: 'CAT-3', is_active: true, image: '/Cashew-kaju-Banner-1.jpg', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-          { id: '4', name: 'Honey', slug: 'honey', code: 'CAT-4', is_active: true, image: '/category-images/honey.jpeg', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-          { id: '5', name: 'Saffron', slug: 'saffron', code: 'CAT-5', is_active: true, image: '/Banner-01.jpg', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-          { id: '6', name: 'Spices', slug: 'spices', code: 'CAT-6', is_active: true, image: '/category-images/spices.jpg', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-        ] as Category[]);
+        // No fallback – show error state, categories/products stay empty
+        setCategories([]);
         setFeaturedProducts([]);
       } finally {
         setLoading(false);
@@ -196,7 +189,7 @@ export default function Home() {
       <WhyChooseUsSection />
       <FeaturedProductsSection featuredProducts={featuredProducts} loading={loading} />
       <BenefitsSection />
-      <HerbsSection />
+      <HerbsSection categories={categories} />
       <TestimonialsSection />
       <Newsletter />
       <Footer />
