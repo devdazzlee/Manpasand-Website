@@ -504,7 +504,7 @@ export default function AboutPage() {
       </section>
 
       {/* Our Branches Section */}
-      <section className="py-14 sm:py-18 md:py-24 bg-white">
+      <section id="branches" className="py-14 sm:py-18 md:py-24 bg-white scroll-mt-20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

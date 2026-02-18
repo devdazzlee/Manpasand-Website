@@ -78,7 +78,7 @@ export default function HeroSection() {
                 whileTap={{ scale: 0.97 }}
               >
                 <Link
-                  href="/locations"
+                  href="/about#branches"
                   className="inline-flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full font-semibold transition-all duration-300 border border-white/30 text-sm"
                 >
                   <MapPin className="w-4 h-4" />
