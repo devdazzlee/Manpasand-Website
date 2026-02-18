@@ -26,11 +26,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedQuantityOption, setSelectedQuantityOption] = useState<string>('');
+  const [customWeight, setCustomWeight] = useState<string>('');
+  const [isCustomWeight, setIsCustomWeight] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
   const [isInWishlist, setIsInWishlist] = useState(false);
 
-  const { getOrFetchProduct, cacheProduct } = useProductStore();
+  const { cacheProduct } = useProductStore();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -38,8 +40,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         setLoading(true);
         setError(null);
         
-        // Use store to get cached product immediately or fetch it
-        const productData = await getOrFetchProduct(id);
+        // Always fetch fresh product data from API to ensure all relations (unit, category) are included.
+        // The store cache can return stale data without unit info, causing weight variations to not show.
+        const productData = await productApi.getProductById(id);
+        
+        // Update cache with fresh data so other pages also benefit
+        cacheProduct(productData);
         
         // Map product images
         const images = productData.ProductImage && productData.ProductImage.length > 0
@@ -79,16 +85,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           };
         }
         
-        // Debug: log unit information
-        if (process.env.NODE_ENV === 'development') {
-          console.log('📦 Product unit data:', {
-            unit: unitData,
-            unit_id: (productData as any).unit_id,
-            productData_unit: productData.unit,
-            productId: productData.id,
-          });
-        }
-
         const mappedProduct = {
           ...productData,
           images,
@@ -104,15 +100,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           origin: productData.origin || 'N/A',
           unit: unitData, // Ensure unit is included
         };
-        
-        // Debug: log unit information
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Product unit data:', {
-            unit: mappedProduct.unit,
-            unit_id: (productData as any).unit_id,
-            productData_unit: productData.unit,
-          });
-        }
         
         setProduct(mappedProduct as any);
         
@@ -178,55 +165,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   // Check if unit is pieces (should show increment/decrement) or weight (should show options)
   const isPiecesUnit = useMemo(() => {
-    if (!product?.unit?.name) {
-      // Only log warning if product exists and is loaded
-      if (process.env.NODE_ENV === 'development' && product && product.id) {
-        console.warn('⚠️ No unit name found:', {
-          productId: product.id,
-          productName: product.name,
-          unit: product.unit,
-          unit_id: (product as any).unit_id,
-        });
-      }
-      return false;
-    }
+    if (!product?.unit?.name) return false;
     const unitName = product.unit.name.toLowerCase().trim();
-    const isPieces = unitName === 'pcs' || unitName === 'pc' || unitName === 'piece' || unitName === 'pieces';
-    
-    // Debug: log unit detection
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 Unit detection:', {
-        unitName,
-        isPieces,
-        productId: product?.id,
-      });
-    }
-    
-    return isPieces;
-  }, [product?.unit?.name, product?.id]);
+    return unitName === 'pcs' || unitName === 'pc' || unitName === 'piece' || unitName === 'pieces';
+  }, [product?.unit?.name]);
 
   // Generate quantity options based on unit (only for weight units, not pieces)
   const quantityOptions = useMemo(() => {
     // If pieces unit, return empty array (will show increment/decrement)
     if (isPiecesUnit) return [];
     
-    // Get unit name - check both unit.name and try to infer from unit_id if needed
     const unitName = product?.unit?.name 
       ? product.unit.name.toLowerCase().trim()
       : null;
     
-    if (!unitName) {
-      // If no unit name but we have unit_id, we can't determine unit type
-      // Default to showing increment/decrement
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('No unit name found for product:', {
-          productId: product?.id,
-          unitId: (product as any)?.unit_id,
-          unit: product?.unit,
-        });
-      }
-      return [];
-    }
+    if (!unitName) return [];
     
     // For grams (gm, g, gram, grams)
     if (unitName === 'gm' || unitName === 'g' || unitName === 'gram' || unitName === 'grams') {
@@ -239,13 +192,17 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       ];
     }
     
-    // For kilograms (kg, kilogram, kilograms)
-    if (unitName === 'kg' || unitName === 'kilogram' || unitName === 'kilograms') {
+    // For kilograms (kg, kilogram, kilograms, kgs)
+    if (unitName === 'kg' || unitName === 'kgs' || unitName === 'kilogram' || unitName === 'kilograms') {
       return [
-        { value: '1', label: '1kg' },
-        { value: '2', label: '2kg' },
-        { value: '5', label: '5kg' },
-        { value: '10', label: '10kg' },
+        { value: '0.05', label: '50 gms' },
+        { value: '0.1', label: '100 gms' },
+        { value: '0.125', label: '125 gms' },
+        { value: '0.2', label: '200 gms' },
+        { value: '0.25', label: '250 gms' },
+        { value: '0.375', label: '375 gms' },
+        { value: '0.5', label: '500 gms' },
+        { value: '1', label: '1 Kg' },
       ];
     }
     
@@ -270,6 +227,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setQuantity(parseFloat(selectedQuantityOption));
     }
   }, [selectedQuantityOption]);
+
+  // Calculate price based on selected variation (for weight-based products)
+  const computedPrice = useMemo(() => {
+    const basePrice = product?.selling_price || product?.price || 0;
+    if (isCustomWeight && customWeight) {
+      const grams = parseFloat(customWeight);
+      if (!isNaN(grams) && grams > 0) {
+        return Math.round(basePrice * (grams / 1000)); // convert grams to kg fraction
+      }
+    }
+    if (quantityOptions.length > 0 && selectedQuantityOption) {
+      return Math.round(basePrice * parseFloat(selectedQuantityOption));
+    }
+    return basePrice;
+  }, [product?.selling_price, product?.price, quantityOptions, selectedQuantityOption, isCustomWeight, customWeight]);
 
   // Check if product is in wishlist
   useEffect(() => {
@@ -305,46 +277,60 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
   };
 
+  // Build variation label for cart item name (e.g. "Product Name - 250 gms")
+  const selectedVariationLabel = useMemo(() => {
+    if (isCustomWeight && customWeight) {
+      const g = parseFloat(customWeight);
+      if (!isNaN(g) && g > 0) {
+        return g >= 1000 ? `${(g / 1000).toFixed(g % 1000 === 0 ? 0 : 1)} Kg` : `${g} gms`;
+      }
+    }
+    if (quantityOptions.length > 0 && selectedQuantityOption) {
+      return quantityOptions.find(o => o.value === selectedQuantityOption)?.label || '';
+    }
+    return '';
+  }, [isCustomWeight, customWeight, quantityOptions, selectedQuantityOption]);
+
+  // Generate a unique cart ID for the selected variation
+  const cartVariationId = useMemo(() => {
+    if (isCustomWeight && customWeight) {
+      return `${product?.id}-custom-${customWeight}g`;
+    }
+    if (selectedVariationLabel && selectedQuantityOption) {
+      return `${product?.id}-${selectedQuantityOption}`;
+    }
+    return product?.id || '';
+  }, [product?.id, isCustomWeight, customWeight, selectedVariationLabel, selectedQuantityOption]);
+
   const handleAddToCart = () => {
     if (product) {
-      // Extract price correctly
-      const cartPrice = product.price 
-        || (product.sales_rate_inc_dis_and_tax ? parseFloat(String(product.sales_rate_inc_dis_and_tax)) : 0)
-        || (product.sales_rate_exc_dis_and_tax ? parseFloat(String(product.sales_rate_exc_dis_and_tax)) : 0)
-        || product.selling_price 
-        || 0;
-      
+      if (isCustomWeight && (!customWeight || parseFloat(customWeight) <= 0)) return; // guard
       const productImage = product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : null) || '/Banner-01.jpg';
+      const cartName = selectedVariationLabel ? `${product.name} - ${selectedVariationLabel}` : product.name;
       cartUtils.addToCart({
-        id: product.id,
-        name: product.name,
-        price: cartPrice,
+        id: cartVariationId,
+        name: cartName,
+        price: computedPrice,
         image: productImage,
         productId: product.id,
-        quantity: quantity,
+        quantity: 1,
       });
-      // Show toast — no state change, no re-render of this component
-      showCartToast(product.name, productImage);
+      showCartToast(cartName, productImage);
     }
   };
 
   const handleBuyNow = () => {
     if (product) {
-      // Extract price correctly
-      const cartPrice = product.price 
-        || (product.sales_rate_inc_dis_and_tax ? parseFloat(String(product.sales_rate_inc_dis_and_tax)) : 0)
-        || (product.sales_rate_exc_dis_and_tax ? parseFloat(String(product.sales_rate_exc_dis_and_tax)) : 0)
-        || product.selling_price 
-        || 0;
-      
-      // Add to cart first
+      if (isCustomWeight && (!customWeight || parseFloat(customWeight) <= 0)) return; // guard
+      const productImage = product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : null) || '/Banner-01.jpg';
+      const cartName = selectedVariationLabel ? `${product.name} - ${selectedVariationLabel}` : product.name;
       cartUtils.addToCart({
-        id: product.id,
-        name: product.name,
-        price: cartPrice,
-        image: product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : null) || '/Banner-01.jpg',
+        id: cartVariationId,
+        name: cartName,
+        price: computedPrice,
+        image: productImage,
         productId: product.id,
-        quantity: quantity,
+        quantity: 1,
       });
       
       // Redirect to checkout
@@ -455,18 +441,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3 bg-[#F8F2DE]/60 rounded-xl">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 p-3 bg-[#F8F2DE]/60 rounded-xl">
                 <span className="text-xl sm:text-2xl font-bold text-[#0D2B3A]">
-                  Rs. {(product.selling_price || product.price || 0).toLocaleString()}
+                  Rs. {computedPrice.toLocaleString()}
                 </span>
+                {quantityOptions.length > 0 && selectedQuantityOption && parseFloat(selectedQuantityOption) !== 1 && (
+                  <span className="text-xs text-[#6B7280] bg-white/70 px-2 py-0.5 rounded-full">
+                    Rs. {(product.selling_price || product.price || 0).toLocaleString()} / kg
+                  </span>
+                )}
                 {product.originalPrice && (
                   <span className="text-sm text-[#9CA3AF] line-through">
                     Rs. {product.originalPrice.toLocaleString()}
                   </span>
                 )}
-                {product.originalPrice && product.price && (
+                {discount > 0 && (
                   <span className="bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[11px] font-bold ml-auto">
-                    Save Rs. {(product.originalPrice - product.price).toLocaleString()}
+                    -{discount}%
                   </span>
                 )}
               </div>
@@ -491,29 +482,94 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               {/* Quantity/Unit Selector */}
               {product.unit ? (
                 quantityOptions.length > 0 ? (
-                  <div className="flex flex-col space-y-2 p-3 bg-white border border-gray-200 rounded-xl">
+                  <div className="p-3 sm:p-4 bg-white border border-gray-200 rounded-xl space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-[#0D2B3A] text-sm">Select Quantity</span>
-                      <span className="text-[#9CA3AF] text-xs">{product.stock} in stock</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-[#0D2B3A] text-sm">Weight</span>
+                        <span className="text-[10px] text-[#1A73A8] bg-[#1A73A8]/10 px-2 py-0.5 rounded-full font-medium">
+                          {quantityOptions.find(o => o.value === selectedQuantityOption)?.label || ''}
+                        </span>
+                      </div>
+                      {product.stock && (
+                        <span className="text-[#9CA3AF] text-xs">{product.stock} in stock</span>
+                      )}
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {quantityOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => {
-                            setSelectedQuantityOption(option.value);
-                            setQuantity(parseFloat(option.value));
-                          }}
-                          className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
-                            selectedQuantityOption === option.value
-                              ? 'bg-[#0D2B3A] text-white'
-                              : 'bg-gray-100 text-[#0D2B3A] hover:bg-[#DFF3EA]'
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
+                    <div className="grid grid-cols-4 gap-2">
+                      {quantityOptions.map((option) => {
+                        const isSelected = !isCustomWeight && selectedQuantityOption === option.value;
+                        const optionPrice = Math.round((product.selling_price || product.price || 0) * parseFloat(option.value));
+                        return (
+                          <button
+                            key={option.value}
+                            onClick={() => {
+                              setIsCustomWeight(false);
+                              setCustomWeight('');
+                              setSelectedQuantityOption(option.value);
+                              setQuantity(parseFloat(option.value));
+                            }}
+                            className={`relative flex flex-col items-center py-2 px-1 rounded-xl font-medium text-xs sm:text-sm transition-all border-2 ${
+                              isSelected
+                                ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
+                                : 'bg-gray-50 text-[#0D2B3A] border-transparent hover:border-[#1A73A8]/40 hover:bg-[#DFF3EA]/50'
+                            }`}
+                          >
+                            <span className="font-bold leading-tight">{option.label}</span>
+                            <span className={`text-[10px] sm:text-[11px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#6B7280]'}`}>
+                              Rs. {optionPrice.toLocaleString()}
+                            </span>
+                          </button>
+                        );
+                      })}
+                      {/* Custom weight tile */}
+                      <button
+                        onClick={() => {
+                          setIsCustomWeight(true);
+                          setSelectedQuantityOption('');
+                        }}
+                        className={`relative flex flex-col items-center py-2 px-1 rounded-xl font-medium text-xs sm:text-sm transition-all border-2 ${
+                          isCustomWeight
+                            ? 'bg-[#1A73A8] text-white border-[#1A73A8] shadow-md'
+                            : 'bg-gray-50 text-[#0D2B3A] border-transparent hover:border-[#1A73A8]/40 hover:bg-[#DFF3EA]/50'
+                        }`}
+                      >
+                        <span className="font-bold leading-tight">Custom</span>
+                        <span className={`text-[10px] sm:text-[11px] mt-0.5 ${isCustomWeight ? 'text-white/80' : 'text-[#6B7280]'}`}>
+                          Enter gms
+                        </span>
+                      </button>
                     </div>
+
+                    {/* Custom weight input */}
+                    {isCustomWeight && (
+                      <div className="flex items-center gap-2 mt-1 p-2 bg-[#F0F7FF] rounded-lg border border-[#1A73A8]/20">
+                        <div className="relative flex-1">
+                          <input
+                            type="number"
+                            min="10"
+                            max="10000"
+                            step="10"
+                            value={customWeight}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setCustomWeight(val);
+                              const g = parseFloat(val);
+                              if (!isNaN(g) && g > 0) {
+                                setQuantity(g / 1000); // convert grams to kg
+                              }
+                            }}
+                            placeholder="e.g. 300"
+                            className="w-full pl-3 pr-12 py-2 text-sm font-semibold text-[#0D2B3A] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A73A8]/40 focus:border-[#1A73A8] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            autoFocus
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#6B7280]">gms</span>
+                        </div>
+                        {customWeight && parseFloat(customWeight) > 0 && (
+                          <span className="text-sm font-bold text-[#0D2B3A] whitespace-nowrap">
+                            = Rs. {computedPrice.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl">

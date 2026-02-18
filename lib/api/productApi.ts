@@ -108,9 +108,23 @@ class ProductApi {
 
   /**
    * Get product by ID
-   * Uses direct endpoint for faster loading
+   * Uses list endpoint to ensure full relations (unit, category, brand) are included,
+   * since the direct /products/:id endpoint may omit nested relations.
    */
   async getProductById(id: string): Promise<Product> {
+    // First try the list endpoint which always includes full relations (unit, category, etc.)
+    try {
+      const listResponse = await axiosInstance.get<ApiResponse<Product[]>>('/customer/app/products', {
+        params: { limit: 1000 },
+      });
+      const products = listResponse.data.data || [];
+      const fullProduct = products.find(p => p.id === id);
+      if (fullProduct) return fullProduct;
+    } catch (e) {
+      // List endpoint failed, fall back to direct endpoint
+    }
+
+    // Fallback: direct endpoint (may not include unit/category relations)
     const response = await axiosInstance.get<ApiResponse<Product>>(`/customer/app/products/${id}`);
     return response.data.data;
   }

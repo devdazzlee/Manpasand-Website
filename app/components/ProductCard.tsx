@@ -139,11 +139,6 @@ export default function ProductCard({
         </Link>
         <div className="flex-1 p-3 sm:p-4 md:p-6 flex flex-col justify-between">
           <div>
-            {category && (
-              <p className="text-[#6B7280] text-[10px] sm:text-xs mb-1 sm:mb-2 uppercase tracking-wide">
-                {category}
-              </p>
-            )}
             <Link href={`/products/${id}`}>
               <h3 className="font-semibold text-sm sm:text-base md:text-lg lg:text-xl text-[#0D2B3A] mb-2 sm:mb-3 hover:text-[#1A73A8] transition-colors line-clamp-2">
                 {name}
@@ -244,11 +239,6 @@ export default function ProductCard({
         </div>
       </Link>
       <div className="p-2.5 sm:p-3 flex flex-col flex-grow">
-        {category && (
-          <p className="text-[#1A73A8] text-[10px] sm:text-[11px] font-medium mb-1 uppercase tracking-wider">
-            {typeof category === 'string' ? category : (category as { id: string; name: string }).name}
-          </p>
-        )}
         <Link href={`/products/${id}`}>
           <h3 className="font-semibold text-[#0D2B3A] mb-1.5 sm:mb-2 hover:text-[#1A73A8] transition-colors line-clamp-2 text-xs sm:text-sm leading-snug">
             {name}

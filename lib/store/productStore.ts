@@ -70,8 +70,11 @@ export const useProductStore = create<ProductState>()(
     // Return cached product immediately if available
     const cached = state.productsCache.get(id);
     if (cached) {
-      // Fetch fresh data in background but return cached immediately
-      state.prefetchProduct(id).catch(() => {});
+      // Always fetch fresh data in background to keep cache updated
+      // (force=true bypasses the "already cached" skip)
+      productApi.getProductById(id).then((fresh) => {
+        get().cacheProduct(fresh);
+      }).catch(() => {});
       return cached;
     }
     
