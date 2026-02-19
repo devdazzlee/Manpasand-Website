@@ -97,17 +97,18 @@ export default function Home() {
           return '/Banner-01.jpg';
         };
 
-        // Map categories to include image URL - ALWAYS prioritize mapped images
+        // Map categories to include image URL - prioritize API images over local
         const mappedCategories = (homeData.categories || []).map((category: Category & { CategoryImages?: Array<{ image: string }> }) => {
-          // Get mapped image for this category
+          // Check if API provides a CategoryImage
+          const apiImage = category.CategoryImages && category.CategoryImages.length > 0
+            ? category.CategoryImages[0].image
+            : null;
+          
+          // Get local mapped image as fallback
           const mappedImage = getCategoryImage(category.name);
           
-          // Always use mapped image if it exists (not the fallback), otherwise use API CategoryImages
-          const finalImage = mappedImage !== '/Banner-01.jpg' 
-            ? mappedImage 
-            : (category.CategoryImages && category.CategoryImages.length > 0
-                ? category.CategoryImages[0].image
-                : '/Banner-01.jpg');
+          // Prioritize API image, then local mapped image, then default fallback
+          const finalImage = apiImage || (mappedImage !== '/Banner-01.jpg' ? mappedImage : '/Banner-01.jpg');
           
           return {
             ...category,

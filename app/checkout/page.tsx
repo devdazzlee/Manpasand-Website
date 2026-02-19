@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { cartUtils, CartItem } from '../../lib/utils/cart';
 import { orderApi } from '../../lib/api/orderApi';
 import { useAuthStore } from '../../lib/store/authStore';
+import { is1KgCartItem, KG_DISCOUNT } from '../../lib/utils/discount';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -221,6 +222,11 @@ export default function CheckoutPage() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[#0D2B3A] text-xs sm:text-sm truncate">{item.name}</p>
                       <p className="text-[10px] sm:text-xs text-[#6B7280]">Qty: {item.quantity}</p>
+                      {is1KgCartItem(item.name) && (
+                        <span className="inline-block bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white px-1.5 py-[1px] rounded-full text-[8px] font-bold mt-0.5">
+                          🔥 Rs {KG_DISCOUNT.amount} OFF
+                        </span>
+                      )}
                     </div>
                     <p className="font-bold text-[#1A73A8] text-xs sm:text-sm whitespace-nowrap">
                       Rs. {(item.price * item.quantity).toLocaleString()}
@@ -465,6 +471,11 @@ export default function CheckoutPage() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-[#0D2B3A] text-xs md:text-sm truncate">{item.name}</p>
                         <p className="text-[10px] md:text-xs text-[#6B7280]">Qty: {item.quantity}</p>
+                        {is1KgCartItem(item.name) && (
+                          <span className="inline-block bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white px-1.5 py-[1px] rounded-full text-[8px] md:text-[9px] font-bold mt-0.5">
+                            🔥 Rs {KG_DISCOUNT.amount} OFF
+                          </span>
+                        )}
                       </div>
                       <p className="font-bold text-[#1A73A8] text-sm whitespace-nowrap">
                         Rs. {(item.price * item.quantity).toLocaleString()}

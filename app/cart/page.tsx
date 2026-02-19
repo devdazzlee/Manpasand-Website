@@ -9,6 +9,7 @@ import Services from '../components/Services';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { cartUtils, CartItem } from '../../lib/utils/cart';
+import { is1KgCartItem, KG_DISCOUNT } from '../../lib/utils/discount';
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -84,6 +85,11 @@ export default function CartPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm sm:text-base md:text-xl font-semibold text-[#0D2B3A] mb-0.5 sm:mb-1 md:mb-2 truncate">{item.name}</h3>
+                      {is1KgCartItem(item.name) && (
+                        <span className="inline-flex items-center gap-1 bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold mb-1.5">
+                          🔥 Rs {KG_DISCOUNT.amount} OFF Applied
+                        </span>
+                      )}
                       <p className="text-base sm:text-lg md:text-2xl font-bold text-[#1A73A8] mb-2 sm:mb-3 md:mb-4">
                         Rs. {item.price.toLocaleString()}
                       </p>
@@ -128,6 +134,11 @@ export default function CartPage() {
                 className="lg:col-span-1"
               >
                 <div className="bg-[#F8F2DE] rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 sticky top-24">
+                  {/* 1 KG Promo Banner */}
+                  <div className="bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white rounded-lg p-2.5 mb-4 text-center">
+                    <p className="text-xs sm:text-sm font-bold">🔥 1 KG = Rs {KG_DISCOUNT.amount} OFF!</p>
+                    <p className="text-[10px] sm:text-[11px] text-white/80">On all products</p>
+                  </div>
                   <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#0D2B3A] mb-4 sm:mb-5 md:mb-6">Order Summary</h2>
                   <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-5 md:mb-6">
                     <div className="flex justify-between text-[#6B7280] text-sm sm:text-base">

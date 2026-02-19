@@ -16,6 +16,7 @@ import { unitApi } from '../../../lib/api/unitApi';
 import { cartUtils } from '../../../lib/utils/cart';
 import { useProductStore } from '../../../lib/store/productStore';
 import { showCartToast } from '../../components/CartToast';
+import { is1KgSelection, get1KgDiscount, KG_DISCOUNT, isWeightBasedUnit } from '../../../lib/utils/discount';
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -228,8 +229,20 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
   }, [selectedQuantityOption]);
 
+  // Check if current selection qualifies for 1kg discount
+  const qualifiesFor1KgDiscount = useMemo(() => {
+    if (!product?.unit?.name) return false;
+    if (isCustomWeight && customWeight) {
+      return is1KgSelection(product.unit.name, String(parseFloat(customWeight))) && parseFloat(customWeight) >= 1000;
+    }
+    if (selectedQuantityOption) {
+      return is1KgSelection(product.unit.name, selectedQuantityOption);
+    }
+    return false;
+  }, [product?.unit?.name, selectedQuantityOption, isCustomWeight, customWeight]);
+
   // Calculate price based on selected variation (for weight-based products)
-  const computedPrice = useMemo(() => {
+  const computedPriceBeforeDiscount = useMemo(() => {
     const basePrice = product?.selling_price || product?.price || 0;
     if (isCustomWeight && customWeight) {
       const grams = parseFloat(customWeight);
@@ -242,6 +255,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
     return basePrice;
   }, [product?.selling_price, product?.price, quantityOptions, selectedQuantityOption, isCustomWeight, customWeight]);
+
+  // Apply 1kg discount
+  const kgDiscountAmount = qualifiesFor1KgDiscount ? get1KgDiscount(computedPriceBeforeDiscount) : 0;
+  const computedPrice = computedPriceBeforeDiscount - kgDiscountAmount;
 
   // Check if product is in wishlist
   useEffect(() => {
@@ -445,22 +462,53 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <span className="text-xl sm:text-2xl font-bold text-[#0D2B3A]">
                   Rs. {computedPrice.toLocaleString()}
                 </span>
+                {kgDiscountAmount > 0 && (
+                  <span className="text-sm text-[#9CA3AF] line-through">
+                    Rs. {computedPriceBeforeDiscount.toLocaleString()}
+                  </span>
+                )}
                 {quantityOptions.length > 0 && selectedQuantityOption && parseFloat(selectedQuantityOption) !== 1 && (
                   <span className="text-xs text-[#6B7280] bg-white/70 px-2 py-0.5 rounded-full">
                     Rs. {(product.selling_price || product.price || 0).toLocaleString()} / kg
                   </span>
                 )}
-                {product.originalPrice && (
+                {kgDiscountAmount <= 0 && product.originalPrice && (
                   <span className="text-sm text-[#9CA3AF] line-through">
                     Rs. {product.originalPrice.toLocaleString()}
                   </span>
                 )}
-                {discount > 0 && (
+                {discount > 0 && kgDiscountAmount <= 0 && (
                   <span className="bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[11px] font-bold ml-auto">
                     -{discount}%
                   </span>
                 )}
+                {kgDiscountAmount > 0 && (
+                  <span className="bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold ml-auto animate-pulse">
+                    🔥 Rs {kgDiscountAmount} OFF
+                  </span>
+                )}
               </div>
+
+              {/* 1 KG Discount Promo Banner */}
+              {isWeightBasedUnit(product.unit?.name) && (
+                <div className={`flex items-center gap-2 p-2.5 rounded-xl border-2 transition-all ${
+                  qualifiesFor1KgDiscount 
+                    ? 'bg-green-50 border-green-300' 
+                    : 'bg-[#FFF5F5] border-[#e53e3e]/20'
+                }`}>
+                  <span className="text-lg">🔥</span>
+                  <div className="flex-1">
+                    <p className={`text-xs font-bold ${qualifiesFor1KgDiscount ? 'text-green-700' : 'text-[#e53e3e]'}`}>
+                      {qualifiesFor1KgDiscount ? '✅ Rs 300 Discount Applied!' : 'Select 1 KG to get Rs 300 OFF!'}
+                    </p>
+                    <p className="text-[10px] text-[#6B7280]">
+                      {qualifiesFor1KgDiscount 
+                        ? `You saved Rs ${kgDiscountAmount} on this order` 
+                        : 'Special offer on all 1 KG purchases'}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <p className="text-sm text-[#6B7280] leading-relaxed">{product.description}</p>
 
@@ -498,6 +546,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                       {quantityOptions.map((option) => {
                         const isSelected = !isCustomWeight && selectedQuantityOption === option.value;
                         const optionPrice = Math.round((product.selling_price || product.price || 0) * parseFloat(option.value));
+                        const optionIs1Kg = is1KgSelection(product.unit?.name, option.value);
+                        const optionDiscount = optionIs1Kg ? get1KgDiscount(optionPrice) : 0;
+                        const optionFinalPrice = optionPrice - optionDiscount;
                         return (
                           <button
                             key={option.value}
@@ -510,13 +561,27 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                             className={`relative flex flex-col items-center py-2 px-1 rounded-xl font-medium text-xs sm:text-sm transition-all border-2 ${
                               isSelected
                                 ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
+                                : optionIs1Kg
+                                ? 'bg-[#FFF5F5] text-[#0D2B3A] border-[#e53e3e]/40 hover:border-[#e53e3e]/60'
                                 : 'bg-gray-50 text-[#0D2B3A] border-transparent hover:border-[#1A73A8]/40 hover:bg-[#DFF3EA]/50'
                             }`}
                           >
+                            {optionIs1Kg && (
+                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-[#e53e3e] text-white text-[7px] sm:text-[8px] px-1.5 py-[1px] rounded-full font-bold whitespace-nowrap leading-tight">
+                                Rs {KG_DISCOUNT.amount} OFF
+                              </span>
+                            )}
                             <span className="font-bold leading-tight">{option.label}</span>
-                            <span className={`text-[10px] sm:text-[11px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#6B7280]'}`}>
-                              Rs. {optionPrice.toLocaleString()}
-                            </span>
+                            {optionDiscount > 0 ? (
+                              <span className={`text-[10px] sm:text-[11px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#6B7280]'}`}>
+                                <span className="line-through mr-0.5">Rs. {optionPrice.toLocaleString()}</span>
+                                <span className={`font-bold ${isSelected ? 'text-green-300' : 'text-green-600'}`}> Rs. {optionFinalPrice.toLocaleString()}</span>
+                              </span>
+                            ) : (
+                              <span className={`text-[10px] sm:text-[11px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#6B7280]'}`}>
+                                Rs. {optionPrice.toLocaleString()}
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -792,18 +857,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         </div>
       </section>
 
-      {/* Special Offer Banner */}
-      <section className="py-4 bg-[#0D2B3A] text-white overflow-x-hidden">
+      {/* Special Offer Banner - 1 KG Discount */}
+      <section className="py-4 bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white overflow-x-hidden">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Gift className="w-6 h-6 flex-shrink-0" />
+              <Sparkles className="w-6 h-6 flex-shrink-0 animate-pulse" />
               <div>
-                <h3 className="text-sm sm:text-base font-bold">Limited Time Offer!</h3>
-                <p className="text-white/70 text-xs">Buy 2 Get 1 Free on selected items</p>
+                <h3 className="text-sm sm:text-base font-bold">🔥 1 KG = Rs 300 OFF!</h3>
+                <p className="text-white/80 text-xs">Buy any item in 1 KG and get flat Rs 300 discount</p>
               </div>
             </div>
-            <Link href="/shop" className="bg-white text-[#0D2B3A] px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm hover:bg-[#DFF3EA] transition-colors whitespace-nowrap">
+            <Link href="/shop" className="bg-white text-[#e53e3e] px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm hover:bg-yellow-50 transition-colors whitespace-nowrap">
               Shop Now
             </Link>
           </div>
