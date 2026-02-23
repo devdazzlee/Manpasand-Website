@@ -1,35 +1,44 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
-import { Gift, Heart } from 'lucide-react';
-import Link from 'next/link';
-
-const giftPacks = [
-  {
-    name: 'Eid Gift Pack',
-    price: 5000,
-    image: '/Banner-01.jpg',
-    description: 'Perfect for Eid celebrations',
-  },
-  {
-    name: 'Ramadan Special',
-    price: 4500,
-    image: '/Banner-01.jpg',
-    description: 'Dates and dry fruits for Ramadan',
-  },
-  {
-    name: 'Wedding Gift Set',
-    price: 8000,
-    image: '/Banner-01.jpg',
-    description: 'Premium selection for special occasions',
-  },
-];
+import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader';
+import { Gift } from 'lucide-react';
+import { productApi } from '../../lib/api/productApi';
+import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
 
 export default function GiftPacksPage() {
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const result = await productApi.listProducts({ fetch_all: true });
+        const mapped = mapApiProducts(result.data);
+        const giftProducts = mapped.filter(
+          (p) =>
+            p.name.toLowerCase().includes('gift') ||
+            p.name.toLowerCase().includes('pack') ||
+            p.name.toLowerCase().includes('bundle') ||
+            p.category?.toLowerCase().includes('gift')
+        );
+        setProducts(giftProducts.length > 0 ? giftProducts : mapped.slice(0, 12));
+      } catch (err) {
+        console.error('Error fetching gift packs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -55,44 +64,27 @@ export default function GiftPacksPage() {
 
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-6">
-            {giftPacks.map((pack, index) => (
-              <motion.div
-                key={pack.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="aspect-square overflow-hidden bg-[#F8F2DE]">
-                  <img
-                    src={pack.image}
-                    alt={pack.name}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mb-2">{pack.name}</h3>
-                  <p className="text-[#6B7280] mb-4">{pack.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-[#1A73A8]">
-                      Rs. {pack.price.toLocaleString()}
-                    </span>
-                    <Link href="/contact">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-6 py-2 rounded-full font-semibold transition-colors"
-                      >
-                        Inquire
-                      </motion.button>
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <Loader size="lg" text="Loading gift packs..." />
+          ) : products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-[#6B7280] text-lg">No gift packs available at the moment.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <ProductCard {...product} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -102,4 +94,3 @@ export default function GiftPacksPage() {
     </div>
   );
 }
-

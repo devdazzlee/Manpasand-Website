@@ -1,31 +1,86 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
+import Loader from '../components/Loader';
 import Link from 'next/link';
-import { Package, User, MapPin, Heart, Settings, LogOut } from 'lucide-react';
+import { Package, User, MapPin, Heart, Settings, LogOut, Loader2 } from 'lucide-react';
+import { useAuthStore } from '../../lib/store/authStore';
+import { orderApi, Order } from '../../lib/api/orderApi';
 
 export default function AccountPage() {
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuthStore();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchOrders();
+    }
+    if (typeof window !== 'undefined') {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      setWishlistCount(wishlist.length);
+    }
+  }, [isAuthenticated]);
+
+  const fetchOrders = async () => {
+    try {
+      setOrdersLoading(true);
+      const myOrders = await orderApi.getMyOrders();
+      setOrders(myOrders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#1A73A8]" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const pendingOrders = orders.filter(
+    (o) => o.status === 'PENDING' || o.status === 'PROCESSING' || o.status === 'CONFIRMED'
+  );
+
   const stats = [
-    { label: 'Total Orders', value: '12', icon: Package },
-    { label: 'Pending Orders', value: '2', icon: Package },
-    { label: 'Wishlist Items', value: '5', icon: Heart },
+    { label: 'Total Orders', value: String(orders.length), icon: Package },
+    { label: 'Pending Orders', value: String(pendingOrders.length), icon: Package },
+    { label: 'Wishlist Items', value: String(wishlistCount), icon: Heart },
   ];
 
-  const recentOrders = [
-    { id: 'MP-001', date: '2024-01-15', total: 6800, status: 'Delivered' },
-    { id: 'MP-002', date: '2024-01-10', total: 4500, status: 'Processing' },
-    { id: 'MP-003', date: '2024-01-05', total: 3200, status: 'Delivered' },
-  ];
+  const recentOrders = orders.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Page Header */}
       <section className="bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-16">
         <div className="container mx-auto px-4">
           <motion.div
@@ -35,16 +90,16 @@ export default function AccountPage() {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">My Account</h1>
-            <p className="text-xl text-white/90">Manage your account and orders</p>
+            <p className="text-xl text-white/90">
+              {user?.name ? `Welcome back, ${user.name}` : 'Manage your account and orders'}
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Account Dashboard */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-4 gap-8">
-            {/* Sidebar */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -94,75 +149,99 @@ export default function AccountPage() {
                   <Settings className="w-5 h-5" />
                   <span>Settings</span>
                 </Link>
-                <button className="flex items-center space-x-3 p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full text-left">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full text-left"
+                >
                   <LogOut className="w-5 h-5" />
                   <span>Logout</span>
                 </button>
               </div>
             </motion.div>
 
-            {/* Main Content */}
             <div className="lg:col-span-3 space-y-8">
-              {/* Stats */}
-              <div className="grid md:grid-cols-3 gap-6">
-                {stats.map((stat, index) => {
-                  const Icon = stat.icon;
-                  return (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="bg-[#F8F2DE] rounded-2xl p-6"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <Icon className="w-8 h-8 text-[#1A73A8]" />
-                      </div>
-                      <h3 className="text-3xl font-bold text-[#0D2B3A] mb-2">{stat.value}</h3>
-                      <p className="text-[#6B7280]">{stat.label}</p>
-                    </motion.div>
-                  );
-                })}
-              </div>
-
-              {/* Recent Orders */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-white border border-gray-200 rounded-2xl p-6"
-              >
-                <h2 className="text-2xl font-bold text-[#0D2B3A] mb-6">Recent Orders</h2>
-                <div className="space-y-4">
-                  {recentOrders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="flex items-center justify-between p-4 bg-[#F8F2DE] rounded-xl"
-                    >
-                      <div>
-                        <p className="font-semibold text-[#0D2B3A]">Order #{order.id}</p>
-                        <p className="text-sm text-[#6B7280]">{order.date}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-[#0D2B3A]">Rs. {order.total.toLocaleString()}</p>
-                        <span
-                          className={`text-sm ${
-                            order.status === 'Delivered'
-                              ? 'text-green-600'
-                              : 'text-[#F97316]'
-                          }`}
+              {ordersLoading ? (
+                <Loader size="lg" text="Loading your account..." />
+              ) : (
+                <>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {stats.map((stat, index) => {
+                      const Icon = stat.icon;
+                      return (
+                        <motion.div
+                          key={stat.label}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.5, delay: index * 0.1 }}
+                          className="bg-[#F8F2DE] rounded-2xl p-6"
                         >
-                          {order.status}
-                        </span>
+                          <div className="flex items-center justify-between mb-4">
+                            <Icon className="w-8 h-8 text-[#1A73A8]" />
+                          </div>
+                          <h3 className="text-3xl font-bold text-[#0D2B3A] mb-2">{stat.value}</h3>
+                          <p className="text-[#6B7280]">{stat.label}</p>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="bg-white border border-gray-200 rounded-2xl p-6"
+                  >
+                    <h2 className="text-2xl font-bold text-[#0D2B3A] mb-6">Recent Orders</h2>
+                    {recentOrders.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-[#6B7280]">No orders yet</p>
+                        <Link href="/shop" className="text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm mt-2 inline-block">
+                          Start Shopping →
+                        </Link>
                       </div>
-                    </div>
-                  ))}
-                </div>
-                <Link href="/account/orders" className="block text-center mt-6 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold">
-                  View All Orders
-                </Link>
-              </motion.div>
+                    ) : (
+                      <div className="space-y-4">
+                        {recentOrders.map((order) => (
+                          <Link key={order.id} href={`/account/orders/${order.id}`}>
+                            <div className="flex items-center justify-between p-4 bg-[#F8F2DE] rounded-xl hover:shadow-md transition-shadow cursor-pointer">
+                              <div>
+                                <p className="font-semibold text-[#0D2B3A]">Order #{order.order_number}</p>
+                                <p className="text-sm text-[#6B7280]">
+                                  {new Date(order.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-[#0D2B3A]">
+                                  Rs. {order.total.toLocaleString()}
+                                </p>
+                                <span
+                                  className={`text-sm font-semibold ${
+                                    order.status === 'DELIVERED'
+                                      ? 'text-green-600'
+                                      : order.status === 'CANCELLED'
+                                      ? 'text-red-600'
+                                      : 'text-[#F97316]'
+                                  }`}
+                                >
+                                  {order.status}
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    <Link
+                      href="/account/orders"
+                      className="block text-center mt-6 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold"
+                    >
+                      View All Orders
+                    </Link>
+                  </motion.div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -174,4 +253,3 @@ export default function AccountPage() {
     </div>
   );
 }
-

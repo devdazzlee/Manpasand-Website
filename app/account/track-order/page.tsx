@@ -1,29 +1,99 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
-import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import Loader from '../../components/Loader';
+import { Search, Package, CheckCircle, Clock, Loader2 } from 'lucide-react';
+import { useAuthStore } from '../../../lib/store/authStore';
+import { orderApi, Order } from '../../../lib/api/orderApi';
 
-const trackingSteps = [
-  { status: 'Order Placed', date: '2024-01-15', time: '10:00 AM', completed: true },
-  { status: 'Processing', date: '2024-01-15', time: '11:30 AM', completed: true },
-  { status: 'Shipped', date: '2024-01-16', time: '02:00 PM', completed: true },
-  { status: 'Out for Delivery', date: '2024-01-17', time: '09:00 AM', completed: true },
-  { status: 'Delivered', date: '2024-01-17', time: '03:30 PM', completed: true },
-];
+const STATUS_STEPS = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
+
+function getStepLabel(status: string) {
+  switch (status) {
+    case 'PENDING': return 'Order Placed';
+    case 'CONFIRMED': return 'Confirmed';
+    case 'PROCESSING': return 'Processing';
+    case 'SHIPPED': return 'Shipped';
+    case 'DELIVERED': return 'Delivered';
+    default: return status;
+  }
+}
 
 export default function TrackOrderPage() {
-  const [trackingNumber, setTrackingNumber] = useState('');
-  const [showTracking, setShowTracking] = useState(true);
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const [orderNumber, setOrderNumber] = useState('');
+  const [order, setOrder] = useState<Order | null>(null);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAllOrders();
+    }
+  }, [isAuthenticated]);
+
+  const fetchAllOrders = async () => {
+    try {
+      setInitialLoading(true);
+      const orders = await orderApi.getMyOrders();
+      setAllOrders(orders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
-    setShowTracking(true);
+    if (!orderNumber.trim()) return;
+    setSearched(true);
+    setLoading(true);
+    const found = allOrders.find(
+      (o) =>
+        o.order_number.toLowerCase() === orderNumber.trim().toLowerCase() ||
+        o.id === orderNumber.trim()
+    );
+    setOrder(found || null);
+    setLoading(false);
   };
+
+  const selectOrder = (o: Order) => {
+    setOrder(o);
+    setOrderNumber(o.order_number);
+    setSearched(true);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#1A73A8]" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const currentStepIndex = order && order.status !== 'CANCELLED'
+    ? STATUS_STEPS.indexOf(order.status)
+    : -1;
 
   return (
     <div className="min-h-screen bg-white">
@@ -38,14 +108,13 @@ export default function TrackOrderPage() {
             className="text-center max-w-2xl mx-auto"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Track Your Order</h1>
-            <p className="text-xl text-white/90">Enter your tracking number to see order status</p>
+            <p className="text-xl text-white/90">Enter your order number to see order status</p>
           </motion.div>
         </div>
       </section>
 
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4 max-w-4xl">
-          {/* Search Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -56,9 +125,9 @@ export default function TrackOrderPage() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
                 <input
                   type="text"
-                  value={trackingNumber}
-                  onChange={(e) => setTrackingNumber(e.target.value)}
-                  placeholder="Enter tracking number (e.g., TRK123456789)"
+                  value={orderNumber}
+                  onChange={(e) => setOrderNumber(e.target.value)}
+                  placeholder="Enter order number..."
                   className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
                 />
               </div>
@@ -73,8 +142,57 @@ export default function TrackOrderPage() {
             </form>
           </motion.div>
 
-          {/* Tracking Timeline */}
-          {showTracking && (
+          {!searched && !initialLoading && allOrders.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <h3 className="text-lg font-semibold text-[#0D2B3A] mb-4">Your Recent Orders</h3>
+              <div className="space-y-3">
+                {allOrders.slice(0, 5).map((o) => (
+                  <button
+                    key={o.id}
+                    onClick={() => selectOrder(o)}
+                    className="w-full text-left p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="font-semibold text-[#0D2B3A]">Order #{o.order_number}</p>
+                      <p className="text-sm text-[#6B7280]">
+                        {new Date(o.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <span
+                      className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                        o.status === 'DELIVERED'
+                          ? 'bg-green-100 text-green-800'
+                          : o.status === 'CANCELLED'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}
+                    >
+                      {o.status}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {initialLoading && <Loader size="lg" text="Loading your orders..." />}
+
+          {loading && <Loader size="lg" text="Tracking your order..." />}
+
+          {searched && !loading && !order && (
+            <div className="text-center py-12">
+              <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-[#6B7280] text-lg">
+                No order found with number &ldquo;{orderNumber}&rdquo;
+              </p>
+            </div>
+          )}
+
+          {searched && order && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -83,45 +201,68 @@ export default function TrackOrderPage() {
               <div className="flex items-center space-x-3 mb-8">
                 <Package className="w-6 h-6 text-[#1A73A8]" />
                 <div>
-                  <h2 className="text-2xl font-bold text-[#0D2B3A]">Tracking: TRK123456789</h2>
-                  <p className="text-[#6B7280]">Order #MP-001</p>
+                  <h2 className="text-2xl font-bold text-[#0D2B3A]">
+                    Order #{order.order_number}
+                  </h2>
+                  <p className="text-[#6B7280]">
+                    Placed on {new Date(order.created_at).toLocaleDateString()} · Rs.{' '}
+                    {order.total.toLocaleString()}
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                {trackingSteps.map((step, index) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                          step.completed
-                            ? 'bg-[#1A73A8] text-white'
-                            : 'bg-gray-200 text-gray-400'
-                        }`}
-                      >
-                        {step.completed ? (
-                          <CheckCircle className="w-6 h-6" />
-                        ) : (
-                          <Clock className="w-6 h-6" />
-                        )}
-                      </div>
-                      {index < trackingSteps.length - 1 && (
-                        <div
-                          className={`w-1 h-16 ${
-                            step.completed ? 'bg-[#1A73A8]' : 'bg-gray-200'
-                          }`}
-                        />
-                      )}
-                    </div>
-                    <div className="flex-1 pb-8">
-                      <h3 className="font-semibold text-[#0D2B3A] mb-1">{step.status}</h3>
-                      <p className="text-sm text-[#6B7280]">
-                        {step.date} at {step.time}
-                      </p>
-                    </div>
+              {order.status === 'CANCELLED' ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-8 h-8 text-red-500" />
                   </div>
-                ))}
-              </div>
+                  <p className="text-lg font-semibold text-red-600">This order has been cancelled</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {STATUS_STEPS.map((step, index) => {
+                    const isCompleted = index <= currentStepIndex;
+                    return (
+                      <div key={step} className="flex items-start space-x-4">
+                        <div className="flex flex-col items-center">
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                              isCompleted
+                                ? 'bg-[#1A73A8] text-white'
+                                : 'bg-gray-200 text-gray-400'
+                            }`}
+                          >
+                            {isCompleted ? (
+                              <CheckCircle className="w-6 h-6" />
+                            ) : (
+                              <Clock className="w-6 h-6" />
+                            )}
+                          </div>
+                          {index < STATUS_STEPS.length - 1 && (
+                            <div
+                              className={`w-1 h-16 ${
+                                isCompleted ? 'bg-[#1A73A8]' : 'bg-gray-200'
+                              }`}
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1 pb-8">
+                          <h3
+                            className={`font-semibold mb-1 ${
+                              isCompleted ? 'text-[#0D2B3A]' : 'text-gray-400'
+                            }`}
+                          >
+                            {getStepLabel(step)}
+                          </h3>
+                          {isCompleted && index === currentStepIndex && (
+                            <p className="text-sm text-[#6B7280]">Current status</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </motion.div>
           )}
         </div>
@@ -133,4 +274,3 @@ export default function TrackOrderPage() {
     </div>
   );
 }
-

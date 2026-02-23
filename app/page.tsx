@@ -31,102 +31,17 @@ export default function Home() {
         // Fetch home data (categories and featured products)
         const homeData = await productApi.getHomeData();
         
-        // Category name to image mapping (normalized for matching)
-        const getCategoryImage = (categoryName: string): string => {
-          // Normalize category name for matching (remove extra spaces, handle &amp;)
-          const normalizeName = (name: string) => {
-            return name
-              .replace(/\s+/g, ' ')
-              .replace(/&amp;/g, '&')
-              .trim();
-          };
-          
-          const normalizedInput = normalizeName(categoryName);
-          
-          const categoryImageMap: Record<string, string> = {
-            // Original category names
-            'Arqiat & Juices': '/category-images/arqiat_and_juices.jpeg',
-            'Dates': '/category-images/dates.jpg',
-            'Dry Fruits': '/category-images/dry_fruits.jpg',
-            'Flour': '/category-images/flour.jpg',
-            'General Items': '/category-images/general_items.jpeg',
-            'Herbs': '/category-images/herbs.jpg',
-            'Honey': '/category-images/honey.jpeg',
-            'Indian Items': '/category-images/indian_items.jpeg',
-            'Irani Items': '/category-images/irani_items.jpg',
-            'Jam': '/category-images/jam.jpeg',
-            'Nimco': '/category-images/nimco.jpeg',
-            'Oil': '/category-images/oil.webp',
-            'Papad': '/category-images/papad.webp',
-            'Pickles': '/category-images/pickles.jpg',
-            'Pulses / Rice': '/category-images/pulses-rice.jpg',
-            'Pulses/Rice': '/category-images/pulses-rice.jpg',
-            'Scents & Perfumes': '/category-images/scents_and_perfumes.jpg',
-            'Spices': '/category-images/spices.jpg',
-            // API category name variations
-            'General': '/category-images/general_items.jpeg',
-            'SCENT & PERFUMES': '/category-images/scents_and_perfumes.jpg',
-            'Scent & Perfumes': '/category-images/scents_and_perfumes.jpg',
-            'Essential Oils & Shampoo': '/category-images/oil.webp',
-            'Essential Oils': '/category-images/oil.webp',
-            'Indian Products': '/category-images/indian_items.jpeg',
-            'Irani Products': '/category-images/irani_items.jpg',
-            'Pickles, Jams & Honey': '/category-images/pickles.jpg',
-            'Pickles Jams & Honey': '/category-images/pickles.jpg',
-            'Crackers': '/category-images/general_items.jpeg',
-          };
-          
-          // Try exact match with normalized name
-          if (categoryImageMap[normalizedInput]) {
-            return categoryImageMap[normalizedInput];
-          }
-          
-          // Try case-insensitive match with normalized keys
-          const lowerInput = normalizedInput.toLowerCase();
-          for (const [key, value] of Object.entries(categoryImageMap)) {
-            const normalizedKey = normalizeName(key);
-            if (normalizedKey.toLowerCase() === lowerInput) {
-              return value;
-            }
-          }
-          
-          // Debug: log unmapped categories
-          console.warn(`Category image not found for: "${categoryName}" (normalized: "${normalizedInput}")`);
-          
-          // Fallback to default
-          return '/Banner-01.jpg';
-        };
-
-        // Map categories to include image URL - prioritize API images over local
+        // Map categories — use API-provided images only
         const mappedCategories = (homeData.categories || []).map((category: Category & { CategoryImages?: Array<{ image: string }> }) => {
-          // Check if API provides a CategoryImage
           const apiImage = category.CategoryImages && category.CategoryImages.length > 0
             ? category.CategoryImages[0].image
             : null;
           
-          // Get local mapped image as fallback
-          const mappedImage = getCategoryImage(category.name);
-          
-          // Prioritize API image, then local mapped image, then default fallback
-          const finalImage = apiImage || (mappedImage !== '/Banner-01.jpg' ? mappedImage : '/Banner-01.jpg');
-          
           return {
             ...category,
-            image: finalImage,
+            image: apiImage || category.image || '/Banner-01.jpg',
           };
         });
-        
-        // Debug: log all categories and their images
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Categories mapped:', mappedCategories.map(c => {
-            const catWithImages = c as Category & { CategoryImages?: Array<{ image: string }> };
-            return { 
-              name: c.name, 
-              image: c.image,
-              hasApiImage: !!(catWithImages.CategoryImages?.length) 
-            };
-          }));
-        }
         setCategories(mappedCategories);
         
         // Cache categories

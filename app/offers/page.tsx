@@ -1,33 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader';
 import { Tag } from 'lucide-react';
-
-const offers = [
-  {
-    id: 'offer-1',
-    name: 'Premium Almonds',
-    price: 2500,
-    originalPrice: 3000,
-    image: '/Almonds-Banner-1.jpg',
-    category: 'Dry Fruits',
-  },
-  {
-    id: 'offer-2',
-    name: 'Ajwa Dates',
-    price: 1800,
-    originalPrice: 2200,
-    image: '/Ajwa-Dates-Banner-1.jpg',
-    category: 'Dates',
-  },
-];
+import { productApi } from '../../lib/api/productApi';
+import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
 
 export default function OffersPage() {
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const result = await productApi.listProducts({ fetch_all: true });
+        const mapped = mapApiProducts(result.data);
+        const offers = mapped.filter((p) => p.originalPrice && p.originalPrice > p.price);
+        setProducts(offers.length > 0 ? offers : mapped.slice(0, 12));
+      } catch (err) {
+        console.error('Error fetching offers:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -51,19 +56,27 @@ export default function OffersPage() {
 
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {offers.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <ProductCard {...product} />
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <Loader size="lg" text="Loading offers..." />
+          ) : products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-[#6B7280] text-lg">No offers available at the moment.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <ProductCard {...product} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -73,4 +86,3 @@ export default function OffersPage() {
     </div>
   );
 }
-

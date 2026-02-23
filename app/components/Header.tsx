@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Apple, Calendar, Droplets, UtensilsCrossed, Wheat, Sparkles, Package, Heart, Phone, Mail, MapPin, Box, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Grape, TreePalm, Droplets, Flame, Wheat, Sparkles, Package, Heart, Phone, Mail, MapPin, Box, ArrowRight, Cookie, Bean, FlaskConical, Wind, Nut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { categoryApi, Category } from '../../lib/api/categoryApi';
 import { productApi, Product } from '../../lib/api/productApi';
@@ -14,22 +14,22 @@ import { useAuthStore } from '../../lib/store/authStore';
 // Icon mapping function - maps category names to icons
 const getCategoryIcon = (categoryName: string) => {
   const name = categoryName.toLowerCase();
-  if (name.includes('fruit') || name.includes('dry')) return Apple;
-  if (name.includes('date')) return Calendar;
-  if (name.includes('nut')) return Package;
+  if (name.includes('date')) return TreePalm;
+  if (name.includes('fruit') || name.includes('dry')) return Grape;
+  if (name.includes('nut')) return Nut;
   if (name.includes('honey')) return Droplets;
   if (name.includes('saffron')) return Sparkles;
   if (name.includes('herb')) return Leaf;
-  if (name.includes('spice')) return UtensilsCrossed;
-  if (name.includes('pulse') || name.includes('rice')) return Wheat;
-  if (name.includes('oil')) return Droplets;
+  if (name.includes('spice') || name.includes('masala')) return Flame;
+  if (name.includes('pulse') || name.includes('rice')) return Bean;
+  if (name.includes('oil')) return FlaskConical;
   if (name.includes('juice') || name.includes('arqiat')) return Droplets;
-  if (name.includes('cracker')) return Package;
+  if (name.includes('cracker') || name.includes('nimco') || name.includes('papad')) return Cookie;
   if (name.includes('flour')) return Wheat;
-  if (name.includes('pickle') || name.includes('jam')) return UtensilsCrossed;
-  if (name.includes('scent') || name.includes('perfume')) return Sparkles;
+  if (name.includes('pickle') || name.includes('jam')) return Package;
+  if (name.includes('scent') || name.includes('perfume')) return Wind;
   if (name.includes('shampoo') || name.includes('essential')) return Droplets;
-  return Box; // Default icon
+  return Box;
 };
 
 export default function Header() {
@@ -820,21 +820,21 @@ export default function Header() {
                     </div>
                   )}
 
-                  {/* Popular Searches - Only show when no search query */}
-                  {!searchQuery && (
+                  {/* Popular Searches - Category names from API */}
+                  {!searchQuery && categories.length > 0 && (
                     <div className="mt-6">
                       <p className="text-sm font-semibold text-gray-600 mb-3">Popular Searches</p>
                       <div className="flex flex-wrap gap-2">
-                        {['Almonds', 'Dates', 'Honey', 'Saffron', 'Nuts', 'Spices'].map((term) => (
+                        {categories.slice(0, 8).map((cat) => (
                           <button
-                            key={term}
+                            key={cat.id || cat.name}
                             type="button"
                             onClick={() => {
-                              setSearchQuery(term);
+                              setSearchQuery(cat.name);
                             }}
                             className="px-4 py-2 bg-gray-100 hover:bg-gradient-to-r hover:from-[#DFF3EA] hover:to-[#F8F2DE] text-gray-700 hover:text-[#0D2B3A] rounded-full text-sm font-medium transition-all"
                           >
-                            {term}
+                            {cat.name}
                           </button>
                         ))}
                       </div>

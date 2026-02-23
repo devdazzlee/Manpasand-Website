@@ -1,23 +1,66 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
+import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader';
 import { Search, Leaf } from 'lucide-react';
-import Link from 'next/link';
-
-const remedies = [
-  { name: 'Turmeric', category: 'Anti-inflammatory', image: '/Banner-01.jpg' },
-  { name: 'Ginger', category: 'Digestive Health', image: '/Banner-01.jpg' },
-  { name: 'Cinnamon', category: 'Blood Sugar', image: '/Banner-01.jpg' },
-  { name: 'Fenugreek', category: 'Hormonal Balance', image: '/Banner-01.jpg' },
-  { name: 'Black Seed', category: 'Immune Support', image: '/Banner-01.jpg' },
-  { name: 'Honey', category: 'Natural Sweetener', image: '/Banner-01.jpg' },
-];
+import { productApi } from '../../lib/api/productApi';
+import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
 
 export default function HerbalRemediesPage() {
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const result = await productApi.listProducts({ fetch_all: true });
+        const mapped = mapApiProducts(result.data);
+        const herbs = mapped.filter(
+          (p) =>
+            p.category?.toLowerCase().includes('herb') ||
+            p.name.toLowerCase().includes('herb') ||
+            p.name.toLowerCase().includes('turmeric') ||
+            p.name.toLowerCase().includes('ginger') ||
+            p.name.toLowerCase().includes('cinnamon') ||
+            p.name.toLowerCase().includes('fenugreek') ||
+            p.name.toLowerCase().includes('black seed') ||
+            p.name.toLowerCase().includes('remedy')
+        );
+        const finalProducts = herbs.length > 0 ? herbs : mapped.slice(0, 18);
+        setProducts(finalProducts);
+        setFilteredProducts(finalProducts);
+      } catch (err) {
+        console.error('Error fetching herbal remedies:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredProducts(products);
+    } else {
+      setFilteredProducts(
+        products.filter(
+          (p) =>
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.category?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+  }, [searchQuery, products]);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -50,43 +93,34 @@ export default function HerbalRemediesPage() {
               <input
                 type="text"
                 placeholder="Search herbs and remedies..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
               />
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {remedies.map((remedy, index) => (
-              <motion.div
-                key={remedy.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="aspect-square overflow-hidden bg-[#F8F2DE]">
-                  <img
-                    src={remedy.image}
-                    alt={remedy.name}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-5">
-                  <span className="text-xs text-[#1A73A8] font-semibold uppercase">
-                    {remedy.category}
-                  </span>
-                  <h3 className="text-xl font-bold text-[#0D2B3A] mt-2 mb-2">{remedy.name}</h3>
-                  <Link
-                    href={`/products/${remedy.name.toLowerCase()}`}
-                    className="text-[#1A73A8] hover:text-[#0D2B3A] font-semibold"
-                  >
-                    Learn More →
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <Loader size="lg" text="Loading herbs & remedies..." />
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-[#6B7280] text-lg">No herbal products found.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <ProductCard {...product} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -96,4 +130,3 @@ export default function HerbalRemediesPage() {
     </div>
   );
 }
-

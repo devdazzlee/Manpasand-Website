@@ -1,16 +1,33 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Award, ShoppingBag } from 'lucide-react';
-
-const stats = [
-  { icon: Users, number: '10K+', label: 'Happy Customers', color: '#1A73A8' },
-  { icon: Award, number: '25+', label: 'Years Experience', color: '#F97316' },
-  { icon: ShoppingBag, number: '1400+', label: 'Products Available', color: '#0D2B3A' },
-  { icon: TrendingUp, number: '98%', label: 'Satisfaction Rate', color: '#1A73A8' },
-];
+import { productApi } from '../../lib/api/productApi';
 
 export default function StatsSection() {
+  const [productCount, setProductCount] = useState<string>('1400+');
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const result = await productApi.listProducts({ fetch_all: true });
+        const count = result.meta.total;
+        setProductCount(count > 0 ? `${count}+` : '1400+');
+      } catch {
+        // keep default
+      }
+    };
+    fetchCount();
+  }, []);
+
+  const stats = [
+    { icon: Users, number: '10K+', label: 'Happy Customers', color: '#1A73A8' },
+    { icon: Award, number: '25+', label: 'Years Experience', color: '#F97316' },
+    { icon: ShoppingBag, number: productCount, label: 'Products Available', color: '#0D2B3A' },
+    { icon: TrendingUp, number: '98%', label: 'Satisfaction Rate', color: '#1A73A8' },
+  ];
+
   return (
     <section className="py-10 sm:py-14 md:py-16 bg-white">
       <div className="container mx-auto px-4">

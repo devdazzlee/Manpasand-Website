@@ -1,16 +1,33 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Layers, ShieldCheck, Landmark, PackageCheck } from 'lucide-react';
-
-const features = [
-  { icon: Layers, title: 'Unmatched Variety', description: 'Explore a curated collection of 1400+ premium herbs, exotic dry fruits, and essential kitchen staples.' },
-  { icon: ShieldCheck, title: 'Guaranteed Purity', description: 'We uphold a "Zero Compromise" policy on freshness. Our spices are pure, and our nuts are hand-graded for size and taste.' },
-  { icon: Landmark, title: "Karachi's Heritage", description: 'Proudly serving our community for 25+ years with the same commitment to excellence we started with.' },
-  { icon: PackageCheck, title: 'Delivered with Care', description: 'Expertly packaged to preserve aroma and crunch, delivered straight from our store to your doorstep across Pakistan.' },
-];
+import { productApi } from '../../lib/api/productApi';
 
 export default function WhyChooseUsSection() {
+  const [productCount, setProductCount] = useState<string>('1400+');
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const result = await productApi.listProducts({ fetch_all: true });
+        const count = result.meta.total;
+        if (count > 0) setProductCount(`${count}+`);
+      } catch {
+        // keep default
+      }
+    };
+    fetchCount();
+  }, []);
+
+  const features = [
+    { icon: Layers, title: 'Unmatched Variety', description: `Explore a curated collection of ${productCount} premium herbs, exotic dry fruits, and essential kitchen staples.` },
+    { icon: ShieldCheck, title: 'Guaranteed Purity', description: 'We uphold a "Zero Compromise" policy on freshness. Our spices are pure, and our nuts are hand-graded for size and taste.' },
+    { icon: Landmark, title: "Karachi's Heritage", description: 'Proudly serving our community for 25+ years with the same commitment to excellence we started with.' },
+    { icon: PackageCheck, title: 'Delivered with Care', description: 'Expertly packaged to preserve aroma and crunch, delivered straight from our store to your doorstep across Pakistan.' },
+  ];
+
   return (
     <section className="py-10 sm:py-12 md:py-14 bg-white">
       <div className="container mx-auto px-4">

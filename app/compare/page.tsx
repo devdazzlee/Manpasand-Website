@@ -1,53 +1,62 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
-import { X, ShoppingCart, Star } from 'lucide-react';
+import Loader from '../components/Loader';
+import { X, ShoppingCart, Star, Search } from 'lucide-react';
 import Link from 'next/link';
-
-const compareProducts = [
-  {
-    id: '1',
-    name: 'Premium Almonds',
-    price: 2500,
-    originalPrice: 3000,
-    image: '/Almonds-Banner-1.jpg',
-    rating: 4.8,
-    reviews: 124,
-    weight: '500g',
-    origin: 'California',
-    shelfLife: '12 months',
-  },
-  {
-    id: '2',
-    name: 'Cashew Nuts',
-    price: 3200,
-    originalPrice: 3800,
-    image: '/Cashew-kaju-Banner-1.jpg',
-    rating: 4.9,
-    reviews: 89,
-    weight: '500g',
-    origin: 'Vietnam',
-    shelfLife: '12 months',
-  },
-];
+import { productApi } from '../../lib/api/productApi';
+import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
 
 export default function ComparePage() {
-  const [products, setProducts] = useState(compareProducts);
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [allProducts, setAllProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const result = await productApi.listProducts({ fetch_all: true });
+        const mapped = mapApiProducts(result.data);
+        setAllProducts(mapped);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const removeProduct = (id: string) => {
     setProducts(products.filter((p) => p.id !== id));
   };
 
+  const addProduct = (product: DisplayProduct) => {
+    if (!products.find((p) => p.id === product.id)) {
+      setProducts([...products, product]);
+    }
+    setShowSearch(false);
+    setSearchQuery('');
+  };
+
+  const filteredProducts = allProducts.filter(
+    (p) =>
+      !products.find((cp) => cp.id === p.id) &&
+      p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Page Header */}
       <section className="bg-gradient-to-r from-[#0D2B3A] to-[#1A73A8] text-white py-16">
         <div className="container mx-auto px-4">
           <motion.div
@@ -62,126 +71,180 @@ export default function ComparePage() {
         </div>
       </section>
 
-      {/* Comparison Table */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          {products.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#F8F2DE]">
-                    <th className="p-4 text-left font-semibold text-[#0D2B3A]">Features</th>
-                    {products.map((product) => (
-                      <th key={product.id} className="p-4 text-center">
-                        <div className="flex flex-col items-center space-y-2">
-                          <button
-                            onClick={() => removeProduct(product.id)}
-                            className="ml-auto text-[#6B7280] hover:text-red-500 transition-colors"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                          <div className="w-32 h-32 rounded-xl overflow-hidden bg-[#F8F2DE]">
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <Link href={`/products/${product.id}`}>
-                            <h3 className="font-semibold text-[#0D2B3A] hover:text-[#1A73A8]">
-                              {product.name}
-                            </h3>
-                          </Link>
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-semibold text-[#0D2B3A]">Price</td>
-                    {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center">
-                        <div>
-                          <span className="text-xl font-bold text-[#0D2B3A]">
-                            Rs. {product.price.toLocaleString()}
-                          </span>
-                          {product.originalPrice && (
-                            <span className="block text-sm text-[#6B7280] line-through">
-                              Rs. {product.originalPrice.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b bg-gray-50">
-                    <td className="p-4 font-semibold text-[#0D2B3A]">Rating</td>
-                    {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center">
-                        <div className="flex items-center justify-center space-x-1">
-                          <Star className="w-5 h-5 fill-[#F97316] text-[#F97316]" />
-                          <span className="font-semibold">{product.rating}</span>
-                          <span className="text-[#6B7280]">({product.reviews})</span>
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-semibold text-[#0D2B3A]">Weight</td>
-                    {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center text-[#6B7280]">
-                        {product.weight}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b bg-gray-50">
-                    <td className="p-4 font-semibold text-[#0D2B3A]">Origin</td>
-                    {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center text-[#6B7280]">
-                        {product.origin}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-semibold text-[#0D2B3A]">Shelf Life</td>
-                    {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center text-[#6B7280]">
-                        {product.shelfLife}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-semibold text-[#0D2B3A]">Action</td>
-                    {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-6 py-2 rounded-full font-semibold transition-colors flex items-center space-x-2 mx-auto"
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                          <span>Add to Cart</span>
-                        </motion.button>
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          {loading ? (
+            <Loader size="lg" text="Loading products..." />
           ) : (
-            <div className="text-center py-16">
-              <p className="text-[#6B7280] text-lg mb-8">No products to compare</p>
-              <Link href="/shop">
+            <>
+              <div className="mb-8 text-center">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-8 py-4 rounded-full font-semibold transition-colors"
+                  onClick={() => setShowSearch(!showSearch)}
+                  className="bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-6 py-3 rounded-full font-semibold transition-colors inline-flex items-center space-x-2"
                 >
-                  Start Shopping
+                  <Search className="w-5 h-5" />
+                  <span>Add Product to Compare</span>
                 </motion.button>
-              </Link>
-            </div>
+              </div>
+
+              {showSearch && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="max-w-xl mx-auto mb-8"
+                >
+                  <input
+                    type="text"
+                    placeholder="Search products to compare..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none"
+                    autoFocus
+                  />
+                  {searchQuery && (
+                    <div className="mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                      {filteredProducts.slice(0, 10).map((product) => (
+                        <button
+                          key={product.id}
+                          onClick={() => addProduct(product)}
+                          className="w-full text-left px-4 py-3 hover:bg-[#F8F2DE] transition-colors flex items-center space-x-3 border-b last:border-b-0"
+                        >
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-10 h-10 rounded-lg object-cover"
+                          />
+                          <div>
+                            <p className="font-semibold text-[#0D2B3A]">{product.name}</p>
+                            <p className="text-sm text-[#6B7280]">Rs. {product.price.toLocaleString()}</p>
+                          </div>
+                        </button>
+                      ))}
+                      {filteredProducts.length === 0 && (
+                        <p className="px-4 py-3 text-[#6B7280]">No products found</p>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {products.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-[#F8F2DE]">
+                        <th className="p-4 text-left font-semibold text-[#0D2B3A]">Features</th>
+                        {products.map((product) => (
+                          <th key={product.id} className="p-4 text-center">
+                            <div className="flex flex-col items-center space-y-2">
+                              <button
+                                onClick={() => removeProduct(product.id)}
+                                className="ml-auto text-[#6B7280] hover:text-red-500 transition-colors"
+                              >
+                                <X className="w-5 h-5" />
+                              </button>
+                              <div className="w-32 h-32 rounded-xl overflow-hidden bg-[#F8F2DE]">
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <Link href={`/products/${product.id}`}>
+                                <h3 className="font-semibold text-[#0D2B3A] hover:text-[#1A73A8]">
+                                  {product.name}
+                                </h3>
+                              </Link>
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="p-4 font-semibold text-[#0D2B3A]">Price</td>
+                        {products.map((product) => (
+                          <td key={product.id} className="p-4 text-center">
+                            <div>
+                              <span className="text-xl font-bold text-[#0D2B3A]">
+                                Rs. {product.price.toLocaleString()}
+                              </span>
+                              {product.originalPrice && (
+                                <span className="block text-sm text-[#6B7280] line-through">
+                                  Rs. {product.originalPrice.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                      <tr className="border-b bg-gray-50">
+                        <td className="p-4 font-semibold text-[#0D2B3A]">Category</td>
+                        {products.map((product) => (
+                          <td key={product.id} className="p-4 text-center text-[#6B7280]">
+                            {product.category || 'N/A'}
+                          </td>
+                        ))}
+                      </tr>
+                      {products.some((p) => p.weight) && (
+                        <tr className="border-b">
+                          <td className="p-4 font-semibold text-[#0D2B3A]">Weight</td>
+                          {products.map((product) => (
+                            <td key={product.id} className="p-4 text-center text-[#6B7280]">
+                              {product.weight || 'N/A'}
+                            </td>
+                          ))}
+                        </tr>
+                      )}
+                      {products.some((p) => p.origin) && (
+                        <tr className="border-b bg-gray-50">
+                          <td className="p-4 font-semibold text-[#0D2B3A]">Origin</td>
+                          {products.map((product) => (
+                            <td key={product.id} className="p-4 text-center text-[#6B7280]">
+                              {product.origin || 'N/A'}
+                            </td>
+                          ))}
+                        </tr>
+                      )}
+                      <tr>
+                        <td className="p-4 font-semibold text-[#0D2B3A]">Action</td>
+                        {products.map((product) => (
+                          <td key={product.id} className="p-4 text-center">
+                            <Link href={`/products/${product.id}`}>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-6 py-2 rounded-full font-semibold transition-colors flex items-center space-x-2 mx-auto"
+                              >
+                                <ShoppingCart className="w-4 h-4" />
+                                <span>View Product</span>
+                              </motion.button>
+                            </Link>
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <p className="text-[#6B7280] text-lg mb-8">
+                    No products to compare. Use the button above to add products.
+                  </p>
+                  <Link href="/shop">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-[#1A73A8] hover:bg-[#0D2B3A] text-white px-8 py-4 rounded-full font-semibold transition-colors"
+                    >
+                      Start Shopping
+                    </motion.button>
+                  </Link>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -192,4 +255,3 @@ export default function ComparePage() {
     </div>
   );
 }
-

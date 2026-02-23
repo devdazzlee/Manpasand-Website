@@ -1,9 +1,27 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
+import { useCategoryStore } from '../../lib/store/categoryStore';
+import { Category } from '../../lib/api/categoryApi';
 
 export default function Footer() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const { getCategories } = useCategoryStore();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const apiCategories = await getCategories();
+        setCategories(apiCategories.filter((c) => c.is_active).slice(0, 8));
+      } catch {
+        setCategories([]);
+      }
+    };
+    fetchCategories();
+  }, [getCategories]);
+
   return (
     <footer className="bg-[#0D2B3A] text-white">
       <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16">
@@ -58,24 +76,25 @@ export default function Footer() {
 
         {/* Links: 3 columns on mobile (compact), 4 columns on lg with contact */}
         <div className="grid grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
-          {/* Shop */}
+          {/* Shop - Dynamic from API */}
           <div>
             <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider mb-2 sm:mb-3">Shop</h3>
             <ul className="space-y-1 sm:space-y-1.5">
-              {[
-                { name: 'Dry Fruits', href: '/categories/dry-fruits' },
-                { name: 'Dates', href: '/categories/dates' },
-                { name: 'Nuts', href: '/categories/nuts' },
-                { name: 'Honey', href: '/categories/honey' },
-                { name: 'Saffron', href: '/categories/saffron' },
-                { name: 'Spices', href: '/categories/spices' },
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="text-gray-400 hover:text-[#DFF3EA] transition-colors text-[11px] sm:text-sm">
-                    {link.name}
+              {categories.length > 0 ? (
+                categories.map((cat) => (
+                  <li key={cat.id}>
+                    <Link href={`/categories/${cat.slug}`} className="text-gray-400 hover:text-[#DFF3EA] transition-colors text-[11px] sm:text-sm">
+                      {cat.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li>
+                  <Link href="/shop" className="text-gray-400 hover:text-[#DFF3EA] transition-colors text-[11px] sm:text-sm">
+                    All Products
                   </Link>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
 

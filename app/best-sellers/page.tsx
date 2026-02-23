@@ -1,49 +1,42 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader';
 import { Trophy } from 'lucide-react';
-
-const bestSellers = [
-  {
-    id: 'best-1',
-    name: 'Premium Almonds',
-    price: 2500,
-    originalPrice: 3000,
-    image: '/Almonds-Banner-1.jpg',
-    category: 'Dry Fruits',
-  },
-  {
-    id: 'best-2',
-    name: 'Ajwa Dates',
-    price: 1800,
-    originalPrice: 2200,
-    image: '/Ajwa-Dates-Banner-1.jpg',
-    category: 'Dates',
-  },
-  {
-    id: 'best-3',
-    name: 'Cashew Nuts',
-    price: 3200,
-    originalPrice: 3800,
-    image: '/Cashew-kaju-Banner-1.jpg',
-    category: 'Nuts',
-  },
-  {
-    id: 'best-4',
-    name: 'Pistachio',
-    price: 4500,
-    originalPrice: 5200,
-    image: '/Pistachio-Banner.jpg',
-    category: 'Nuts',
-  },
-];
+import { productApi } from '../../lib/api/productApi';
+import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
 
 export default function BestSellersPage() {
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const results = await productApi.getBestSellingProducts();
+        const mapped = mapApiProducts(results);
+        if (mapped.length > 0) {
+          setProducts(mapped);
+        } else {
+          const featured = await productApi.getFeaturedProducts();
+          setProducts(mapApiProducts(featured));
+        }
+      } catch (err) {
+        console.error('Error fetching best sellers:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -67,19 +60,27 @@ export default function BestSellersPage() {
 
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {bestSellers.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <ProductCard {...product} />
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <Loader size="lg" text="Loading best sellers..." />
+          ) : products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-[#6B7280] text-lg">No best sellers available at the moment.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <ProductCard {...product} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -89,4 +90,3 @@ export default function BestSellersPage() {
     </div>
   );
 }
-

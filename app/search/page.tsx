@@ -10,35 +10,38 @@ import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import { Search as SearchIcon } from 'lucide-react';
-
-const searchResults = [
-  {
-    id: '1',
-    name: 'Premium Almonds',
-    price: 2500,
-    originalPrice: 3000,
-    image: '/Almonds-Banner-1.jpg',
-    category: 'Dry Fruits',
-  },
-  {
-    id: '2',
-    name: 'Ajwa Dates',
-    price: 1800,
-    originalPrice: 2200,
-    image: '/Ajwa-Dates-Banner-1.jpg',
-    category: 'Dates',
-  },
-];
+import { productApi } from '../../lib/api/productApi';
+import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
     const urlQuery = searchParams.get('q') || '';
     setQuery(urlQuery);
+    if (urlQuery.trim()) {
+      performSearch(urlQuery.trim());
+    }
   }, [searchParams]);
+
+  const performSearch = async (searchQuery: string) => {
+    try {
+      setLoading(true);
+      setSearched(true);
+      const results = await productApi.searchProducts(searchQuery);
+      setProducts(mapApiProducts(results));
+    } catch (err) {
+      console.error('Error searching products:', err);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,21 +77,33 @@ function SearchContent() {
 
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <p className="text-[#6B7280] mb-6">
-            {query ? `Search results for "${query}"` : 'Enter a search term above'}
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {searchResults.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <ProductCard {...product} />
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <Loader size="lg" text="Searching products..." />
+          ) : (
+            <>
+              <p className="text-[#6B7280] mb-6">
+                {!searched
+                  ? 'Enter a search term above'
+                  : products.length > 0
+                  ? `${products.length} result${products.length !== 1 ? 's' : ''} for "${query}"`
+                  : `No results found for "${query}"`}
+              </p>
+              {products.length > 0 && (
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {products.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <ProductCard {...product} />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
     </>
@@ -110,4 +125,3 @@ export default function SearchPage() {
     </div>
   );
 }
-

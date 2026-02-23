@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -7,8 +8,10 @@ import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import Link from 'next/link';
 import { Map as SitemapIcon } from 'lucide-react';
+import { useCategoryStore } from '../../lib/store/categoryStore';
+import { Category } from '../../lib/api/categoryApi';
 
-const sitemapSections = [
+const staticSections = [
   {
     title: 'Main Pages',
     links: [
@@ -16,17 +19,6 @@ const sitemapSections = [
       { name: 'Shop', href: '/shop' },
       { name: 'About Us', href: '/about' },
       { name: 'Contact', href: '/contact' },
-    ],
-  },
-  {
-    title: 'Categories',
-    links: [
-      { name: 'Dry Fruits', href: '/categories/dry-fruits' },
-      { name: 'Dates', href: '/categories/dates' },
-      { name: 'Nuts', href: '/categories/nuts' },
-      { name: 'Honey', href: '/categories/honey' },
-      { name: 'Spices', href: '/categories/spices' },
-      { name: 'Herbs', href: '/categories/herbs' },
     ],
   },
   {
@@ -51,6 +43,36 @@ const sitemapSections = [
 ];
 
 export default function SitemapPage() {
+  const [categoryLinks, setCategoryLinks] = useState<{ name: string; href: string }[]>([]);
+  const { getCategories } = useCategoryStore();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getCategories();
+        setCategoryLinks(
+          categories
+            .filter((c: Category) => c.is_active)
+            .map((c: Category) => ({ name: c.name, href: `/categories/${c.slug}` }))
+        );
+      } catch {
+        setCategoryLinks([]);
+      }
+    };
+    fetchCategories();
+  }, [getCategories]);
+
+  const allSections = [
+    staticSections[0],
+    {
+      title: 'Categories',
+      links: categoryLinks.length > 0
+        ? categoryLinks
+        : [{ name: 'All Products', href: '/shop' }],
+    },
+    ...staticSections.slice(1),
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -75,7 +97,7 @@ export default function SitemapPage() {
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {sitemapSections.map((section, index) => (
+            {allSections.map((section, index) => (
               <motion.div
                 key={section.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -109,4 +131,3 @@ export default function SitemapPage() {
     </div>
   );
 }
-
