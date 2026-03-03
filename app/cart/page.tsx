@@ -9,7 +9,8 @@ import Services from '../components/Services';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { cartUtils, CartItem } from '../../lib/utils/cart';
-import { get1KgDiscountForCartItem, KG_DISCOUNT } from '../../lib/utils/discount';
+import { KG_DISCOUNT } from '../../lib/utils/discount';
+import { calculateCartPricing } from '../../lib/utils/pricing';
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -38,13 +39,10 @@ export default function CartPage() {
     setItems(cartUtils.getCart());
   };
 
-  const lineDiscounts = items.reduce<Record<string, number>>((acc, item) => {
-    acc[item.id] = get1KgDiscountForCartItem(item);
-    return acc;
-  }, {});
-  const subtotalBeforeDiscount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const kgDiscountTotal = Object.values(lineDiscounts).reduce((sum, discount) => sum + discount, 0);
-  const subtotal = Math.max(0, subtotalBeforeDiscount - kgDiscountTotal);
+  const pricing = calculateCartPricing(items);
+  const subtotalBeforeDiscount = pricing.subtotalBeforeDiscount;
+  const kgDiscountTotal = pricing.kgDiscountTotal;
+  const subtotal = pricing.subtotalAfterDiscount;
   const shipping = subtotal > 5000 ? 0 : 200;
   const total = subtotal + shipping;
 
@@ -91,9 +89,9 @@ export default function CartPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm sm:text-base md:text-xl font-semibold text-[#0D2B3A] mb-0.5 sm:mb-1 md:mb-2 truncate">{item.name}</h3>
-                      {(lineDiscounts[item.id] || 0) > 0 && (
+                      {(pricing.linePricingById[item.id]?.discount || 0) > 0 && (
                         <span className="inline-flex items-center gap-1 bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold mb-1.5">
-                          🔥 Rs {lineDiscounts[item.id].toLocaleString()} OFF Applied
+                          🔥 Rs {pricing.linePricingById[item.id].discount.toLocaleString()} OFF Applied
                         </span>
                       )}
                       <p className="text-base sm:text-lg md:text-2xl font-bold text-[#1A73A8] mb-2 sm:mb-3 md:mb-4">
@@ -125,7 +123,7 @@ export default function CartPage() {
                         </button>
                       </div>
                       <p className="text-xs sm:text-sm md:text-lg font-semibold text-[#0D2B3A] mt-2 sm:mt-3 md:mt-4">
-                        Total: Rs. {(item.price * item.quantity - (lineDiscounts[item.id] || 0)).toLocaleString()}
+                        Total: Rs. {(pricing.linePricingById[item.id]?.total || 0).toLocaleString()}
                       </p>
                     </div>
                   </motion.div>
