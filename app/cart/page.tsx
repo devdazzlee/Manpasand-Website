@@ -43,7 +43,7 @@ export default function CartPage() {
   const subtotalBeforeDiscount = pricing.subtotalBeforeDiscount;
   const kgDiscountTotal = pricing.kgDiscountTotal;
   const subtotal = pricing.subtotalAfterDiscount;
-  const shipping = subtotal > 5000 ? 0 : 200;
+  const shipping = subtotalBeforeDiscount >= 5000 ? 0 : 200;
   const total = subtotal + shipping;
 
   return (
@@ -165,9 +165,9 @@ export default function CartPage() {
                         )}
                       </span>
                     </div>
-                    {subtotal < 5000 && (
+                    {subtotalBeforeDiscount < 5000 && (
                       <p className="text-xs sm:text-sm text-[#6B7280]">
-                        Add Rs. {(5000 - subtotal).toLocaleString()} more for free shipping
+                        Add Rs. {(5000 - subtotalBeforeDiscount).toLocaleString()} more for free shipping
                       </p>
                     )}
                     <div className="border-t border-gray-300 pt-3 sm:pt-4">
