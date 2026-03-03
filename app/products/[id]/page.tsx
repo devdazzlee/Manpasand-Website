@@ -308,6 +308,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     return '';
   }, [isCustomWeight, customWeight, quantityOptions, selectedQuantityOption]);
 
+  const selectedVariationGrams = useMemo(() => {
+    if (!product?.unit?.name) return undefined;
+    const unit = product.unit.name.toLowerCase().trim();
+    if (isCustomWeight && customWeight) {
+      const grams = parseFloat(customWeight);
+      return !isNaN(grams) && grams > 0 ? grams : undefined;
+    }
+    if (!selectedQuantityOption) return undefined;
+    const value = parseFloat(selectedQuantityOption);
+    if (isNaN(value) || value <= 0) return undefined;
+    if (['gm', 'g', 'gram', 'grams'].includes(unit)) return value;
+    if (['kg', 'kgs', 'kilogram', 'kilograms'].includes(unit)) return value * 1000;
+    return undefined;
+  }, [product?.unit?.name, isCustomWeight, customWeight, selectedQuantityOption]);
+
   // Generate a unique cart ID for the selected variation
   const cartVariationId = useMemo(() => {
     if (isCustomWeight && customWeight) {
@@ -327,9 +342,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       cartUtils.addToCart({
         id: cartVariationId,
         name: cartName,
-        price: computedPrice,
+        price: computedPriceBeforeDiscount,
         image: productImage,
         productId: product.id,
+        unitName: product.unit?.name,
+        gramsPerUnit: selectedVariationGrams,
         quantity: 1,
       });
       showCartToast(cartName, productImage);
@@ -344,9 +361,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       cartUtils.addToCart({
         id: cartVariationId,
         name: cartName,
-        price: computedPrice,
+        price: computedPriceBeforeDiscount,
         image: productImage,
         productId: product.id,
+        unitName: product.unit?.name,
+        gramsPerUnit: selectedVariationGrams,
         quantity: 1,
       });
       
@@ -895,6 +914,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   originalPrice={product.originalPrice}
                   image={product.image || '/Banner-01.jpg'}
                   category={product.category?.name || (product as any).category}
+                  unitName={product.unit?.name}
+                  weight={product.weight}
                   sales_rate_inc_dis_and_tax={product.sales_rate_inc_dis_and_tax}
                   sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
                   selling_price={product.selling_price}

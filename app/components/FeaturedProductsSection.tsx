@@ -92,6 +92,8 @@ export default function FeaturedProductsSection({ featuredProducts, loading }: F
                     originalPrice={originalPrice}
                     image={product.image || '/Banner-01.jpg'}
                     category={product.category?.name}
+                    unitName={product.unit?.name}
+                    weight={product.weight}
                     sales_rate_inc_dis_and_tax={product.sales_rate_inc_dis_and_tax}
                     sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
                     selling_price={product.selling_price}

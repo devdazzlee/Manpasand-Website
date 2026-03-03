@@ -16,6 +16,7 @@ export interface DisplayProduct {
   rating?: number;
   reviews?: number;
   created_at?: string;
+  unitName?: string;
 }
 
 export function mapApiProduct(product: Product): DisplayProduct {
@@ -52,6 +53,7 @@ export function mapApiProduct(product: Product): DisplayProduct {
     rating: product.rating,
     reviews: product.reviews,
     created_at: product.created_at,
+    unitName: product.unit?.name,
   };
 }
 

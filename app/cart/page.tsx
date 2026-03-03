@@ -9,7 +9,7 @@ import Services from '../components/Services';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { cartUtils, CartItem } from '../../lib/utils/cart';
-import { is1KgCartItem, KG_DISCOUNT } from '../../lib/utils/discount';
+import { get1KgDiscountForCartItem, KG_DISCOUNT } from '../../lib/utils/discount';
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -38,7 +38,13 @@ export default function CartPage() {
     setItems(cartUtils.getCart());
   };
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const lineDiscounts = items.reduce<Record<string, number>>((acc, item) => {
+    acc[item.id] = get1KgDiscountForCartItem(item);
+    return acc;
+  }, {});
+  const subtotalBeforeDiscount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const kgDiscountTotal = Object.values(lineDiscounts).reduce((sum, discount) => sum + discount, 0);
+  const subtotal = Math.max(0, subtotalBeforeDiscount - kgDiscountTotal);
   const shipping = subtotal > 5000 ? 0 : 200;
   const total = subtotal + shipping;
 
@@ -85,9 +91,9 @@ export default function CartPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm sm:text-base md:text-xl font-semibold text-[#0D2B3A] mb-0.5 sm:mb-1 md:mb-2 truncate">{item.name}</h3>
-                      {is1KgCartItem(item.name) && (
+                      {(lineDiscounts[item.id] || 0) > 0 && (
                         <span className="inline-flex items-center gap-1 bg-gradient-to-r from-[#e53e3e] to-[#F97316] text-white px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold mb-1.5">
-                          🔥 Rs {KG_DISCOUNT.amount} OFF Applied
+                          🔥 Rs {lineDiscounts[item.id].toLocaleString()} OFF Applied
                         </span>
                       )}
                       <p className="text-base sm:text-lg md:text-2xl font-bold text-[#1A73A8] mb-2 sm:mb-3 md:mb-4">
@@ -119,7 +125,7 @@ export default function CartPage() {
                         </button>
                       </div>
                       <p className="text-xs sm:text-sm md:text-lg font-semibold text-[#0D2B3A] mt-2 sm:mt-3 md:mt-4">
-                        Total: Rs. {(item.price * item.quantity).toLocaleString()}
+                        Total: Rs. {(item.price * item.quantity - (lineDiscounts[item.id] || 0)).toLocaleString()}
                       </p>
                     </div>
                   </motion.div>
@@ -143,8 +149,14 @@ export default function CartPage() {
                   <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-5 md:mb-6">
                     <div className="flex justify-between text-[#6B7280] text-sm sm:text-base">
                       <span>Subtotal</span>
-                      <span>Rs. {subtotal.toLocaleString()}</span>
+                      <span>Rs. {subtotalBeforeDiscount.toLocaleString()}</span>
                     </div>
+                    {kgDiscountTotal > 0 && (
+                      <div className="flex justify-between text-green-600 text-sm sm:text-base font-semibold">
+                        <span>{KG_DISCOUNT.shortLabel}</span>
+                        <span>- Rs. {kgDiscountTotal.toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-[#6B7280] text-sm sm:text-base">
                       <span>Shipping</span>
                       <span>

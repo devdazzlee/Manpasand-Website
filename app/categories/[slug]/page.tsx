@@ -137,6 +137,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                     originalPrice={product.originalPrice}
                     image={product.image || '/Banner-01.jpg'}
                     category={product.category?.name || (product.category as any)}
+                    unitName={product.unit?.name}
+                    weight={product.weight}
                     sales_rate_inc_dis_and_tax={product.sales_rate_inc_dis_and_tax}
                     sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
                     selling_price={product.selling_price}

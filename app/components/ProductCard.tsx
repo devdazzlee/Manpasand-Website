@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from 'react';
 import { cartUtils } from '../../lib/utils/cart';
 import { useProductStore } from '../../lib/store/productStore';
 import { showCartToast } from './CartToast';
+import { isWeightBasedUnit } from '../../lib/utils/discount';
 
 interface ProductCardProps {
   id: string;
@@ -21,6 +22,8 @@ interface ProductCardProps {
   sales_rate_inc_dis_and_tax?: string | number;
   sales_rate_exc_dis_and_tax?: string | number;
   selling_price?: number;
+  unitName?: string;
+  weight?: string;
 }
 
 export default function ProductCard({
@@ -34,6 +37,8 @@ export default function ProductCard({
   sales_rate_inc_dis_and_tax,
   sales_rate_exc_dis_and_tax,
   selling_price,
+  unitName,
+  weight,
 }: ProductCardProps) {
   const { prefetchProduct } = useProductStore();
   const hasImageSource = Boolean(image && image.trim() !== '' && image !== '/Banner-01.jpg');
@@ -71,6 +76,19 @@ export default function ProductCard({
     }
   }, [id]);
 
+  const getWeightInGramsFromText = (weightText?: string): number | undefined => {
+    if (!weightText) return undefined;
+    const match = weightText.match(/(\d+(?:\.\d+)?)\s*(kg|kgs|kilogram|kilograms|g|gm|gram|grams|gms)/i);
+    if (!match) return undefined;
+    const value = parseFloat(match[1]);
+    const unit = match[2].toLowerCase();
+    if (isNaN(value) || value <= 0) return undefined;
+    if (['kg', 'kgs', 'kilogram', 'kilograms'].includes(unit)) return value * 1000;
+    return value;
+  };
+
+  const inferredGramsPerUnit = getWeightInGramsFromText(weight);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -81,6 +99,8 @@ export default function ProductCard({
       price: displayPrice,
       image: productImage,
       productId: id,
+      unitName,
+      gramsPerUnit: inferredGramsPerUnit,
     });
     // Toast notification — no state change, no re-render
     showCartToast(name, productImage);
@@ -96,6 +116,8 @@ export default function ProductCard({
       price: displayPrice,
       image: image || '/Banner-01.jpg',
       productId: id,
+      unitName,
+      gramsPerUnit: inferredGramsPerUnit,
     });
     // Redirect to checkout
     router.push('/checkout');

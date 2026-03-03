@@ -5,6 +5,8 @@ export interface CartItem {
   image: string;
   quantity: number;
   productId?: string;
+  unitName?: string;
+  gramsPerUnit?: number;
 }
 
 const CART_STORAGE_KEY = 'manpasand_cart';
