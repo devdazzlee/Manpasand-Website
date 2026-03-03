@@ -31,7 +31,7 @@ export default function ContactPage() {
     {
       icon: MapPin,
       title: 'Visit Us',
-      info: 'Bahadurabad & DHA, Karachi',
+      info: 'Bahadurabad, DHA & Bahria Town, Karachi',
       href: 'https://www.google.com/maps/place/Manpasand+Store+Bahadurabad/@24.8827589,67.069352,17z/data=!3m1!4b1!4m6!3m5!1s0x3eb33ff52d5284f9:0x9a310ddf5383b6c2!8m2!3d24.8827589!4d67.069352!16s%2Fg%2F11ynv90wxj',
       bgColor: 'bg-[#1A73A8]',
     },
@@ -236,7 +236,7 @@ export default function ContactPage() {
               <div>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-4">Get in Touch</h2>
                 <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed mb-6">
-                  Visit our stores in Bahadurabad or DHA, Karachi, or reach out to us through any of the 
+                  Visit our stores in Bahadurabad, DHA, or Bahria Town Karachi, or reach out to us through any of the
                   following channels. We&apos;re here to help!
                 </p>
               </div>
@@ -255,6 +255,8 @@ export default function ContactPage() {
                       <a href="https://www.google.com/maps/place/Manpasand+Store+Bahadurabad/@24.8827589,67.069352,17z/data=!3m1!4b1!4m6!3m5!1s0x3eb33ff52d5284f9:0x9a310ddf5383b6c2!8m2!3d24.8827589!4d67.069352!16s%2Fg%2F11ynv90wxj" target="_blank" rel="noopener noreferrer" className="hover:text-[#1A73A8] transition-colors">Bahadurabad, Karachi</a> — <a href="tel:02134892110" className="text-[#1A73A8] font-medium">021-34892110</a>
                       <br />
                       <a href="https://www.google.com/maps/place/Manpasand+dry+fruit/@24.8237151,67.0618563,17z/data=!3m1!4b1!4m6!3m5!1s0x3eb33c44fa4896dd:0x7151d4b8979aea1a!8m2!3d24.8237151!4d67.0618563!16s%2Fg%2F11cs69j876" target="_blank" rel="noopener noreferrer" className="hover:text-[#1A73A8] transition-colors">Phase 4, DHA, Karachi</a> — <a href="tel:02135384433" className="text-[#1A73A8] font-medium">021-35384433</a>
+                      <br />
+                      <a href="https://www.google.com/maps/search/?api=1&query=Shop+No+209%2C+AQ+Supermarket%2C+Bahria+Town+Karachi" target="_blank" rel="noopener noreferrer" className="hover:text-[#1A73A8] transition-colors">Shop No 209, AQ Supermarket, Bahria Town Karachi</a> — <a href="tel:+923423344040" className="text-[#1A73A8] font-medium">+92 342 3344040</a>
                     </p>
                   </div>
                 </motion.div>

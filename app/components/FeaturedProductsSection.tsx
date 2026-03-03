@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import ProductCard from './ProductCard';
-import Loader from './Loader';
 import { Product } from '../../lib/api/productApi';
 import { useProductStore } from '../../lib/store/productStore';
 
@@ -46,7 +45,21 @@ export default function FeaturedProductsSection({ featuredProducts, loading }: F
           </p>
         </motion.div>
         {loading ? (
-          <Loader size="lg" text="Loading featured products..." />
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={`featured-skeleton-${index}`} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                <div className="aspect-[4/3] animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
+                <div className="p-2.5 sm:p-3 space-y-2">
+                  <div className="h-3 sm:h-4 w-4/5 rounded bg-gray-200 animate-pulse" />
+                  <div className="h-4 sm:h-5 w-2/5 rounded bg-gray-200 animate-pulse" />
+                  <div className="grid grid-cols-2 gap-1.5 pt-1">
+                    <div className="h-8 rounded bg-gray-200 animate-pulse" />
+                    <div className="h-8 rounded bg-gray-200 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : featuredProducts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-[#6B7280]">No featured products available at the moment.</p>

@@ -10,7 +10,7 @@ import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import { Sparkles } from 'lucide-react';
 import { productApi } from '../../lib/api/productApi';
-import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
+import { mapApiProducts, DisplayProduct, interleaveProductsByCategory } from '../../lib/utils/productHelpers';
 
 export default function NewArrivalsPage() {
   const [products, setProducts] = useState<DisplayProduct[]>([]);
@@ -27,7 +27,7 @@ export default function NewArrivalsPage() {
           const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
           return dateB - dateA;
         });
-        setProducts(sorted.slice(0, 16));
+        setProducts(interleaveProductsByCategory(sorted).slice(0, 16));
       } catch (err) {
         console.error('Error fetching new arrivals:', err);
       } finally {

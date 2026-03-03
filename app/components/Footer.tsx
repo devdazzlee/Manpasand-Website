@@ -158,6 +158,14 @@ export default function Footer() {
                   <a href="tel:02135384433" className="hover:text-[#DFF3EA] transition-colors">021-35384433</a>
                 </div>
               </div>
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-[#1A73A8] mt-0.5 flex-shrink-0" />
+                <div className="text-gray-400 text-sm">
+                  <a href="https://www.google.com/maps/search/?api=1&query=Shop+No+209%2C+AQ+Supermarket%2C+Bahria+Town+Karachi" target="_blank" rel="noopener noreferrer" className="hover:text-[#DFF3EA] transition-colors">Shop No 209, AQ Supermarket, Bahria Town Karachi</a>
+                  <br />
+                  <a href="tel:+923423344040" className="hover:text-[#DFF3EA] transition-colors">+92 342 3344040</a>
+                </div>
+              </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[#1A73A8] flex-shrink-0" />
                 <a href="mailto:Contact@manpasandstore.com" className="text-gray-400 hover:text-[#DFF3EA] transition-colors text-sm">
@@ -176,7 +184,7 @@ export default function Footer() {
           </a>
           <a href="https://www.google.com/maps/place/Manpasand+Store+Bahadurabad/@24.8827589,67.069352,17z/data=!3m1!4b1!4m6!3m5!1s0x3eb33ff52d5284f9:0x9a310ddf5383b6c2!8m2!3d24.8827589!4d67.069352!16s%2Fg%2F11ynv90wxj" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-white transition-colors">
             <MapPin className="w-3.5 h-3.5 text-[#1A73A8]" />
-            Bahadurabad &amp; DHA, Karachi
+            Bahadurabad, DHA &amp; Bahria Town, Karachi
           </a>
         </div>
 

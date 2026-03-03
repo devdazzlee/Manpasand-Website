@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -8,11 +8,11 @@ import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
 import { Grid, List, X, Star, Gift, TrendingUp, Zap, Sparkles, ChevronLeft, ChevronRight, Search, SlidersHorizontal, ChevronDown, ArrowUpDown, LayoutGrid } from 'lucide-react';
-import Loader from '../components/Loader';
 import Link from 'next/link';
 import { productApi, Product } from '../../lib/api/productApi';
 import { categoryApi, Category } from '../../lib/api/categoryApi';
 import { useProductStore } from '../../lib/store/productStore';
+import { getProductCategoryName, interleaveProductsByCategory } from '../../lib/utils/productHelpers';
 
 export default function ShopPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -129,15 +129,20 @@ export default function ShopPage() {
 
   const activeTag = priceTags.find(t => t.id === selectedPriceTag) || priceTags[0];
 
-  const filteredProducts = allProducts
-    .filter((product) => {
+  const filteredProducts = useMemo(() => {
+    const filtered = allProducts.filter((product) => {
       const productPrice = product.price || product.selling_price || 0;
-      const categoryMatch = selectedCategory === 'All' || product.category?.name === selectedCategory;
+      const categoryMatch = selectedCategory === 'All' || getProductCategoryName(product) === selectedCategory;
       const priceMatch = productPrice >= activeTag.min && productPrice <= activeTag.max;
       const searchMatch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase());
       return categoryMatch && priceMatch && searchMatch;
-    })
-    .sort((a, b) => {
+    });
+
+    if (sortBy === 'default') {
+      return interleaveProductsByCategory(filtered);
+    }
+
+    return [...filtered].sort((a, b) => {
       const priceA = a.price || a.selling_price || 0;
       const priceB = b.price || b.selling_price || 0;
       switch (sortBy) {
@@ -149,6 +154,9 @@ export default function ShopPage() {
         default: return 0;
       }
     });
+  }, [allProducts, selectedCategory, selectedPriceTag, searchQuery, sortBy, activeTag.min, activeTag.max]);
+
+  const mixedTopSellerProducts = useMemo(() => interleaveProductsByCategory(allProducts).slice(0, 4), [allProducts]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -497,9 +505,40 @@ export default function ShopPage() {
             }
           >
             {loading ? (
-              <div className="col-span-full">
-                <Loader size="lg" text="Loading products..." />
-              </div>
+              <>
+                {(viewMode === 'grid' ? Array.from({ length: 8 }) : Array.from({ length: 5 })).map((_, index) => (
+                  <div
+                    key={`skeleton-${index}`}
+                    className={viewMode === 'grid'
+                      ? 'bg-white rounded-xl border border-gray-100 overflow-hidden'
+                      : 'bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-3 sm:p-4'
+                    }
+                  >
+                    {viewMode === 'grid' ? (
+                      <>
+                        <div className="aspect-[4/3] animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
+                        <div className="p-2.5 sm:p-3 space-y-2">
+                          <div className="h-3 sm:h-4 w-4/5 rounded bg-gray-200 animate-pulse" />
+                          <div className="h-4 sm:h-5 w-2/5 rounded bg-gray-200 animate-pulse" />
+                          <div className="grid grid-cols-2 gap-1.5 pt-1">
+                            <div className="h-8 rounded bg-gray-200 animate-pulse" />
+                            <div className="h-8 rounded bg-gray-200 animate-pulse" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex gap-3 sm:gap-4">
+                        <div className="w-28 h-24 sm:w-36 sm:h-28 rounded-lg bg-gray-200 animate-pulse flex-shrink-0" />
+                        <div className="flex-1 space-y-2 sm:space-y-3">
+                          <div className="h-4 w-3/4 rounded bg-gray-200 animate-pulse" />
+                          <div className="h-5 w-1/4 rounded bg-gray-200 animate-pulse" />
+                          <div className="h-8 w-full rounded bg-gray-200 animate-pulse" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </>
             ) : error ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-red-500">{error}</p>
@@ -609,9 +648,7 @@ export default function ShopPage() {
             <p className="text-[#6B7280] text-sm sm:text-base">Our most popular products this month</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {allProducts
-              .slice(0, 4)
-              .map((product) => (
+            {mixedTopSellerProducts.map((product) => (
                 <div
                   key={product.id}
                 >

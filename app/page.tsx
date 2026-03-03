@@ -15,6 +15,7 @@ import TestimonialsSection from './components/TestimonialsSection';
 import { Category } from '../lib/api/categoryApi';
 import { productApi, Product } from '../lib/api/productApi';
 import { useProductStore } from '../lib/store/productStore';
+import { interleaveProductsByCategory, getProductCategoryName } from '../lib/utils/productHelpers';
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -43,12 +44,12 @@ export default function Home() {
           };
         });
         setCategories(mappedCategories);
+        const categoryNameById = new Map(mappedCategories.map((category) => [String(category.id), category.name]));
         
         // Cache categories
         const { cacheProductList, cacheProduct } = useProductStore.getState();
         
-        // Map featured products to include image URL and normalize price fields
-        const mappedProducts = (homeData.featuredProducts || []).map((product: Product) => {
+        const mapHomeProduct = (product: Product): Product => {
           // Cache each product individually
           cacheProduct(product);
           // Get price from API response
@@ -71,17 +72,49 @@ export default function Home() {
             ? product.ProductImage[0].image
             : product.image || '/Banner-01.jpg';
           
+          const resolvedCategoryName =
+            product.category?.name ||
+            categoryNameById.get(String(product.category_id || '')) ||
+            undefined;
+
           return {
             ...product,
             price: priceValue,
             selling_price: priceValue,
             image: productImage,
             originalPrice,
+            category: product.category || (resolvedCategoryName
+              ? { id: String(product.category_id || ''), name: resolvedCategoryName }
+              : undefined),
           };
-        });
-        setFeaturedProducts(mappedProducts);
+        };
+
+        const featuredMapped = (homeData.featuredProducts || []).map(mapHomeProduct);
+        const featuredCategoryCount = new Set(featuredMapped.map((p) => getProductCategoryName(p))).size;
+
+        // If backend sends single-category featured products, build a diversified pool
+        // from best-sellers and, if needed, from full catalog.
+        let favoritesPool: Product[] = [...featuredMapped];
+        if (featuredCategoryCount < 2 || featuredMapped.length < 8) {
+          const bestSellingMapped = (homeData.bestSellingProducts || []).map(mapHomeProduct);
+          const mergedHomePool = [...featuredMapped, ...bestSellingMapped];
+          const dedupedHomePool = Array.from(new Map(mergedHomePool.map((p) => [p.id, p])).values());
+          const homePoolCategoryCount = new Set(dedupedHomePool.map((p) => getProductCategoryName(p))).size;
+
+          if (homePoolCategoryCount < 2 || dedupedHomePool.length < 8) {
+            const catalogResult = await productApi.listProducts({ fetch_all: true, search: '' });
+            const catalogMapped = catalogResult.data.map(mapHomeProduct);
+            const mergedCatalogPool = [...dedupedHomePool, ...catalogMapped];
+            favoritesPool = Array.from(new Map(mergedCatalogPool.map((p) => [p.id, p])).values());
+          } else {
+            favoritesPool = dedupedHomePool;
+          }
+        }
+
+        const mixedFeaturedProducts = interleaveProductsByCategory(favoritesPool).slice(0, 8);
+        setFeaturedProducts(mixedFeaturedProducts);
         // Cache featured products list
-        cacheProductList('featured', mappedProducts);
+        cacheProductList('featured', mixedFeaturedProducts);
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load data. Please try again later.');

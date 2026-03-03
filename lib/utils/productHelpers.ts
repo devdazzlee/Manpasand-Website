@@ -58,3 +58,48 @@ export function mapApiProduct(product: Product): DisplayProduct {
 export function mapApiProducts(products: Product[]): DisplayProduct[] {
   return products.map(mapApiProduct);
 }
+
+type CategoryLike = { name?: string } | string | null | undefined;
+
+export function getProductCategoryName(product: {
+  category?: CategoryLike;
+  category_name?: string;
+  category_id?: string;
+}): string {
+  if (typeof product.category === 'string') return product.category;
+  return product.category?.name || product.category_name || product.category_id || 'Uncategorized';
+}
+
+export function interleaveProductsByCategory<T extends {
+  category?: CategoryLike;
+  category_name?: string;
+  category_id?: string;
+}>(products: T[]): T[] {
+  const categoryBuckets = new Map<string, T[]>();
+
+  products.forEach((product) => {
+    const category = getProductCategoryName(product);
+    if (!categoryBuckets.has(category)) categoryBuckets.set(category, []);
+    categoryBuckets.get(category)!.push(product);
+  });
+
+  const bucketEntries = Array.from(categoryBuckets.entries())
+    .map(([category, items]) => ({ category, items }))
+    .sort((a, b) => b.items.length - a.items.length);
+
+  const mixed: T[] = [];
+  let added = true;
+
+  while (added) {
+    added = false;
+    for (const bucket of bucketEntries) {
+      const next = bucket.items.shift();
+      if (next) {
+        mixed.push(next);
+        added = true;
+      }
+    }
+  }
+
+  return mixed;
+}

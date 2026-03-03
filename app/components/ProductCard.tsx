@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Heart, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cartUtils } from '../../lib/utils/cart';
 import { useProductStore } from '../../lib/store/productStore';
 import { showCartToast } from './CartToast';
@@ -36,6 +36,10 @@ export default function ProductCard({
   selling_price,
 }: ProductCardProps) {
   const { prefetchProduct } = useProductStore();
+  const hasImageSource = Boolean(image && image.trim() !== '' && image !== '/Banner-01.jpg');
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageRef = useRef<HTMLImageElement | null>(null);
   
   // Extract price from multiple possible fields
   const displayPrice = price 
@@ -49,6 +53,15 @@ export default function ProductCard({
   
   const [isInWishlist, setIsInWishlist] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setImageLoaded(false);
+    setImageFailed(false);
+    // If browser already has this image in cache, mark as loaded immediately.
+    if (imageRef.current?.complete && imageRef.current.naturalWidth > 0) {
+      setImageLoaded(true);
+    }
+  }, [image]);
 
   // Check if product is in wishlist
   useEffect(() => {
@@ -124,12 +137,25 @@ export default function ProductCard({
         className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group flex flex-col sm:flex-row"
       >
         <Link href={`/products/${id}`} className="flex-shrink-0">
-          <div className="relative w-full h-40 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 overflow-hidden">
-            <img
-              src={image}
-              alt={name}
-              className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-            />
+          <div className="relative w-full h-40 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 overflow-hidden bg-gray-100">
+            {hasImageSource && !imageFailed && (
+              <img
+                src={image}
+                alt={name}
+                className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                ref={(node) => {
+                  imageRef.current = node;
+                  if (node?.complete && node.naturalWidth > 0) {
+                    setImageLoaded(true);
+                  }
+                }}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageFailed(true)}
+              />
+            )}
+            {(!hasImageSource || imageFailed || !imageLoaded) && (
+              <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
+            )}
             {discount > 0 && (
               <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-[#F97316] text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold">
                 -{discount}%
@@ -208,16 +234,24 @@ export default function ProductCard({
         onTouchStart={() => prefetchProduct(id)}
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
-          <img
-            src={image || '/Banner-01.jpg'}
-            alt={name}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => {
-              if ((e.target as HTMLImageElement).src !== '/Banner-01.jpg') {
-                (e.target as HTMLImageElement).src = '/Banner-01.jpg';
-              }
-            }}
-          />
+          {hasImageSource && !imageFailed && (
+            <img
+              src={image}
+              alt={name}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              ref={(node) => {
+                imageRef.current = node;
+                if (node?.complete && node.naturalWidth > 0) {
+                  setImageLoaded(true);
+                }
+              }}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageFailed(true)}
+            />
+          )}
+          {(!hasImageSource || imageFailed || !imageLoaded) && (
+            <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
+          )}
           {discount > 0 && (
             <div className="absolute top-2 left-2 bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
               -{discount}%

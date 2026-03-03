@@ -209,7 +209,7 @@ export default function AboutPage() {
                         <p className="text-white/60 text-xs sm:text-sm mt-0.5">Products</p>
                       </div>
                       <div>
-                        <p className="text-xl sm:text-2xl font-bold text-[#DFF3EA]">2</p>
+                        <p className="text-xl sm:text-2xl font-bold text-[#DFF3EA]">3</p>
                         <p className="text-white/60 text-xs sm:text-sm mt-0.5">Branches</p>
                       </div>
                     </div>
@@ -246,7 +246,7 @@ export default function AboutPage() {
                 </p>
 
                 <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed">
-                  Today, with <span className="font-semibold text-[#0D2B3A]">1400+ products</span> and <span className="font-semibold text-[#0D2B3A]">2 branches</span> across
+                  Today, with <span className="font-semibold text-[#0D2B3A]">1400+ products</span> and <span className="font-semibold text-[#0D2B3A]">3 branches</span> across
                   Karachi, we continue to serve our community with the same passion and &ldquo;Zero Compromise&rdquo; approach to
                   freshness that we started with.
                 </p>
@@ -516,7 +516,7 @@ export default function AboutPage() {
               Visit Our Stores
             </h2>
             <p className="text-sm sm:text-base md:text-lg text-[#6B7280] max-w-lg mx-auto mb-4">
-              Experience our premium products in person at our two Karachi locations.
+              Experience our premium products in person at our three Karachi locations.
             </p>
             <div className="flex items-center justify-center gap-2">
               <div className="w-10 h-0.5 bg-[#1A73A8] rounded-full"></div>
@@ -524,7 +524,7 @@ export default function AboutPage() {
             </div>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {/* Bahadurabad Branch */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -624,6 +624,61 @@ export default function AboutPage() {
 
                     <p className="text-sm text-[#6B7280] leading-relaxed mb-4 border-l-2 border-[#1A73A8] pl-3 italic">
                       Our DHA neighbourhood outlet, designed for a modern, convenient shopping experience.
+                    </p>
+
+                    <div className="inline-flex items-center justify-center gap-2 text-white px-5 py-2.5 rounded-lg text-sm font-semibold w-full" style={{ background: 'linear-gradient(to right, #0D2B3A, #1A73A8)' }}>
+                      <Navigation className="w-4 h-4" />
+                      Get Directions
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </motion.div>
+
+            {/* Bahria Town Karachi Branch */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="group"
+            >
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Shop+No+209%2C+AQ+Supermarket%2C+Bahria+Town+Karachi"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block h-full"
+              >
+                <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden h-full flex flex-col cursor-pointer group-hover:-translate-y-1">
+                  <div className="px-5 py-3 text-center" style={{ background: 'linear-gradient(to right, #0D2B3A, #1A73A8)' }}>
+                    <span className="text-white text-xs sm:text-sm font-bold uppercase tracking-wider">
+                      ★ Bahria Town Karachi Branch
+                    </span>
+                  </div>
+                  <div className="p-5 sm:p-7 flex flex-col flex-grow">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform duration-300" style={{ background: 'linear-gradient(135deg, #0D2B3A, #1A73A8)' }}>
+                      <MapPin className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-[#0D2B3A] mb-3">Bahria Town Karachi Branch</h3>
+
+                    <div className="space-y-2.5 text-sm mb-4 flex-grow">
+                      <div className="flex items-start gap-2.5 text-[#6B7280]">
+                        <MapPin className="w-4 h-4 text-[#1A73A8] flex-shrink-0 mt-0.5" />
+                        <span>Shop No 209, AQ Supermarket, Bahria Town Karachi.</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-[#6B7280]">
+                        <Phone className="w-4 h-4 text-[#1A73A8] flex-shrink-0" />
+                        <span
+                          onClick={(e) => e.stopPropagation()}
+                          className="contents"
+                        >
+                          <a href="tel:+923423344040" className="hover:text-[#1A73A8] transition-colors font-medium">+92 342 3344040</a>
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-[#6B7280] leading-relaxed mb-4 border-l-2 border-[#1A73A8] pl-3 italic">
+                      Our Bahria Town neighborhood convenience store to provide premium organic products.
                     </p>
 
                     <div className="inline-flex items-center justify-center gap-2 text-white px-5 py-2.5 rounded-lg text-sm font-semibold w-full" style={{ background: 'linear-gradient(to right, #0D2B3A, #1A73A8)' }}>
