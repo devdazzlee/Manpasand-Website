@@ -43,7 +43,7 @@ export default function CartPage() {
   const subtotalBeforeDiscount = pricing.subtotalBeforeDiscount;
   const kgDiscountTotal = pricing.kgDiscountTotal;
   const subtotal = pricing.subtotalAfterDiscount;
-  const shipping = subtotalBeforeDiscount >= 5000 ? 0 : 200;
+  const shipping = 350;
   const total = subtotal + shipping;
 
   return (
@@ -157,19 +157,11 @@ export default function CartPage() {
                     )}
                     <div className="flex justify-between text-[#6B7280] text-sm sm:text-base">
                       <span>Shipping</span>
-                      <span>
-                        {shipping === 0 ? (
-                          <span className="text-green-600 font-semibold">Free</span>
-                        ) : (
-                          `Rs. ${shipping.toLocaleString()}`
-                        )}
-                      </span>
+                      <span>Rs. {shipping.toLocaleString()}</span>
                     </div>
-                    {subtotalBeforeDiscount < 5000 && (
-                      <p className="text-xs sm:text-sm text-[#6B7280]">
-                        Add Rs. {(5000 - subtotalBeforeDiscount).toLocaleString()} more for free shipping
-                      </p>
-                    )}
+                    <p className="text-xs sm:text-sm text-[#6B7280]">
+                      Flat shipping across Pakistan
+                    </p>
                     <div className="border-t border-gray-300 pt-3 sm:pt-4">
                       <div className="flex justify-between text-base sm:text-lg md:text-xl font-bold text-[#0D2B3A]">
                         <span>Total</span>
