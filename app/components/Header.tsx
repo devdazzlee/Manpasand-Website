@@ -70,7 +70,11 @@ export default function Header() {
       try {
         setCategoriesLoading(true);
         // Use store which handles caching automatically
-        const apiCategories = await getCategories();
+        let apiCategories = await getCategories();
+        if (!apiCategories || apiCategories.length === 0) {
+          // Recover from stale empty cache by forcing a fresh request.
+          apiCategories = await getCategories(true);
+        }
         
         // Map API categories to include icons and descriptions
         const mappedCategories = apiCategories

@@ -3,23 +3,23 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Award, ShoppingBag } from 'lucide-react';
-import { productApi } from '../../lib/api/productApi';
+import { useProductMetaStore } from '../../lib/store/productMetaStore';
 
 export default function StatsSection() {
   const [productCount, setProductCount] = useState<string>('1400+');
+  const { getProductCount } = useProductMetaStore();
 
   useEffect(() => {
     const fetchCount = async () => {
       try {
-        const result = await productApi.listProducts({ fetch_all: true });
-        const count = result.meta.total;
+        const count = await getProductCount();
         setProductCount(count > 0 ? `${count}+` : '1400+');
       } catch {
         // keep default
       }
     };
     fetchCount();
-  }, []);
+  }, [getProductCount]);
 
   const stats = [
     { icon: Users, number: '10K+', label: 'Happy Customers', color: '#1A73A8' },

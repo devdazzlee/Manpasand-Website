@@ -51,9 +51,8 @@ class CategoryApi {
    * Get all active categories
    */
   async getCategories(): Promise<Category[]> {
-    const response = await axiosInstance.get<ApiResponse<HomeDataResponse>>('/customer/app');
-    const homeData = response.data.data as HomeDataResponse;
-    return homeData.categories || [];
+    const response = await axiosInstance.get<ApiResponse<Category[]>>('/customer/app/categories');
+    return response.data.data || [];
   }
 
   /**

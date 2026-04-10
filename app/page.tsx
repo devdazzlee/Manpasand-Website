@@ -15,25 +15,28 @@ import TestimonialsSection from './components/TestimonialsSection';
 import { Category } from '../lib/api/categoryApi';
 import { productApi, Product } from '../lib/api/productApi';
 import { useProductStore } from '../lib/store/productStore';
+import { useCategoryStore } from '../lib/store/categoryStore';
 import { interleaveProductsByCategory, getProductCategoryName } from '../lib/utils/productHelpers';
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const { getCategories } = useCategoryStore();
 
   useEffect(() => {
     const fetchData = async () => {
+      let mappedCategories: Category[] = [];
+
       try {
-        setLoading(true);
-        setError(null);
-        
-        // Fetch home data (categories and featured products)
-        const homeData = await productApi.getHomeData();
-        
+        setCategoriesLoading(true);
+        setCategoriesError(null);
+
+        const categoriesData = await getCategories();
         // Map categories — use API-provided images only
-        const mappedCategories = (homeData.categories || []).map((category: Category & { CategoryImages?: Array<{ image: string }> }) => {
+        mappedCategories = (categoriesData || []).map((category: Category & { CategoryImages?: Array<{ image: string }> }) => {
           const apiImage = category.CategoryImages && category.CategoryImages.length > 0
             ? category.CategoryImages[0].image
             : null;
@@ -44,11 +47,20 @@ export default function Home() {
           };
         });
         setCategories(mappedCategories);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setCategoriesError('Failed to load categories. Please try again later.');
+        setCategories([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+
+      try {
+        setFeaturedLoading(true);
+        const homeData = await productApi.getHomeData();
         const categoryNameById = new Map(mappedCategories.map((category) => [String(category.id), category.name]));
-        
-        // Cache categories
         const { cacheProductList, cacheProduct } = useProductStore.getState();
-        
+
         const mapHomeProduct = (product: Product): Product => {
           // Cache each product individually
           cacheProduct(product);
@@ -116,27 +128,24 @@ export default function Home() {
         // Cache featured products list
         cacheProductList('featured', mixedFeaturedProducts);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load data. Please try again later.');
-        // No fallback – show error state, categories/products stay empty
-        setCategories([]);
+        console.error('Error fetching featured products:', err);
         setFeaturedProducts([]);
       } finally {
-        setLoading(false);
+        setFeaturedLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [getCategories]);
 
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <HeroSection />
       <StatsSection />
-      <CategoriesSection categories={categories} loading={loading} error={error} />
+      <CategoriesSection categories={categories} loading={categoriesLoading} error={categoriesError} />
       <WhyChooseUsSection />
-      <FeaturedProductsSection featuredProducts={featuredProducts} loading={loading} />
+      <FeaturedProductsSection featuredProducts={featuredProducts} loading={featuredLoading} />
       <BenefitsSection />
       <HerbsSection categories={categories} />
       <TestimonialsSection />
