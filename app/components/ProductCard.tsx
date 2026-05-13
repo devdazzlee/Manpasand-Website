@@ -9,6 +9,7 @@ import { cartUtils } from '../../lib/utils/cart';
 import { useProductStore } from '../../lib/store/productStore';
 import { showCartToast } from './CartToast';
 import { isWeightBasedUnit } from '../../lib/utils/discount';
+import ProductImageDisclaimer from './ProductImageDisclaimer';
 
 interface ProductCardProps {
   id: string;
@@ -156,10 +157,11 @@ export default function ProductCard({
         viewport={{ once: true }}
         whileHover={{ y: -4 }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group flex flex-col sm:flex-row"
+        className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group flex flex-col"
       >
-        <Link href={`/products/${id}`} className="flex-shrink-0">
-          <div className="relative w-full h-40 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 overflow-hidden bg-gray-100">
+        <div className="flex flex-col sm:flex-row min-w-0">
+          <Link href={`/products/${id}`} className="flex-shrink-0 w-full sm:w-auto">
+            <div className="relative w-full h-40 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 overflow-hidden bg-gray-100 sm:rounded-l-xl sm:rounded-r-none rounded-t-xl sm:rounded-t-none">
             {hasImageSource && !imageFailed && (
               <img
                 src={image}
@@ -237,6 +239,8 @@ export default function ProductCard({
             </div>
           </div>
         </div>
+        </div>
+        <ProductImageDisclaimer variant="cardStrip" />
       </motion.div>
     );
   }
@@ -250,10 +254,11 @@ export default function ProductCard({
       transition={{ duration: 0.3 }}
       className="bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden group h-full flex flex-col"
     >
-      <Link 
+      <Link
         href={`/products/${id}`}
         onMouseEnter={() => prefetchProduct(id)}
         onTouchStart={() => prefetchProduct(id)}
+        className="block shrink-0"
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
           {hasImageSource && !imageFailed && (
@@ -294,7 +299,7 @@ export default function ProductCard({
           </div>
         </div>
       </Link>
-      <div className="p-2.5 sm:p-3 flex flex-col flex-grow">
+      <div className="p-2.5 sm:p-3 flex flex-col flex-grow min-h-0">
         <Link href={`/products/${id}`}>
           <h3 className="font-semibold text-[#0D2B3A] mb-1.5 sm:mb-2 hover:text-[#1A73A8] transition-colors line-clamp-2 text-xs sm:text-sm leading-snug">
             {name}
@@ -328,6 +333,7 @@ export default function ProductCard({
             <span>Buy Now</span>
           </button>
         </div>
+        <ProductImageDisclaimer variant="card" className="mt-2.5 sm:mt-3" />
       </div>
     </motion.div>
   );

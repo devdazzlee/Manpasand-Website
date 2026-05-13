@@ -11,6 +11,11 @@ import Link from 'next/link';
 import { cartUtils, CartItem } from '../../lib/utils/cart';
 import { KG_DISCOUNT } from '../../lib/utils/discount';
 import { calculateCartPricing } from '../../lib/utils/pricing';
+import {
+  getShippingChargePkr,
+  formatShippingAmountLabel,
+  shippingSummaryFootnote,
+} from '../../lib/utils/shipping';
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -43,7 +48,7 @@ export default function CartPage() {
   const subtotalBeforeDiscount = pricing.subtotalBeforeDiscount;
   const kgDiscountTotal = pricing.kgDiscountTotal;
   const subtotal = pricing.subtotalAfterDiscount;
-  const shipping = 350;
+  const shipping = getShippingChargePkr(subtotal);
   const total = subtotal + shipping;
 
   return (
@@ -157,11 +162,11 @@ export default function CartPage() {
                     )}
                     <div className="flex justify-between text-[#6B7280] text-sm sm:text-base">
                       <span>Shipping</span>
-                      <span>Rs. {shipping.toLocaleString()}</span>
+                      <span className={shipping <= 0 ? 'text-green-600 font-semibold' : ''}>
+                        {formatShippingAmountLabel(shipping)}
+                      </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#6B7280]">
-                      Flat shipping across Pakistan
-                    </p>
+                    <p className="text-xs sm:text-sm text-[#6B7280]">{shippingSummaryFootnote(shipping)}</p>
                     <div className="border-t border-gray-300 pt-3 sm:pt-4">
                       <div className="flex justify-between text-base sm:text-lg md:text-xl font-bold text-[#0D2B3A]">
                         <span>Total</span>

@@ -8,6 +8,7 @@ import Footer from '../../components/Footer';
 import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
 import ProductCard from '../../components/ProductCard';
+import ProductImageDisclaimer from '../../components/ProductImageDisclaimer';
 import { ShoppingCart, Heart, Minus, Plus, Star, Shield, RotateCcw, CheckCircle, TrendingUp, Award, Gift, Zap, Sparkles } from 'lucide-react';
 import Loader from '../../components/Loader';
 import Link from 'next/link';
@@ -442,6 +443,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   </button>
                 ))}
               </div>
+              <ProductImageDisclaimer className="text-[10px] sm:text-xs pt-0.5" />
             </motion.div>
 
             {/* Product Info */}

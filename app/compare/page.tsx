@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import Loader from '../components/Loader';
+import ProductImageDisclaimer from '../components/ProductImageDisclaimer';
 import { X, ShoppingCart, Star, Search } from 'lucide-react';
 import Link from 'next/link';
 import { productApi } from '../../lib/api/productApi';
@@ -152,6 +153,7 @@ export default function ComparePage() {
                                   className="w-full h-full object-cover"
                                 />
                               </div>
+                              <ProductImageDisclaimer className="text-center max-w-[10rem] px-1" />
                               <Link href={`/products/${product.id}`}>
                                 <h3 className="font-semibold text-[#0D2B3A] hover:text-[#1A73A8]">
                                   {product.name}
