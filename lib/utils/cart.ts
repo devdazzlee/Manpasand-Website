@@ -11,6 +11,16 @@ export interface CartItem {
 
 const CART_STORAGE_KEY = 'manpasand_cart';
 
+const UUID_PREFIX =
+  /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
+
+/** Real DB product id — cart `id` may be a variation key like `{uuid}-250g`. */
+export function resolveCartProductId(item: Pick<CartItem, 'id' | 'productId'>): string {
+  if (item.productId) return item.productId;
+  const match = item.id.match(UUID_PREFIX);
+  return match ? match[1] : item.id;
+}
+
 export const cartUtils = {
   // Get all cart items
   getCart(): CartItem[] {

@@ -39,9 +39,12 @@ export interface Order {
 export interface CreateGuestOrderData {
   items: Array<{
     id: string;
+    productId?: string;
     name: string;
     price: number;
     quantity: number;
+    gramsPerUnit?: number;
+    unitName?: string;
     image?: string;
   }>;
   customer: {

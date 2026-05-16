@@ -9,6 +9,7 @@ import { cartUtils } from '../../lib/utils/cart';
 import { useProductStore } from '../../lib/store/productStore';
 import { showCartToast } from './CartToast';
 import { isWeightBasedUnit } from '../../lib/utils/discount';
+import { getWeightInGramsFromText } from '../../lib/utils/weight';
 import ProductImageDisclaimer from './ProductImageDisclaimer';
 
 interface ProductCardProps {
@@ -77,18 +78,8 @@ export default function ProductCard({
     }
   }, [id]);
 
-  const getWeightInGramsFromText = (weightText?: string): number | undefined => {
-    if (!weightText) return undefined;
-    const match = weightText.match(/(\d+(?:\.\d+)?)\s*(kg|kgs|kilogram|kilograms|g|gm|gram|grams|gms)/i);
-    if (!match) return undefined;
-    const value = parseFloat(match[1]);
-    const unit = match[2].toLowerCase();
-    if (isNaN(value) || value <= 0) return undefined;
-    if (['kg', 'kgs', 'kilogram', 'kilograms'].includes(unit)) return value * 1000;
-    return value;
-  };
-
-  const inferredGramsPerUnit = getWeightInGramsFromText(weight);
+  const inferredGramsPerUnit =
+    getWeightInGramsFromText(weight) ?? getWeightInGramsFromText(name);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();

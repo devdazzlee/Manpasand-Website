@@ -9,7 +9,7 @@ import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
 import { CheckCircle, ArrowRight, Lock, Truck, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
-import { cartUtils, CartItem } from '../../lib/utils/cart';
+import { cartUtils, CartItem, resolveCartProductId } from '../../lib/utils/cart';
 import { orderApi } from '../../lib/api/orderApi';
 import { useAuthStore } from '../../lib/store/authStore';
 import { KG_DISCOUNT } from '../../lib/utils/discount';
@@ -81,13 +81,19 @@ export default function CheckoutPage() {
       setLoading(true);
       try {
         const orderData = {
-          items: cartItems.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.image,
-          })),
+          items: cartItems.map((item) => {
+            const productId = resolveCartProductId(item);
+            return {
+              id: productId,
+              productId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              gramsPerUnit: item.gramsPerUnit,
+              unitName: item.unitName,
+              image: item.image,
+            };
+          }),
           customer: {
             firstName: formData.firstName,
             lastName: formData.lastName,
