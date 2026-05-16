@@ -28,7 +28,7 @@ export interface Order {
   shipping_address?: {
     address: string;
     city: string;
-    postal_code: string;
+    postal_code?: string;
     phone?: string;
   };
   items: OrderItem[];
@@ -53,7 +53,7 @@ export interface CreateGuestOrderData {
   shipping: {
     address: string;
     city: string;
-    postalCode: string;
+    postalCode?: string;
   };
   paymentMethod: 'cash' | 'card';
   subtotal: number;
@@ -71,7 +71,7 @@ export interface CreateOrderData {
   shippingAddress?: {
     address: string;
     city: string;
-    postal_code: string;
+    postal_code?: string;
     phone?: string;
   };
 }

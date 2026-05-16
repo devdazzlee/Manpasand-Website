@@ -9,174 +9,119 @@ import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
 import { Grid, List, X, Star, Gift, TrendingUp, Zap, Sparkles, ChevronLeft, ChevronRight, Search, SlidersHorizontal, ChevronDown, ArrowUpDown, LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
-import { productApi, Product } from '../../lib/api/productApi';
-import { categoryApi, Category } from '../../lib/api/categoryApi';
-import { useProductStore } from '../../lib/store/productStore';
-import { getProductCategoryName, interleaveProductsByCategory } from '../../lib/utils/productHelpers';
+import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
+import { useWebProductListStore } from '../../lib/store/webProductListStore';
+import { WebSort } from '../../lib/api/webApi';
+
+const PAGE_SIZE = 12;
+const SHOP_BUCKET = 'shop';
+
+type PriceTagId = 'all' | 'under500' | '500-1000' | '1000-2500' | '2500-5000' | 'above5000';
+
+interface PriceTag {
+  id: PriceTagId;
+  label: string;
+  min?: number;
+  max?: number;
+}
+
+const PRICE_TAGS: PriceTag[] = [
+  { id: 'all', label: 'All Prices' },
+  { id: 'under500', label: 'Under Rs. 500', max: 500 },
+  { id: '500-1000', label: 'Rs. 500 – 1,000', min: 500, max: 1000 },
+  { id: '1000-2500', label: 'Rs. 1,000 – 2,500', min: 1000, max: 2500 },
+  { id: '2500-5000', label: 'Rs. 2,500 – 5,000', min: 2500, max: 5000 },
+  { id: 'above5000', label: 'Above Rs. 5,000', min: 5000 },
+];
+
+const SORT_OPTIONS: Array<{ id: WebSort; label: string }> = [
+  { id: 'newest', label: 'Newest First' },
+  { id: 'oldest', label: 'Oldest First' },
+  { id: 'price-asc', label: 'Price: Low to High' },
+  { id: 'price-desc', label: 'Price: High to Low' },
+  { id: 'name-asc', label: 'Name: A to Z' },
+  { id: 'name-desc', label: 'Name: Z to A' },
+];
 
 export default function ShopPage() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All'); // slug or 'All'
+  const [selectedPriceTag, setSelectedPriceTag] = useState<PriceTagId>('all');
+  const [sortBy, setSortBy] = useState<WebSort>('newest');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedPriceTag, setSelectedPriceTag] = useState('all');
-  const [sortBy, setSortBy] = useState('default');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showMobileCategories, setShowMobileCategories] = useState(false);
   const [showMobilePrice, setShowMobilePrice] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(12);
 
+  // Categories — cached, shared with Header/Footer.
+  const categories = useWebCategoryStore((s) => s.all) ?? [];
+  const fetchAllCategories = useWebCategoryStore((s) => s.fetchAll);
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Fetch products and categories
-        // Use empty search to get all products from public endpoint
-        const [productsResult, categoriesData] = await Promise.all([
-          productApi.listProducts({ fetch_all: true, search: '' }),
-          categoryApi.getCategories(),
-        ]);
-        
-        // Map products to include image URL and normalize price fields
-        const mappedProducts = productsResult.data.map((product: Product) => {
-          // Get price from API response (sales_rate_inc_dis_and_tax is the selling price)
-          const priceValue = product.sales_rate_inc_dis_and_tax 
-            ? parseFloat(String(product.sales_rate_inc_dis_and_tax))
-            : product.sales_rate_exc_dis_and_tax
-            ? parseFloat(String(product.sales_rate_exc_dis_and_tax))
-            : product.selling_price || product.price || 0;
-          
-          // Calculate original price if discount exists
-          const discountAmount = product.discount_amount 
-            ? parseFloat(String(product.discount_amount))
-            : 0;
-          const originalPrice = discountAmount > 0 && priceValue > 0
-            ? priceValue + discountAmount
-            : undefined;
-          
-          // Extract image from ProductImage array or use fallback
-          const productImage = product.ProductImage && Array.isArray(product.ProductImage) && product.ProductImage.length > 0
-            ? product.ProductImage[0].image
-            : product.image || '/Banner-01.jpg';
-          
-          // Debug: log if image is missing
-          if (process.env.NODE_ENV === 'development' && !productImage || productImage === '/Banner-01.jpg') {
-            console.log('Product missing image:', {
-              productId: product.id,
-              productName: product.name,
-              hasProductImage: !!(product.ProductImage && product.ProductImage.length > 0),
-              ProductImageLength: product.ProductImage?.length || 0,
-              productImageValue: productImage,
-            });
-          }
-          
-          return {
-            ...product,
-            price: priceValue,
-            selling_price: priceValue,
-            image: productImage,
-            originalPrice,
-            // Keep category as object, not string
-            category: product.category || undefined,
-          };
-        });
-        
-        setAllProducts(mappedProducts);
-        
-        // Map categories
-        const mappedCategories = categoriesData.map((cat: Category) => ({
-          ...cat,
-          name: cat.name,
-        }));
-        setCategories(mappedCategories);
-        
-        // Products loaded successfully
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load products. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchAllCategories().catch(() => {});
+  }, [fetchAllCategories]);
 
-    fetchData();
-  }, []);
+  // Products — server-paginated bucket.
+  const bucket = useWebProductListStore((s) => s.buckets[SHOP_BUCKET]);
+  const setShopPage = useWebProductListStore((s) => s.setPage);
 
-  // Price tag presets
-  const priceTags = [
-    { id: 'all', label: 'All Prices', min: 0, max: Infinity },
-    { id: 'under500', label: 'Under Rs. 500', min: 0, max: 500 },
-    { id: '500-1000', label: 'Rs. 500 – 1,000', min: 500, max: 1000 },
-    { id: '1000-2500', label: 'Rs. 1,000 – 2,500', min: 1000, max: 2500 },
-    { id: '2500-5000', label: 'Rs. 2,500 – 5,000', min: 2500, max: 5000 },
-    { id: 'above5000', label: 'Above Rs. 5,000', min: 5000, max: Infinity },
-  ];
-
-  const sortOptions = [
-    { id: 'default', label: 'Relevance' },
-    { id: 'price-low', label: 'Price: Low to High' },
-    { id: 'price-high', label: 'Price: High to Low' },
-    { id: 'name-az', label: 'Name: A to Z' },
-    { id: 'name-za', label: 'Name: Z to A' },
-    { id: 'newest', label: 'Newest First' },
-  ];
-
-  const activeTag = priceTags.find(t => t.id === selectedPriceTag) || priceTags[0];
-
-  const filteredProducts = useMemo(() => {
-    const filtered = allProducts.filter((product) => {
-      const productPrice = product.price || product.selling_price || 0;
-      const categoryMatch = selectedCategory === 'All' || getProductCategoryName(product) === selectedCategory;
-      const priceMatch = productPrice >= activeTag.min && productPrice <= activeTag.max;
-      const searchMatch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return categoryMatch && priceMatch && searchMatch;
-    });
-
-    if (sortBy === 'default') {
-      return interleaveProductsByCategory(filtered);
-    }
-
-    return [...filtered].sort((a, b) => {
-      const priceA = a.price || a.selling_price || 0;
-      const priceB = b.price || b.selling_price || 0;
-      switch (sortBy) {
-        case 'price-low': return priceA - priceB;
-        case 'price-high': return priceB - priceA;
-        case 'name-az': return a.name.localeCompare(b.name);
-        case 'name-za': return b.name.localeCompare(a.name);
-        case 'newest': return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-        default: return 0;
-      }
-    });
-  }, [allProducts, selectedCategory, selectedPriceTag, searchQuery, sortBy, activeTag.min, activeTag.max]);
-
-  const mixedTopSellerProducts = useMemo(() => interleaveProductsByCategory(allProducts).slice(0, 4), [allProducts]);
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-
-  // Close sort menu when clicking outside
+  // Debounce the free-text search input (300ms).
   useEffect(() => {
-    const handleClick = () => setShowSortMenu(false);
-    if (showSortMenu) {
-      document.addEventListener('click', handleClick);
-      return () => document.removeEventListener('click', handleClick);
-    }
+    const t = setTimeout(() => setSearchQuery(searchInput.trim()), 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  // Reset to page 1 whenever filters change.
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory, selectedPriceTag, sortBy, searchQuery]);
+
+  // Build params and fetch on any change.
+  const activeTag = PRICE_TAGS.find((t) => t.id === selectedPriceTag) ?? PRICE_TAGS[0];
+  useEffect(() => {
+    setShopPage(SHOP_BUCKET, {
+      page,
+      limit: PAGE_SIZE,
+      sort: sortBy,
+      search: searchQuery || undefined,
+      category: selectedCategory !== 'All' ? selectedCategory : undefined,
+      min_price: activeTag.min,
+      max_price: activeTag.max,
+    }).catch(() => {});
+  }, [page, sortBy, searchQuery, selectedCategory, selectedPriceTag, setShopPage, activeTag.min, activeTag.max]);
+
+  const products = bucket?.page ?? [];
+  const meta = bucket?.meta;
+  const loading = bucket?.loading ?? false;
+  const error = bucket?.error ?? null;
+  const total = meta?.total ?? 0;
+  const totalPages = meta?.totalPages ?? 1;
+
+  const indexOfFirst = (page - 1) * PAGE_SIZE;
+  const indexOfLast = indexOfFirst + products.length;
+
+  // Close sort menu on outside click
+  useEffect(() => {
+    if (!showSortMenu) return;
+    const handler = () => setShowSortMenu(false);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
   }, [showSortMenu]);
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, searchQuery, selectedPriceTag, sortBy]);
+  const selectedCategoryLabel = useMemo(() => {
+    if (selectedCategory === 'All') return 'All';
+    return categories.find((c) => c.slug === selectedCategory)?.name ?? selectedCategory;
+  }, [selectedCategory, categories]);
+
+  const clearAll = () => {
+    setSelectedCategory('All');
+    setSelectedPriceTag('all');
+    setSortBy('newest');
+    setSearchInput('');
+    setSearchQuery('');
+    setPage(1);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -195,23 +140,21 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* Shop Toolbar — NOT sticky, scrolls normally */}
+      {/* Toolbar */}
       <section className="py-4 sm:py-5 md:py-6 bg-white border-b border-gray-100">
         <div className="container mx-auto px-4 sm:px-6">
-
-          {/* Search + Sort + View */}
           <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#0D2B3A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1A73A8]/30 focus:border-[#1A73A8] transition-all"
               />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              {searchInput && (
+                <button onClick={() => setSearchInput('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -225,7 +168,7 @@ export default function ShopPage() {
               >
                 <ArrowUpDown className="w-3.5 h-3.5 text-gray-500" />
                 <span className="hidden sm:inline text-xs sm:text-sm font-medium">
-                  {sortOptions.find(s => s.id === sortBy)?.label || 'Sort'}
+                  {SORT_OPTIONS.find((s) => s.id === sortBy)?.label ?? 'Sort'}
                 </span>
                 <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showSortMenu ? 'rotate-180' : ''}`} />
               </button>
@@ -238,7 +181,7 @@ export default function ShopPage() {
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-40"
                   >
-                    {sortOptions.map((option) => (
+                    {SORT_OPTIONS.map((option) => (
                       <button
                         key={option.id}
                         onClick={() => { setSortBy(option.id); setShowSortMenu(false); }}
@@ -275,9 +218,8 @@ export default function ShopPage() {
             </div>
           </div>
 
-          {/* ── Browse by Category ── */}
+          {/* Categories */}
           <div className="mb-4 sm:mb-5">
-            {/* Header — tappable dropdown on mobile, static on desktop */}
             <button
               onClick={() => setShowMobileCategories(!showMobileCategories)}
               className="flex items-center gap-2 mb-0 sm:mb-2.5 w-full sm:pointer-events-none"
@@ -285,12 +227,12 @@ export default function ShopPage() {
               <LayoutGrid className="w-4 h-4 text-[#1A73A8] flex-shrink-0" />
               <h3 className="text-xs sm:text-sm font-bold text-[#0D2B3A] uppercase tracking-wider">Browse by Category</h3>
               {selectedCategory !== 'All' && (
-                <span className="text-[10px] bg-[#1A73A8] text-white px-1.5 py-0.5 rounded-full font-semibold">{selectedCategory}</span>
+                <span className="text-[10px] bg-[#1A73A8] text-white px-1.5 py-0.5 rounded-full font-semibold">{selectedCategoryLabel}</span>
               )}
               <div className="flex-1 h-px bg-gray-200" />
               {selectedCategory !== 'All' && (
                 <span
-                  onClick={(e) => { e.stopPropagation(); setSelectedCategory('All'); setCurrentPage(1); }}
+                  onClick={(e) => { e.stopPropagation(); setSelectedCategory('All'); }}
                   className="text-[11px] sm:text-xs text-[#1A73A8] hover:text-[#0D2B3A] font-medium transition-colors flex items-center gap-0.5 whitespace-nowrap cursor-pointer"
                 >
                   <X className="w-3 h-3" /> Reset
@@ -299,12 +241,11 @@ export default function ShopPage() {
               <ChevronDown className={`w-4 h-4 text-gray-400 sm:hidden transition-transform duration-200 flex-shrink-0 ${showMobileCategories ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Desktop: always visible horizontal scroll */}
             <div className="hidden sm:block relative mt-2.5">
               <div className="overflow-x-auto scrollbar-hide pb-1">
                 <div className="flex gap-2 min-w-max">
                   <button
-                    onClick={() => { setSelectedCategory('All'); setCurrentPage(1); }}
+                    onClick={() => setSelectedCategory('All')}
                     className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-sm whitespace-nowrap border ${
                       selectedCategory === 'All'
                         ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
@@ -315,10 +256,10 @@ export default function ShopPage() {
                   </button>
                   {categories.map((cat) => (
                     <button
-                      key={cat.id || cat.name}
-                      onClick={() => { setSelectedCategory(cat.name); setCurrentPage(1); }}
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.slug)}
                       className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-sm whitespace-nowrap border ${
-                        selectedCategory === cat.name
+                        selectedCategory === cat.slug
                           ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
                           : 'bg-white text-gray-600 border-gray-200 hover:border-[#1A73A8] hover:text-[#1A73A8]'
                       }`}
@@ -331,7 +272,6 @@ export default function ShopPage() {
               <div className="absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
 
-            {/* Mobile: collapsible dropdown */}
             <AnimatePresence>
               {showMobileCategories && (
                 <motion.div
@@ -343,7 +283,7 @@ export default function ShopPage() {
                 >
                   <div className="flex flex-wrap gap-2 pt-2.5">
                     <button
-                      onClick={() => { setSelectedCategory('All'); setCurrentPage(1); setShowMobileCategories(false); }}
+                      onClick={() => { setSelectedCategory('All'); setShowMobileCategories(false); }}
                       className={`px-3 py-1.5 rounded-full font-medium transition-all text-xs border ${
                         selectedCategory === 'All'
                           ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
@@ -354,10 +294,10 @@ export default function ShopPage() {
                     </button>
                     {categories.map((cat) => (
                       <button
-                        key={cat.id || cat.name}
-                        onClick={() => { setSelectedCategory(cat.name); setCurrentPage(1); setShowMobileCategories(false); }}
+                        key={cat.id}
+                        onClick={() => { setSelectedCategory(cat.slug); setShowMobileCategories(false); }}
                         className={`px-3 py-1.5 rounded-full font-medium transition-all text-xs border ${
-                          selectedCategory === cat.name
+                          selectedCategory === cat.slug
                             ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
                             : 'bg-white text-gray-600 border-gray-200 active:border-[#1A73A8] active:text-[#1A73A8]'
                         }`}
@@ -371,9 +311,8 @@ export default function ShopPage() {
             </AnimatePresence>
           </div>
 
-          {/* ── Filter by Price ── */}
+          {/* Price */}
           <div className="mb-3">
-            {/* Header — tappable dropdown on mobile, static on desktop */}
             <button
               onClick={() => setShowMobilePrice(!showMobilePrice)}
               className="flex items-center gap-2 mb-0 sm:mb-2.5 w-full sm:pointer-events-none"
@@ -395,9 +334,8 @@ export default function ShopPage() {
               <ChevronDown className={`w-4 h-4 text-gray-400 sm:hidden transition-transform duration-200 flex-shrink-0 ${showMobilePrice ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Desktop: always visible */}
             <div className="hidden sm:flex flex-wrap gap-2 mt-2.5">
-              {priceTags.map((tag) => (
+              {PRICE_TAGS.map((tag) => (
                 <button
                   key={tag.id}
                   onClick={() => setSelectedPriceTag(tag.id)}
@@ -412,7 +350,6 @@ export default function ShopPage() {
               ))}
             </div>
 
-            {/* Mobile: collapsible dropdown */}
             <AnimatePresence>
               {showMobilePrice && (
                 <motion.div
@@ -423,7 +360,7 @@ export default function ShopPage() {
                   className="overflow-hidden sm:hidden"
                 >
                   <div className="flex flex-wrap gap-1.5 pt-2.5">
-                    {priceTags.map((tag) => (
+                    {PRICE_TAGS.map((tag) => (
                       <button
                         key={tag.id}
                         onClick={() => { setSelectedPriceTag(tag.id); setShowMobilePrice(false); }}
@@ -442,23 +379,16 @@ export default function ShopPage() {
             </AnimatePresence>
           </div>
 
-          {/* Results summary + Clear All */}
           <div className="flex items-center justify-between pt-3 border-t border-gray-100">
             <p className="text-gray-400 text-[11px] sm:text-xs">
-              <span className="font-semibold text-[#0D2B3A]">{filteredProducts.length}</span> {filteredProducts.length === 1 ? 'product' : 'products'} found
-              {selectedCategory !== 'All' && <span> in <span className="text-[#0D2B3A] font-medium">{selectedCategory}</span></span>}
+              <span className="font-semibold text-[#0D2B3A]">{total}</span> {total === 1 ? 'product' : 'products'} found
+              {selectedCategory !== 'All' && <span> in <span className="text-[#0D2B3A] font-medium">{selectedCategoryLabel}</span></span>}
               {selectedPriceTag !== 'all' && <span> · <span className="text-[#1A73A8] font-medium">{activeTag.label}</span></span>}
               {searchQuery && <span> · &ldquo;<span className="text-[#0D2B3A] font-medium">{searchQuery}</span>&rdquo;</span>}
             </p>
-            {(selectedCategory !== 'All' || selectedPriceTag !== 'all' || searchQuery || sortBy !== 'default') && (
+            {(selectedCategory !== 'All' || selectedPriceTag !== 'all' || searchQuery || sortBy !== 'newest') && (
               <button
-                onClick={() => {
-                  setSelectedCategory('All');
-                  setSelectedPriceTag('all');
-                  setSearchQuery('');
-                  setSortBy('default');
-                  setCurrentPage(1);
-                }}
+                onClick={clearAll}
                 className="flex items-center gap-1 px-2.5 py-1 text-[11px] sm:text-xs text-red-500 hover:text-red-700 font-medium whitespace-nowrap transition-colors"
               >
                 <X className="w-3 h-3" />
@@ -469,7 +399,7 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* Special Offer Banner */}
+      {/* Banner */}
       <section className="py-4 sm:py-6 bg-gradient-to-r from-[#F97316] to-[#1A73A8] text-white">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-5">
@@ -480,9 +410,7 @@ export default function ShopPage() {
                 <p className="text-white/90 text-xs sm:text-sm">Get Rs. 500 off on orders above Rs. 2000</p>
               </div>
             </div>
-            <button
-              className="bg-white text-[#0D2B3A] px-5 sm:px-7 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto hover:scale-[1.05] active:scale-[0.95]"
-            >
+            <button className="bg-white text-[#0D2B3A] px-5 sm:px-7 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-[#DFF3EA] transition-colors shadow-xl w-full md:w-auto hover:scale-[1.05] active:scale-[0.95]">
               Shop Now
             </button>
           </div>
@@ -492,139 +420,102 @@ export default function ShopPage() {
       {/* Products Grid */}
       <section className="py-6 sm:py-8 bg-white">
         <div className="container mx-auto px-3 sm:px-4">
-          {filteredProducts.length > 0 && (
+          {total > 0 && (
             <p className="text-gray-400 text-xs mb-3">
-              Showing {indexOfFirstProduct + 1}–{Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length}
+              Showing {indexOfFirst + 1}–{Math.min(indexOfLast, total)} of {total}
             </p>
           )}
-          <div
-            className={
-              viewMode === 'grid'
-                ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch'
-                : 'space-y-3 sm:space-y-4'
-            }
-          >
-            {loading ? (
-              <>
-                {(viewMode === 'grid' ? Array.from({ length: 8 }) : Array.from({ length: 5 })).map((_, index) => (
-                  <div
-                    key={`skeleton-${index}`}
-                    className={viewMode === 'grid'
-                      ? 'bg-white rounded-xl border border-gray-100 overflow-hidden'
-                      : 'bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-3 sm:p-4'
-                    }
-                  >
-                    {viewMode === 'grid' ? (
-                      <>
-                        <div className="aspect-[4/3] animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
-                        <div className="p-2.5 sm:p-3 space-y-2">
-                          <div className="h-3 sm:h-4 w-4/5 rounded bg-gray-200 animate-pulse" />
-                          <div className="h-4 sm:h-5 w-2/5 rounded bg-gray-200 animate-pulse" />
-                          <div className="grid grid-cols-2 gap-1.5 pt-1">
-                            <div className="h-8 rounded bg-gray-200 animate-pulse" />
-                            <div className="h-8 rounded bg-gray-200 animate-pulse" />
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex gap-3 sm:gap-4">
-                        <div className="w-28 h-24 sm:w-36 sm:h-28 rounded-lg bg-gray-200 animate-pulse flex-shrink-0" />
-                        <div className="flex-1 space-y-2 sm:space-y-3">
-                          <div className="h-4 w-3/4 rounded bg-gray-200 animate-pulse" />
-                          <div className="h-5 w-1/4 rounded bg-gray-200 animate-pulse" />
-                          <div className="h-8 w-full rounded bg-gray-200 animate-pulse" />
-                        </div>
-                      </div>
-                    )}
+
+          <div className={
+            viewMode === 'grid'
+              ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch'
+              : 'space-y-3 sm:space-y-4'
+          }>
+            {loading && products.length === 0 ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={`skel-${i}`} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                  <div className="aspect-[4/3] animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
+                  <div className="p-2.5 sm:p-3 space-y-2">
+                    <div className="h-3 sm:h-4 w-4/5 rounded bg-gray-200 animate-pulse" />
+                    <div className="h-4 sm:h-5 w-2/5 rounded bg-gray-200 animate-pulse" />
                   </div>
-                ))}
-              </>
+                </div>
+              ))
             ) : error ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-red-500">{error}</p>
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : products.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-[#6B7280]">No products found matching your criteria.</p>
               </div>
             ) : (
-              currentProducts.map((product) => (
-              <div
-                key={product.id}
-                  className={viewMode === 'grid' ? 'h-full' : ''}
-                >
+              products.map((product) => (
+                <div key={product.id} className={viewMode === 'grid' ? 'h-full' : ''}>
                   <ProductCard
                     id={product.id}
                     name={product.name}
-                    price={product.price || product.selling_price || 0}
-                    originalPrice={product.originalPrice}
+                    price={product.price}
+                    originalPrice={product.original_price}
                     image={product.image || '/Banner-01.jpg'}
-                    category={product.category?.name || (product.category as any)}
+                    category={product.category?.name}
                     unitName={product.unit?.name}
-                    weight={product.weight}
                     viewMode={viewMode}
-                    sales_rate_inc_dis_and_tax={product.sales_rate_inc_dis_and_tax}
-                    sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
-                    selling_price={product.selling_price}
+                    sales_rate_inc_dis_and_tax={product.price}
+                    sales_rate_exc_dis_and_tax={product.base_price}
+                    selling_price={product.price}
                   />
-              </div>
+                </div>
               ))
             )}
           </div>
 
-          {/* Pagination */}
-          {filteredProducts.length > productsPerPage && (
+          {totalPages > 1 && (
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-[#6B7280] text-xs sm:text-sm">
-                Page {currentPage} of {totalPages}
-              </div>
+              <div className="text-[#6B7280] text-xs sm:text-sm">Page {page} of {totalPages}</div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1 || loading}
                   className={`px-3 py-1.5 rounded-lg font-medium transition-all text-sm ${
-                    currentPage === 1
+                    page === 1 || loading
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-[#1A73A8] text-white hover:bg-[#0D2B3A]'
                   }`}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                
+
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-                    
+                    if (totalPages <= 5) pageNum = i + 1;
+                    else if (page <= 3) pageNum = i + 1;
+                    else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
+                    else pageNum = page - 2 + i;
+
                     return (
                       <button
                         key={pageNum}
-                        onClick={() => setCurrentPage(pageNum)}
+                        onClick={() => setPage(pageNum)}
+                        disabled={loading}
                         className={`px-3 py-1.5 rounded-lg font-medium transition-all text-sm ${
-                          currentPage === pageNum
+                          page === pageNum
                             ? 'bg-[#1A73A8] text-white'
                             : 'bg-gray-100 text-[#0D2B3A] hover:bg-gray-200'
-                        }`}
+                        } disabled:opacity-60`}
                       >
                         {pageNum}
                       </button>
                     );
                   })}
                 </div>
-                
+
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages || loading}
                   className={`px-3 py-1.5 rounded-lg font-medium transition-all text-sm ${
-                    currentPage === totalPages
+                    page === totalPages || loading
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-[#1A73A8] text-white hover:bg-[#0D2B3A]'
                   }`}
@@ -637,48 +528,10 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* Top Sellers Section */}
-      <section className="py-10 sm:py-14 bg-gradient-to-b from-[#F8F2DE] to-white">
-        <div className="container mx-auto px-4">
-          <div
-            className="text-center mb-8 sm:mb-10"
-          >
-            <div className="flex items-center justify-center space-x-2 mb-3">
-              <TrendingUp className="w-6 h-6 text-[#F97316]" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A]">Top Sellers</h2>
-            </div>
-            <p className="text-[#6B7280] text-sm sm:text-base">Our most popular products this month</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {mixedTopSellerProducts.map((product) => (
-                <div
-                  key={product.id}
-                >
-                  <ProductCard
-                    id={product.id}
-                    name={product.name}
-                    price={product.price || product.selling_price || 0}
-                    originalPrice={product.originalPrice}
-                    image={product.image || '/Banner-01.jpg'}
-                    category={product.category?.name || (product.category as any)}
-                    unitName={product.unit?.name}
-                    weight={product.weight}
-                    sales_rate_inc_dis_and_tax={product.sales_rate_inc_dis_and_tax}
-                    sales_rate_exc_dis_and_tax={product.sales_rate_exc_dis_and_tax}
-                    selling_price={product.selling_price}
-                  />
-                </div>
-              ))}
-          </div>
-        </div>
-      </section>
-
       {/* Why Shop With Us */}
       <section className="py-10 sm:py-14 bg-white">
         <div className="container mx-auto px-4">
-          <div
-            className="text-center mb-8 sm:mb-10"
-          >
+          <div className="text-center mb-8 sm:mb-10">
             <Sparkles className="w-8 h-8 sm:w-9 sm:h-9 text-[#F97316] mx-auto mb-3" />
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-3">Why Shop With Us?</h2>
             <p className="text-[#6B7280] text-sm sm:text-base max-w-2xl mx-auto">
@@ -693,10 +546,7 @@ export default function ShopPage() {
             ].map((item) => {
               const Icon = item.icon;
               return (
-                <div
-                  key={item.title}
-                  className="bg-gradient-to-br from-[#F8F2DE] to-white p-5 sm:p-7 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center"
-                >
+                <div key={item.title} className="bg-gradient-to-br from-[#F8F2DE] to-white p-5 sm:p-7 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#1A73A8] to-[#0D2B3A] rounded-xl flex items-center justify-center mx-auto mb-4">
                     <Icon className="w-6 h-6 text-white" />
                   </div>

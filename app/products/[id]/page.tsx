@@ -12,18 +12,90 @@ import ProductImageDisclaimer from '../../components/ProductImageDisclaimer';
 import { ShoppingCart, Heart, Minus, Plus, Star, Shield, RotateCcw, CheckCircle, TrendingUp, Award, Gift, Zap, Sparkles } from 'lucide-react';
 import Loader from '../../components/Loader';
 import Link from 'next/link';
-import { productApi, Product } from '../../../lib/api/productApi';
-import { unitApi } from '../../../lib/api/unitApi';
+import { webApi, WebProduct, WebProductDetail } from '../../../lib/api/webApi';
+import { useWebProductDetailStore } from '../../../lib/store/webProductDetailStore';
 import { cartUtils } from '../../../lib/utils/cart';
-import { useProductStore } from '../../../lib/store/productStore';
 import { showCartToast } from '../../components/CartToast';
 import { is1KgSelection, get1KgDiscount, KG_DISCOUNT, isWeightBasedUnit } from '../../../lib/utils/discount';
+
+// Legacy view-model used by this page's existing JSX. We map WebProductDetail
+// into this shape so the rest of the file (cart, wishlist, variation logic)
+// continues to work without a full rewrite.
+type ViewProduct = {
+  id: string;
+  name: string;
+  description?: string;
+  longDescription?: string;
+  category?: { id: string; name: string; slug: string } | null;
+  unit?: { id: string; name: string } | null;
+  price: number;
+  selling_price: number;
+  originalPrice?: number;
+  discount_amount?: number;
+  sales_rate_inc_dis_and_tax?: number;
+  sales_rate_exc_dis_and_tax?: number;
+  image: string;
+  images: string[];
+  ProductImage: Array<{ image: string }>;
+  features: string[];
+  nutrition: string[];
+  weight: string;
+  origin: string;
+  rating?: number;
+  reviews?: number;
+  stock?: number;
+};
+
+const toViewProduct = (p: WebProductDetail): ViewProduct => {
+  const images = p.images.length > 0 ? p.images : p.image ? [p.image] : ['/Banner-01.jpg'];
+  return {
+    id: p.id,
+    name: p.name,
+    description: p.description ?? 'No description available.',
+    longDescription: p.description ?? 'No description available.',
+    category: p.category,
+    unit: p.unit,
+    price: p.price,
+    selling_price: p.price,
+    originalPrice: p.original_price,
+    discount_amount: p.discount_amount,
+    sales_rate_inc_dis_and_tax: p.price,
+    sales_rate_exc_dis_and_tax: p.base_price,
+    image: images[0],
+    images,
+    ProductImage: images.map((image) => ({ image })),
+    features: [],
+    nutrition: [],
+    weight: 'N/A',
+    origin: 'N/A',
+    stock: p.available_stock,
+  };
+};
+
+const toViewProductFromList = (p: WebProduct): ViewProduct => ({
+  id: p.id,
+  name: p.name,
+  description: p.description ?? '',
+  category: p.category,
+  unit: p.unit,
+  price: p.price,
+  selling_price: p.price,
+  originalPrice: p.original_price,
+  discount_amount: p.discount_amount,
+  image: p.image || '/Banner-01.jpg',
+  images: p.image ? [p.image] : ['/Banner-01.jpg'],
+  ProductImage: [{ image: p.image || '/Banner-01.jpg' }],
+  features: [],
+  nutrition: [],
+  weight: 'N/A',
+  origin: 'N/A',
+});
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [product, setProduct] = useState<ViewProduct | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<ViewProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -34,132 +106,48 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [activeTab, setActiveTab] = useState('description');
   const [isInWishlist, setIsInWishlist] = useState(false);
 
-  const { cacheProduct } = useProductStore();
+  const getOrFetchProduct = useWebProductDetailStore((s) => s.getOrFetch);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Always fetch fresh product data from API to ensure all relations (unit, category) are included.
-        // The store cache can return stale data without unit info, causing weight variations to not show.
-        const productData = await productApi.getProductById(id);
-        
-        // Update cache with fresh data so other pages also benefit
-        cacheProduct(productData);
-        
-        // Map product images
-        const images = productData.ProductImage && productData.ProductImage.length > 0
-          ? productData.ProductImage.map(img => img.image)
-          : ['/Banner-01.jpg'];
-        
-        // Extract price from API response
-        const priceValue = productData.sales_rate_inc_dis_and_tax 
-          ? parseFloat(String(productData.sales_rate_inc_dis_and_tax))
-          : productData.sales_rate_exc_dis_and_tax
-          ? parseFloat(String(productData.sales_rate_exc_dis_and_tax))
-          : productData.selling_price || productData.price || 0;
-        
-        // Calculate original price if discount exists
-        const discountAmount = productData.discount_amount 
-          ? parseFloat(String(productData.discount_amount))
-          : 0;
-        const originalPrice = discountAmount > 0 && priceValue > 0
-          ? priceValue + discountAmount
-          : undefined;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
-        // Ensure unit is properly mapped (handle both unit object and unit_id)
-        let unitData = productData.unit;
-        if (!unitData && (productData as any).unit_id) {
-          // Backend should include unit, but if missing, log warning
-          console.warn('⚠️ Unit object missing from API response:', {
-            productId: productData.id,
-            productName: productData.name,
-            unit_id: (productData as any).unit_id,
-            hasUnit: !!productData.unit,
-            productDataKeys: Object.keys(productData),
-          });
-          // Create placeholder - backend should include unit in response
-          unitData = {
-            id: (productData as any).unit_id,
-            name: 'Unknown', // Backend should provide this
-          };
-        }
-        
-        const mappedProduct = {
-          ...productData,
-          images,
-          image: images[0],
-          price: priceValue,
-          selling_price: priceValue,
-          originalPrice,
-          features: productData.features || [],
-          description: productData.description || 'No description available.',
-          nutrition: productData.nutrition || [],
-          longDescription: productData.longDescription || productData.description || 'No description available.',
-          weight: productData.weight || 'N/A',
-          origin: productData.origin || 'N/A',
-          unit: unitData, // Ensure unit is included
-        };
-        
-        setProduct(mappedProduct as any);
-        
-        // Fetch related products (from same category) - fetch in background after main product loads
-        // This doesn't block the main product display
-        if (productData.category_id) {
-          // Fetch related products asynchronously without blocking
-          productApi.listProducts({
-            fetch_all: false,
-            limit: 20, // Only fetch 20 products for related section
-            category_id: productData.category_id,
-          })
-            .then((categoryProducts) => {
-              const related = categoryProducts.data
-                .filter(p => p.id !== id) // Exclude current product
-                .slice(0, 3) // Take only 3 related products
-                .map(p => {
-                  // Calculate original price if discount exists
-                  const priceValue = p.sales_rate_inc_dis_and_tax 
-                    ? parseFloat(String(p.sales_rate_inc_dis_and_tax))
-                    : p.sales_rate_exc_dis_and_tax
-                    ? parseFloat(String(p.sales_rate_exc_dis_and_tax))
-                    : p.selling_price || p.price || 0;
-                  const discountAmount = p.discount_amount 
-                    ? parseFloat(String(p.discount_amount))
-                    : 0;
-                  const originalPrice = discountAmount > 0 && priceValue > 0
-                    ? priceValue + discountAmount
-                    : undefined;
-                  
-                  return {
-                    ...p,
-                    image: p.ProductImage && p.ProductImage.length > 0
-                      ? p.ProductImage[0].image
-                      : '/Banner-01.jpg',
-                    price: priceValue,
-                    originalPrice,
-                  };
-                });
+    getOrFetchProduct(id)
+      .then((detail) => {
+        if (cancelled) return;
+        setProduct(toViewProduct(detail));
+
+        // Related products — paginated 4-item slice from the same category, served from cache when possible.
+        if (detail.category?.slug) {
+          webApi
+            .listProducts({ category: detail.category.slug, limit: 4, sort: 'newest' })
+            .then(({ data }) => {
+              if (cancelled) return;
+              const related = data
+                .filter((p) => p.id !== id)
+                .slice(0, 3)
+                .map(toViewProductFromList);
               setRelatedProducts(related);
             })
-            .catch((err) => {
-              console.warn('Failed to fetch related products:', err);
-              setRelatedProducts([]);
+            .catch(() => {
+              if (!cancelled) setRelatedProducts([]);
             });
         } else {
           setRelatedProducts([]);
         }
-      } catch (err) {
-        console.error('Error fetching product:', err);
-        setError('Failed to load product. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+      })
+      .catch(() => {
+        if (!cancelled) setError('Failed to load product. Please try again later.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-    fetchProduct();
-  }, [id]);
+    return () => {
+      cancelled = true;
+    };
+  }, [id, getOrFetchProduct]);
 
   const discount = product?.originalPrice && product?.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)

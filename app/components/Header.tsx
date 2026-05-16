@@ -5,10 +5,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Grape, TreePalm, Droplets, Flame, Wheat, Sparkles, Package, Heart, Phone, Mail, MapPin, Box, ArrowRight, Cookie, Bean, FlaskConical, Wind, Nut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { categoryApi, Category } from '../../lib/api/categoryApi';
-import { productApi, Product } from '../../lib/api/productApi';
+import { webApi, WebCategory, WebSearchSuggestion } from '../../lib/api/webApi';
 import { cartUtils } from '../../lib/utils/cart';
-import { useCategoryStore } from '../../lib/store/categoryStore';
+import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 import { useAuthStore } from '../../lib/store/authStore';
 
 // Icon mapping function - maps category names to icons
@@ -41,13 +40,13 @@ export default function Header() {
   const [cartCount, setCartCount] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searchResults, setSearchResults] = useState<WebSearchSuggestion[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [categories, setCategories] = useState<Array<Category & { icon: any; description: string }>>([]);
+  const [categories, setCategories] = useState<Array<WebCategory & { icon: any; description: string }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  const { getCategories } = useCategoryStore();
+  const fetchAllCategories = useWebCategoryStore((s) => s.fetchAll);
   const { isAuthenticated, user, logout, fetchCurrentUser, token } = useAuthStore();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -64,40 +63,32 @@ export default function Header() {
     }
   }, [fetchCurrentUser, isAuthenticated, user]);
 
-  // Fetch categories from API (uses cache)
+  // Fetch active categories once via shared store (cached 10 min).
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setCategoriesLoading(true);
-        // Use store which handles caching automatically
-        let apiCategories = await getCategories();
-        if (!apiCategories || apiCategories.length === 0) {
-          // Recover from stale empty cache by forcing a fresh request.
-          apiCategories = await getCategories(true);
-        }
-        
-        // Map API categories to include icons and descriptions
-        const mappedCategories = apiCategories
-          .filter(cat => cat.is_active) // Only show active categories
-          .map(cat => ({
+    let cancelled = false;
+    setCategoriesLoading(true);
+    fetchAllCategories()
+      .then((apiCategories) => {
+        if (cancelled) return;
+        const mapped = apiCategories
+          .filter((cat) => cat.is_active)
+          .map((cat) => ({
             ...cat,
             icon: getCategoryIcon(cat.name),
-            description: cat.description || `Browse our ${cat.name.toLowerCase()} collection`,
-            href: `/categories/${cat.slug}`,
+            description: `Browse our ${cat.name.toLowerCase()} collection`,
           }));
-        
-        setCategories(mappedCategories);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-        // Keep empty array on error
-        setCategories([]);
-      } finally {
-        setCategoriesLoading(false);
-      }
+        setCategories(mapped);
+      })
+      .catch(() => {
+        if (!cancelled) setCategories([]);
+      })
+      .finally(() => {
+        if (!cancelled) setCategoriesLoading(false);
+      });
+    return () => {
+      cancelled = true;
     };
-
-    fetchCategories();
-  }, [getCategories]);
+  }, [fetchAllCategories]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -150,58 +141,36 @@ export default function Header() {
     { name: 'Contact', href: '/contact' },
   ];
 
-  // Debounced search function
+  // Debounced typeahead — hits the lightweight /web/search/suggest endpoint.
   useEffect(() => {
     if (!isSearchOpen) return;
+    const trimmed = searchQuery.trim();
+    if (trimmed.length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
 
-    const searchProducts = async () => {
-      if (!searchQuery.trim()) {
-        setSearchResults([]);
-        return;
-      }
-
-      setIsSearching(true);
-      try {
-        const result = await productApi.listProducts({
-          search: searchQuery.trim(),
-          limit: 10,
-          is_active: true,
-        });
-        
-        // Map products to include image and price
-        const mappedProducts = result.data.map((product: Product) => {
-          const priceValue = product.sales_rate_inc_dis_and_tax 
-            ? parseFloat(String(product.sales_rate_inc_dis_and_tax))
-            : product.sales_rate_exc_dis_and_tax
-            ? parseFloat(String(product.sales_rate_exc_dis_and_tax))
-            : product.selling_price || product.price || 0;
-          
-          const productImage = product.ProductImage && Array.isArray(product.ProductImage) && product.ProductImage.length > 0
-            ? product.ProductImage[0].image
-            : product.image || '/Banner-01.jpg';
-          
-          return {
-            ...product,
-            price: priceValue,
-            image: productImage,
-          };
-        });
-        
-        setSearchResults(mappedProducts);
-      } catch (error) {
-        console.error('Error searching products:', error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    };
-
-    // Debounce search by 500ms
+    let cancelled = false;
+    setIsSearching(true);
     const timeoutId = setTimeout(() => {
-      searchProducts();
-    }, 500);
+      webApi
+        .suggest(trimmed, 8)
+        .then((results) => {
+          if (!cancelled) setSearchResults(results);
+        })
+        .catch(() => {
+          if (!cancelled) setSearchResults([]);
+        })
+        .finally(() => {
+          if (!cancelled) setIsSearching(false);
+        });
+    }, 300);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [searchQuery, isSearchOpen]);
 
   const performSearch = (query: string) => {
@@ -213,7 +182,7 @@ export default function Header() {
     }
   };
 
-  const handleProductClick = (product: Product) => {
+  const handleProductClick = (product: WebSearchSuggestion) => {
     router.push(`/products/${product.id}`);
     setIsSearchOpen(false);
     setSearchQuery('');

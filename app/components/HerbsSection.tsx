@@ -3,14 +3,17 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { Category } from '../../lib/api/categoryApi';
+interface HerbsCategoryLike {
+  name: string;
+  slug?: string;
+}
 
 interface HerbsSectionProps {
-  categories: Category[];
+  categories: HerbsCategoryLike[];
 }
 
 // Pick a featured category to highlight – prefer "Herbs", "Spices", or "Dry Fruits"
-function getFeaturedCategory(categories: Category[]): Category | null {
+function getFeaturedCategory(categories: HerbsCategoryLike[]): HerbsCategoryLike | null {
   if (!categories || categories.length === 0) return null;
 
   const preferred = ['herbs', 'spices', 'dry fruits', 'honey', 'dates'];
@@ -22,7 +25,7 @@ function getFeaturedCategory(categories: Category[]): Category | null {
   return categories[0];
 }
 
-function getCategorySlug(cat: Category): string {
+function getCategorySlug(cat: HerbsCategoryLike): string {
   return cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-');
 }
 

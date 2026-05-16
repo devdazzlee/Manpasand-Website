@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
@@ -10,44 +10,41 @@ import Services from '../components/Services';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import { Search as SearchIcon } from 'lucide-react';
-import { productApi } from '../../lib/api/productApi';
-import { mapApiProducts, DisplayProduct } from '../../lib/utils/productHelpers';
+import { useWebProductListStore } from '../../lib/store/webProductListStore';
+
+const PAGE_SIZE = 12;
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [input, setInput] = useState('');
   const [query, setQuery] = useState('');
-  const [products, setProducts] = useState<DisplayProduct[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+
+  const bucketKey = `search:${query}`;
+  const bucket = useWebProductListStore((s) => s.buckets[bucketKey]);
+  const loadFirstPage = useWebProductListStore((s) => s.loadFirstPage);
+  const loadNextPage = useWebProductListStore((s) => s.loadNextPage);
 
   useEffect(() => {
-    const urlQuery = searchParams.get('q') || '';
+    const urlQuery = (searchParams.get('q') || '').trim();
+    setInput(urlQuery);
     setQuery(urlQuery);
-    if (urlQuery.trim()) {
-      performSearch(urlQuery.trim());
-    }
   }, [searchParams]);
 
-  const performSearch = async (searchQuery: string) => {
-    try {
-      setLoading(true);
-      setSearched(true);
-      const results = await productApi.searchProducts(searchQuery);
-      setProducts(mapApiProducts(results));
-    } catch (err) {
-      console.error('Error searching products:', err);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (!query) return;
+    loadFirstPage(bucketKey, { search: query, limit: PAGE_SIZE, sort: 'newest' }).catch(() => {});
+  }, [query, bucketKey, loadFirstPage]);
+
+  const products = bucket?.items ?? [];
+  const meta = bucket?.meta;
+  const loading = bucket?.loading ?? false;
+  const hasMore = meta ? meta.page < meta.totalPages : false;
+  const total = meta?.total ?? 0;
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-    }
+    if (input.trim()) router.push(`/search?q=${encodeURIComponent(input.trim())}`);
   };
 
   return (
@@ -65,8 +62,8 @@ function SearchContent() {
               <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-[#6B7280]" />
               <input
                 type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
                 placeholder="Search for products..."
                 className="w-full pl-14 pr-4 py-4 rounded-xl text-[#0D2B3A] focus:outline-none focus:ring-2 focus:ring-white/20"
               />
@@ -77,30 +74,56 @@ function SearchContent() {
 
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          {loading ? (
+          {!query ? (
+            <p className="text-[#6B7280] mb-6">Enter a search term above</p>
+          ) : loading && products.length === 0 ? (
             <Loader size="lg" text="Searching products..." />
           ) : (
             <>
               <p className="text-[#6B7280] mb-6">
-                {!searched
-                  ? 'Enter a search term above'
-                  : products.length > 0
-                  ? `${products.length} result${products.length !== 1 ? 's' : ''} for "${query}"`
+                {total > 0
+                  ? `${total} result${total !== 1 ? 's' : ''} for "${query}"`
                   : `No results found for "${query}"`}
               </p>
               {products.length > 0 && (
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {products.map((product, index) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                    >
-                      <ProductCard {...product} />
-                    </motion.div>
-                  ))}
-                </div>
+                <>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {products.map((product, index) => (
+                      <motion.div
+                        key={product.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04 }}
+                      >
+                        <ProductCard
+                          id={product.id}
+                          name={product.name}
+                          price={product.price}
+                          originalPrice={product.original_price}
+                          image={product.image || '/Banner-01.jpg'}
+                          category={product.category?.name}
+                          unitName={product.unit?.name}
+                          sales_rate_inc_dis_and_tax={product.price}
+                          sales_rate_exc_dis_and_tax={product.base_price}
+                          selling_price={product.price}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {hasMore && (
+                    <div className="text-center mt-8">
+                      <button
+                        type="button"
+                        onClick={() => loadNextPage(bucketKey).catch(() => {})}
+                        disabled={loading}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1A73A8] text-white font-semibold text-sm hover:bg-[#0D2B3A] transition-colors shadow-sm disabled:opacity-60"
+                      >
+                        {loading ? 'Loading…' : 'Load More'}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
@@ -114,9 +137,7 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <Suspense fallback={
-        <Loader size="xl" text="Loading search results..." fullScreen />
-      }>
+      <Suspense fallback={<Loader size="xl" text="Loading search results..." fullScreen />}>
         <SearchContent />
       </Suspense>
       <Newsletter />

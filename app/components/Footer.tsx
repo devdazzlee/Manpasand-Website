@@ -1,26 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
-import { useCategoryStore } from '../../lib/store/categoryStore';
-import { Category } from '../../lib/api/categoryApi';
+import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
+import { WebCategory } from '../../lib/api/webApi';
 
 export default function Footer() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const { getCategories } = useCategoryStore();
+  const fetchAll = useWebCategoryStore((s) => s.fetchAll);
+  const [categories, setCategories] = useState<WebCategory[]>([]);
 
+  // Pulls from the shared store; if Header already fetched it, this is a no-op.
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const apiCategories = await getCategories();
-        setCategories(apiCategories.filter((c) => c.is_active).slice(0, 8));
-      } catch {
-        setCategories([]);
-      }
+    let cancelled = false;
+    fetchAll()
+      .then((all) => {
+        if (!cancelled) setCategories(all.filter((c) => c.is_active).slice(0, 8));
+      })
+      .catch(() => {
+        if (!cancelled) setCategories([]);
+      });
+    return () => {
+      cancelled = true;
     };
-    fetchCategories();
-  }, [getCategories]);
+  }, [fetchAll]);
 
   return (
     <footer className="bg-[#0D2B3A] text-white">

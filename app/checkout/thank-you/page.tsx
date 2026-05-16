@@ -22,7 +22,7 @@ interface Order {
   shipping: {
     address: string;
     city: string;
-    postalCode: string;
+    postalCode?: string;
   };
   payment: {
     method: string;
@@ -71,7 +71,6 @@ function ThankYouContent() {
           shipping: {
             address: orderData.shippingAddress?.address || '',
             city: orderData.shippingAddress?.city || '',
-            postalCode: orderData.shippingAddress?.postalCode || '',
           },
           payment: {
             method: orderData.paymentMethod || 'cash',
@@ -192,7 +191,7 @@ function ThankYouContent() {
                   <br />
                   {order.shipping.address}
                   <br />
-                  {order.shipping.city}, {order.shipping.postalCode}
+                  {order.shipping.city}{order.shipping.postalCode ? `, ${order.shipping.postalCode}` : ''}
                   <br />
                   Phone: {order.customer.phone}
                 </p>

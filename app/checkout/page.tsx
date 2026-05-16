@@ -33,7 +33,6 @@ export default function CheckoutPage() {
     phone: '',
     address: '',
     city: '',
-    postalCode: '',
     notes: '',
   });
 
@@ -58,7 +57,6 @@ export default function CheckoutPage() {
         phone: user.phone_number || user.mobile_number || '',
         address: user.address || '',
         city: '',
-        postalCode: '',
       }));
     }
   }, [isAuthenticated, user]);
@@ -74,7 +72,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     
     if (step === 1) {
-      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.postalCode) {
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.address || !formData.city) {
         alert('Please fill in all required fields');
         return;
       }
@@ -99,7 +97,6 @@ export default function CheckoutPage() {
           shipping: {
             address: formData.address,
             city: formData.city,
-            postalCode: formData.postalCode,
           },
           paymentMethod: 'cash' as const,
           subtotal,
@@ -123,7 +120,6 @@ export default function CheckoutPage() {
           shippingAddress: {
             address: formData.address,
             city: formData.city,
-            postalCode: formData.postalCode,
           },
           orderNotes: formData.notes,
           items: cartItems,
@@ -344,31 +340,15 @@ export default function CheckoutPage() {
                         placeholder="House/Street address, Area, Landmark"
                       />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-                      <div>
-                        <label className="block text-[#0D2B3A] font-medium mb-1.5 sm:mb-2 text-sm sm:text-base">City *</label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.city}
-                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none text-sm sm:text-base"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[#0D2B3A] font-medium mb-1.5 sm:mb-2 text-sm sm:text-base">
-                          Postal Code *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.postalCode}
-                          onChange={(e) =>
-                            setFormData({ ...formData, postalCode: e.target.value })
-                          }
-                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none text-sm sm:text-base"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-[#0D2B3A] font-medium mb-1.5 sm:mb-2 text-sm sm:text-base">City *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 outline-none text-sm sm:text-base"
+                      />
                     </div>
                     <div>
                       <label className="block text-[#0D2B3A] font-medium mb-1.5 sm:mb-2 text-sm sm:text-base">Order Notes (Optional)</label>
