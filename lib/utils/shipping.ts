@@ -7,7 +7,7 @@ export const deliveryRules = {
    * When true, every order gets PKR 0 delivery (no shipping line item).
    * Set to false to use threshold + flat rate below.
    */
-  complimentaryNationwide: true,
+  complimentaryNationwide: false,
 
   /** Applied when complimentaryNationwide is false and subtotal is below freeFromSubtotalPkr */
   flatRatePkrWhenChargeApplies: 350,
