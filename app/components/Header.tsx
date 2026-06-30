@@ -3,33 +3,13 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { ShoppingCart, Menu, X, Search, User, ChevronDown, Leaf, Grape, TreePalm, Droplets, Flame, Wheat, Sparkles, Package, Heart, Phone, Mail, MapPin, Box, ArrowRight, Cookie, Bean, FlaskConical, Wind, Nut } from 'lucide-react';
+import { ShoppingCart, Menu, X, Search, User, ChevronDown, Heart, Phone, Mail, MapPin, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { webApi, WebCategory, WebSearchSuggestion } from '../../lib/api/webApi';
 import { cartUtils } from '../../lib/utils/cart';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 import { useAuthStore } from '../../lib/store/authStore';
-
-// Icon mapping function - maps category names to icons
-const getCategoryIcon = (categoryName: string) => {
-  const name = categoryName.toLowerCase();
-  if (name.includes('date')) return TreePalm;
-  if (name.includes('fruit') || name.includes('dry')) return Grape;
-  if (name.includes('nut')) return Nut;
-  if (name.includes('honey')) return Droplets;
-  if (name.includes('saffron')) return Sparkles;
-  if (name.includes('herb')) return Leaf;
-  if (name.includes('spice') || name.includes('masala')) return Flame;
-  if (name.includes('pulse') || name.includes('rice')) return Bean;
-  if (name.includes('oil')) return FlaskConical;
-  if (name.includes('juice') || name.includes('arqiat')) return Droplets;
-  if (name.includes('cracker') || name.includes('nimco') || name.includes('papad')) return Cookie;
-  if (name.includes('flour')) return Wheat;
-  if (name.includes('pickle') || name.includes('jam')) return Package;
-  if (name.includes('scent') || name.includes('perfume')) return Wind;
-  if (name.includes('shampoo') || name.includes('essential')) return Droplets;
-  return Box;
-};
+import { getCategoryIcon, getCategoryDescription } from '../../lib/utils/categoryIcons';
 
 export default function Header() {
   const router = useRouter();
@@ -80,7 +60,7 @@ export default function Header() {
           .map((cat) => ({
             ...cat,
             icon: getCategoryIcon(cat.name),
-            description: `Browse our ${cat.name.toLowerCase()} collection`,
+            description: getCategoryDescription(cat.name),
           }))
       );
       setCategoriesLoading(false);

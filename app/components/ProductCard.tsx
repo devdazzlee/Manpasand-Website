@@ -121,7 +121,18 @@ export default function ProductCard({
     
     if (typeof window !== 'undefined') {
       const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-      const product = { id, name, price, originalPrice, image, category };
+      const product = {
+        id,
+        name,
+        price: displayPrice,
+        originalPrice,
+        image,
+        category,
+        unitName,
+        sales_rate_inc_dis_and_tax,
+        sales_rate_exc_dis_and_tax,
+        selling_price,
+      };
       
       if (isInWishlist) {
         // Remove from wishlist
@@ -148,7 +159,7 @@ export default function ProductCard({
         viewport={{ once: true }}
         whileHover={{ y: -4 }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group flex flex-col"
+        className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group flex flex-col"
       >
         <div className="flex flex-col sm:flex-row min-w-0">
           <Link href={`/products/${id}`} className="flex-shrink-0 w-full sm:w-auto">
@@ -178,23 +189,31 @@ export default function ProductCard({
             )}
           </div>
         </Link>
-        <div className="flex-1 p-3 sm:p-4 md:p-6 flex flex-col justify-between">
+        <div className="flex-1 p-3 sm:p-4 md:p-6 flex flex-col justify-between min-w-0">
           <div>
+            {category && (
+              <span className="inline-block text-[10px] sm:text-xs font-medium text-[#1A73A8] bg-[#DFF3EA]/80 px-2 py-0.5 rounded-full mb-1.5 sm:mb-2">
+                {category}
+              </span>
+            )}
             <Link href={`/products/${id}`}>
-              <h3 className="font-semibold text-sm sm:text-base md:text-lg lg:text-xl text-[#0D2B3A] mb-2 sm:mb-3 hover:text-[#1A73A8] transition-colors line-clamp-2">
+              <h3 className="font-semibold text-sm sm:text-base md:text-lg text-[#0D2B3A] mb-2 hover:text-[#1A73A8] transition-colors line-clamp-2">
                 {name}
               </h3>
             </Link>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
-            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-wrap">
-              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#0D2B3A]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-auto">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#0D2B3A]">
                 Rs. {displayPrice.toLocaleString()}
               </span>
-              {originalPrice && (
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#6B7280] line-through">
+              {originalPrice && originalPrice > displayPrice && (
+                <span className="text-xs sm:text-sm text-[#9CA3AF] line-through">
                   Rs. {originalPrice.toLocaleString()}
                 </span>
+              )}
+              {unitName && (
+                <span className="text-[10px] sm:text-xs text-[#6B7280]">/ {unitName}</span>
               )}
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full sm:w-auto">
