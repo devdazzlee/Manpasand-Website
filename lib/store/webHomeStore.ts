@@ -19,7 +19,7 @@ interface HomeState {
 let inFlight: Promise<WebHomePayload> | null = null;
 
 const sig = (o: { featuredLimit?: number; bestLimit?: number; categoriesLimit?: number }) =>
-  `f${o.featuredLimit ?? 8}:b${o.bestLimit ?? 8}:c${o.categoriesLimit ?? 6}`;
+  `f${o.featuredLimit ?? 8}:b${o.bestLimit ?? 0}:c${o.categoriesLimit ?? 24}`;
 
 export const useWebHomeStore = create<HomeState>((set, get) => ({
   data: null,
@@ -44,8 +44,8 @@ export const useWebHomeStore = create<HomeState>((set, get) => ({
     inFlight = webApi
       .getHome({
         featuredLimit: opts.featuredLimit ?? 8,
-        bestLimit: opts.bestLimit ?? 8,
-        categoriesLimit: opts.categoriesLimit ?? 6,
+        bestLimit: opts.bestLimit ?? 0,
+        categoriesLimit: opts.categoriesLimit ?? 24,
       })
       .then((data) => {
         set({ data, signature, lastFetch: Date.now(), loading: false });

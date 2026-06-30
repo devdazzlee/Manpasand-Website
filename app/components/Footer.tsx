@@ -1,29 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
-import { WebCategory } from '../../lib/api/webApi';
 
 export default function Footer() {
-  const fetchAll = useWebCategoryStore((s) => s.fetchAll);
-  const [categories, setCategories] = useState<WebCategory[]>([]);
+  const allFromStore = useWebCategoryStore((s) => s.all);
 
-  // Pulls from the shared store; if Header already fetched it, this is a no-op.
-  useEffect(() => {
-    let cancelled = false;
-    fetchAll()
-      .then((all) => {
-        if (!cancelled) setCategories(all.filter((c) => c.is_active).slice(0, 8));
-      })
-      .catch(() => {
-        if (!cancelled) setCategories([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchAll]);
+  const categories = useMemo(
+    () => (allFromStore ?? []).filter((c) => c.is_active).slice(0, 8),
+    [allFromStore]
+  );
 
   return (
     <footer className="bg-[#0D2B3A] text-white">

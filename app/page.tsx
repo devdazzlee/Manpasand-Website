@@ -13,6 +13,8 @@ import BenefitsSection from './components/BenefitsSection';
 import HerbsSection from './components/HerbsSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import { useWebHomeStore } from '../lib/store/webHomeStore';
+import { useWebCategoryStore } from '../lib/store/webCategoryStore';
+import { useProductMetaStore } from '../lib/store/productMetaStore';
 
 export default function Home() {
   const data = useWebHomeStore((s) => s.data);
@@ -20,22 +22,33 @@ export default function Home() {
   const error = useWebHomeStore((s) => s.error);
   const fetch = useWebHomeStore((s) => s.fetch);
 
-  // Single bundled request for everything the homepage needs.
-  // Cached for 5 min via the store; cached for 5 min via Redis on the backend.
+  // One bundled /web/home request — categories + product count seed shared stores
+  // so Header, Footer, and Stats don't fire separate heavy API calls.
   useEffect(() => {
     fetch().catch(() => {});
   }, [fetch]);
+
+  useEffect(() => {
+    if (!data) return;
+    if (data.product_count > 0) {
+      useProductMetaStore.getState().seedProductCount(data.product_count);
+    }
+    if (data.categories.length > 0) {
+      useWebCategoryStore.getState().seedFromHome(data.categories);
+    }
+  }, [data]);
 
   const featured = data?.featuredProducts ?? [];
   const categories = data?.categories ?? [];
   const categoriesTotal = data?.categories_total ?? categories.length;
   const featuredTotal = data?.featured_total ?? featured.length;
+  const productCount = data?.product_count;
 
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <HeroSection />
-      <StatsSection />
+      <StatsSection initialProductCount={productCount} />
       <CategoriesSection
         initialCategories={categories}
         initialTotal={categoriesTotal}

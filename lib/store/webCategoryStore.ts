@@ -3,7 +3,7 @@ import { webApi, WebCategory, WebMeta } from '../api/webApi';
 
 // Categories store
 // - `all` mode: cached full active list (for Header mega-menu, Footer, Shop sidebar)
-// - `paged` mode: append-on-load-more pages (for Home "Read More")
+// - `paged` mode: append-on-pagination pages (legacy; home shows all via fetchAll)
 
 const TTL_MS = 10 * 60 * 1000;
 
@@ -21,6 +21,8 @@ interface CategoryState {
   pageError: string | null;
 
   fetchAll: (force?: boolean) => Promise<WebCategory[]>;
+  /** Hydrate from /web/home so nav/footer don't need an extra round-trip. */
+  seedFromHome: (categories: WebCategory[]) => void;
   fetchFirstPage: (limit?: number) => Promise<void>;
   fetchNextPage: (limit?: number) => Promise<void>;
   resetPages: () => void;
@@ -62,6 +64,14 @@ export const useWebCategoryStore = create<CategoryState>((set, get) => ({
       });
 
     return inFlightAll;
+  },
+
+  seedFromHome: (categories: WebCategory[]) => {
+    if (!categories.length) return;
+    const s = get();
+    const fresh = s.allFetchedAt && Date.now() - s.allFetchedAt < TTL_MS;
+    if (s.all && fresh) return;
+    set({ all: categories, allFetchedAt: Date.now(), allLoading: false, allError: null });
   },
 
   fetchFirstPage: async (limit = 6) => {

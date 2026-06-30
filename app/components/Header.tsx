@@ -44,9 +44,8 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [categories, setCategories] = useState<Array<WebCategory & { icon: any; description: string }>>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  const fetchAllCategories = useWebCategoryStore((s) => s.fetchAll);
   const { isAuthenticated, user, logout, fetchCurrentUser, token } = useAuthStore();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -56,39 +55,39 @@ export default function Header() {
       const storedToken = localStorage.getItem('authToken');
       if (storedToken && !isAuthenticated && !user) {
         fetchCurrentUser().catch(() => {
-          // If fetch fails, token is invalid, clear it
           localStorage.removeItem('authToken');
         });
       }
     }
   }, [fetchCurrentUser, isAuthenticated, user]);
 
-  // Fetch active categories once via shared store (cached 10 min).
+  // Lazy-load categories only when the user opens nav/search — not on every page load.
+  const allFromStore = useWebCategoryStore((s) => s.all);
+  const allLoading = useWebCategoryStore((s) => s.allLoading);
+  const fetchAllCategories = useWebCategoryStore((s) => s.fetchAll);
+  const needsCategories = isCategoriesOpen || isMenuOpen || isSearchOpen;
+
   useEffect(() => {
-    let cancelled = false;
-    setCategoriesLoading(true);
-    fetchAllCategories()
-      .then((apiCategories) => {
-        if (cancelled) return;
-        const mapped = apiCategories
+    if (!needsCategories || allFromStore) return;
+    fetchAllCategories().catch(() => {});
+  }, [needsCategories, allFromStore, fetchAllCategories]);
+
+  useEffect(() => {
+    if (allFromStore) {
+      setCategories(
+        allFromStore
           .filter((cat) => cat.is_active)
           .map((cat) => ({
             ...cat,
             icon: getCategoryIcon(cat.name),
             description: `Browse our ${cat.name.toLowerCase()} collection`,
-          }));
-        setCategories(mapped);
-      })
-      .catch(() => {
-        if (!cancelled) setCategories([]);
-      })
-      .finally(() => {
-        if (!cancelled) setCategoriesLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchAllCategories]);
+          }))
+      );
+      setCategoriesLoading(false);
+      return;
+    }
+    setCategoriesLoading(needsCategories && allLoading);
+  }, [allFromStore, needsCategories, allLoading]);
 
   // Handle scroll effect
   useEffect(() => {

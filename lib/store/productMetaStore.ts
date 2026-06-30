@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { productApi } from '../api/productApi';
+import { webApi } from '../api/webApi';
 
 interface ProductMetaState {
   productCount: number | null;
@@ -7,6 +7,8 @@ interface ProductMetaState {
   lastFetch: number | null;
   cacheExpiry: number;
   getProductCount: (forceRefresh?: boolean) => Promise<number>;
+  /** Seed from /web/home payload to avoid a separate count request on homepage. */
+  seedProductCount: (count: number) => void;
 }
 
 let inFlightProductCountRequest: Promise<number> | null = null;
@@ -16,6 +18,11 @@ export const useProductMetaStore = create<ProductMetaState>()((set, get) => ({
   loading: false,
   lastFetch: null,
   cacheExpiry: 5 * 60 * 1000,
+
+  seedProductCount: (count: number) => {
+    if (!Number.isFinite(count) || count <= 0) return;
+    set({ productCount: count, lastFetch: Date.now(), loading: false });
+  },
 
   getProductCount: async (forceRefresh = false) => {
     const state = get();
@@ -33,10 +40,9 @@ export const useProductMetaStore = create<ProductMetaState>()((set, get) => ({
 
     set({ loading: true });
 
-    inFlightProductCountRequest = productApi
-      .listProducts({ fetch_all: true, search: '' })
-      .then((result) => {
-        const count = typeof result.meta?.total === 'number' ? result.meta.total : result.data.length;
+    inFlightProductCountRequest = webApi
+      .getProductCount()
+      .then((count) => {
         set({
           productCount: count,
           lastFetch: Date.now(),

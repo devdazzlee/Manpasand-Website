@@ -1,13 +1,14 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import Loader from './Loader';
 import { WebCategory } from '../../lib/api/webApi';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 
-const INITIAL_COUNT = 6;
+const INITIAL_VISIBLE = 5;
 
 interface CategoriesSectionProps {
   initialCategories: WebCategory[];
@@ -16,45 +17,117 @@ interface CategoriesSectionProps {
   error?: string | null;
 }
 
+function formatProductCount(count: number): string {
+  if (count === 1) return '1 product';
+  return `${count.toLocaleString()} products`;
+}
+
+function hasCategoryImage(image: string | null | undefined): boolean {
+  return Boolean(image?.trim());
+}
+
+function CategoryCard({ category, index }: { category: WebCategory; index: number }) {
+  const hasImage = hasCategoryImage(category.image);
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.35, delay: Math.min(index, INITIAL_VISIBLE) * 0.05 }}
+      whileHover={{ y: -4 }}
+      className="h-full flex"
+    >
+      <Link
+        href={`/categories/${category.slug}`}
+        className="w-full flex flex-col group"
+        aria-label={`Shop ${category.name}`}
+      >
+        <div
+          className={`relative aspect-[4/5] sm:aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#1A73A8]/40 ${
+            !hasImage ? 'bg-gradient-to-br from-[#E8EDF2] via-[#DDE4EC] to-[#C5D0DC]' : ''
+          }`}
+        >
+          {hasImage && (
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-500 group-hover:scale-110"
+              style={{ backgroundImage: `url(${category.image})` }}
+            />
+          )}
+          <div
+            className={`absolute inset-0 ${
+              hasImage
+                ? 'bg-gradient-to-t from-[#0D2B3A]/90 via-[#0D2B3A]/35 to-transparent'
+                : 'bg-gradient-to-t from-[#0D2B3A]/25 via-transparent to-transparent'
+            }`}
+          />
+          <div className="absolute inset-0 flex flex-col justify-end p-3 sm:p-4">
+            <h3
+              className={`font-semibold text-xs sm:text-sm md:text-base leading-tight line-clamp-2 transition-colors ${
+                hasImage
+                  ? 'text-white group-hover:text-[#DFF3EA]'
+                  : 'text-[#0D2B3A] group-hover:text-[#1A73A8]'
+              }`}
+            >
+              {category.name}
+            </h3>
+            {category.product_count > 0 && (
+              <p
+                className={`text-[10px] sm:text-xs mt-1 ${
+                  hasImage ? 'text-white/75' : 'text-[#6B7280]'
+                }`}
+              >
+                {formatProductCount(category.product_count)}
+              </p>
+            )}
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
 export default function CategoriesSection({
   initialCategories,
   initialTotal,
   initialLoading,
   error,
 }: CategoriesSectionProps) {
-  const pages = useWebCategoryStore((s) => s.pages);
-  const pageMeta = useWebCategoryStore((s) => s.pageMeta);
-  const pageLoading = useWebCategoryStore((s) => s.pageLoading);
-  const pageError = useWebCategoryStore((s) => s.pageError);
-  const fetchNextPage = useWebCategoryStore((s) => s.fetchNextPage);
-
-  // Seed the paged store once with what the bundled /web/home call returned,
-  // so the first "Read More" click goes straight to page 2.
-  const [seeded, setSeeded] = useState(false);
-  useEffect(() => {
-    if (seeded) return;
-    if (initialCategories.length === 0) return;
-    useWebCategoryStore.setState({
-      pages: initialCategories.slice(0, INITIAL_COUNT),
-      pageMeta: {
-        total: initialTotal ?? initialCategories.length,
-        page: 1,
-        limit: INITIAL_COUNT,
-        totalPages: Math.max(1, Math.ceil((initialTotal ?? initialCategories.length) / INITIAL_COUNT)),
-      },
-    });
-    setSeeded(true);
-  }, [initialCategories, initialTotal, seeded]);
+  const allCategories = useWebCategoryStore((s) => s.all);
+  const allError = useWebCategoryStore((s) => s.allError);
+  const fetchAll = useWebCategoryStore((s) => s.fetchAll);
+  const [showAll, setShowAll] = useState(false);
+  const [expanding, setExpanding] = useState(false);
 
   const categories = useMemo(() => {
-    if (pages.length > 0) return pages;
-    return initialCategories;
-  }, [pages, initialCategories]);
+    const source = allCategories?.length ? allCategories : initialCategories;
+    return source.filter((c) => c.is_active);
+  }, [allCategories, initialCategories]);
 
-  const total = pageMeta?.total ?? initialTotal ?? initialCategories.length;
-  const hasMore = total > categories.length;
+  const totalCount = initialTotal ?? categories.length;
+  const hasFullList = categories.length >= totalCount;
 
-  const handleReadMore = () => fetchNextPage(INITIAL_COUNT);
+  const visibleCategories = showAll ? categories : categories.slice(0, INITIAL_VISIBLE);
+  const hiddenCount = showAll ? 0 : Math.max(0, totalCount - INITIAL_VISIBLE);
+  const canExpand = !showAll && hiddenCount > 0;
+
+  const handleExpand = async () => {
+    if (!hasFullList) {
+      setExpanding(true);
+      try {
+        await fetchAll();
+      } catch {
+        // still expand with whatever we have
+      } finally {
+        setExpanding(false);
+      }
+    }
+    setShowAll(true);
+  };
+
+  const loading = initialLoading && categories.length === 0;
+  const displayError = categories.length === 0 ? error || allError : null;
 
   return (
     <section className="py-10 sm:py-12 md:py-14 bg-gradient-to-b from-white to-[#F8F2DE]/60">
@@ -73,63 +146,66 @@ export default function CategoriesSection({
           </p>
         </motion.div>
 
-        {initialLoading && categories.length === 0 ? (
+        {loading ? (
           <Loader size="lg" text="Loading categories..." />
-        ) : error && categories.length === 0 ? (
+        ) : displayError ? (
           <div className="text-center py-8">
-            <p className="text-red-500 text-sm">{error}</p>
+            <p className="text-red-500 text-sm">{displayError}</p>
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-[#6B7280] text-sm">No categories available at the moment.</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 items-stretch">
-              {categories.map((category, index) => (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: Math.min(index, 6) * 0.05 }}
-                  whileHover={{ y: -4 }}
-                  className="h-full flex"
-                >
-                  <Link href={`/categories/${category.slug}`} className="w-full flex flex-col">
-                    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col h-full border border-gray-100 hover:border-[#1A73A8]/30">
-                      <div className="relative aspect-square overflow-hidden flex-shrink-0 bg-gray-100">
-                        <div
-                          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-500 group-hover:scale-105"
-                          style={{ backgroundImage: `url(${category.image || '/Banner-01.jpg'})` }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0D2B3A]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                      </div>
-                      <div className="p-2.5 sm:p-3 text-center flex items-center justify-center min-h-[48px] sm:min-h-[52px] flex-grow">
-                        <h3 className="font-semibold text-[#0D2B3A] text-xs sm:text-sm group-hover:text-[#1A73A8] transition-colors line-clamp-2 leading-tight">
-                          {category.name}
-                        </h3>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+            <motion.div
+              layout
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5 items-stretch"
+            >
+              <AnimatePresence mode="popLayout">
+                {visibleCategories.map((category, index) => (
+                  <CategoryCard key={category.id} category={category} index={index} />
+                ))}
+              </AnimatePresence>
+            </motion.div>
 
-            {pageError && (
-              <div className="text-center mt-4">
-                <p className="text-red-500 text-xs">{pageError}</p>
-              </div>
-            )}
-
-            {hasMore && (
-              <div className="text-center mt-6 sm:mt-8">
+            <div className="flex flex-col items-center gap-3 mt-8 sm:mt-10">
+              {canExpand && !showAll && (
                 <button
                   type="button"
-                  onClick={handleReadMore}
-                  disabled={pageLoading}
+                  onClick={handleExpand}
+                  disabled={expanding}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1A73A8] text-white font-semibold text-sm hover:bg-[#0D2B3A] transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {pageLoading ? 'Loading…' : 'Load More'}
+                  <span>{expanding ? 'Loading…' : 'View All Categories'}</span>
+                  {!expanding && (
+                    <span className="text-white/80 text-xs font-normal">
+                      ({hiddenCount} more)
+                    </span>
+                  )}
+                  <ChevronDown className="w-4 h-4" />
                 </button>
-              </div>
-            )}
+              )}
+
+              {showAll && canExpand && (
+                <button
+                  type="button"
+                  onClick={() => setShowAll(false)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#1A73A8] text-[#1A73A8] font-semibold text-sm hover:bg-[#1A73A8]/5 transition-colors"
+                >
+                  <span>Show Less</span>
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+              )}
+
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-2 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm group"
+              >
+                <span>Browse All Products</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </>
         )}
       </div>
