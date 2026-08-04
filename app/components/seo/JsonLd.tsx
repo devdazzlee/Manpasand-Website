@@ -3,8 +3,8 @@ type JsonLdProps = {
 };
 
 /**
- * Server JSON-LD for the document body (not &lt;head&gt;).
- * Escapes &lt; so &lt;/script&gt; inside JSON cannot break out of the tag.
+ * JSON-LD in the document body. suppressHydrationWarning: browsers/React treat
+ * <script> nodes specially; without it, production can throw #418 (HTML vs empty).
  */
 export default function JsonLd({ data }: JsonLdProps) {
   const payload = Array.isArray(data) ? data : [data];
@@ -16,6 +16,8 @@ export default function JsonLd({ data }: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
+      // Prevent React from reconciling script children during hydrate
+      suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: json }}
     />
   );

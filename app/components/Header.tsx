@@ -29,9 +29,15 @@ export default function Header() {
   const { isAuthenticated, user, logout, fetchCurrentUser, token } = useAuthStore();
   // Avoid auth persist hydration mismatch (React #418) — match SSR logged-out UI first
   const [authReady, setAuthReady] = useState(false);
+  // usePathname() is unreliable during SSR on Vercel static pages — active nav
+  // adds/removes a <div> underline, which throws React #418 (HTML vs empty).
+  const [navReady, setNavReady] = useState(false);
   useEffect(() => {
     const result = useAuthStore.persist.rehydrate();
     Promise.resolve(result).finally(() => setAuthReady(true));
+  }, []);
+  useEffect(() => {
+    setNavReady(true);
   }, []);
   const showAuthed = authReady && isAuthenticated;
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -215,7 +221,7 @@ export default function Header() {
     };
   }, [isSearchOpen]);
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => navReady && pathname === href;
 
   return (
     <>
