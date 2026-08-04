@@ -5,11 +5,12 @@ const BANNER_ALT =
 
 /**
  * Full-bleed LCP hero.
- * Mobile uses a single 750w WebP (no DPR upscale to 1200) — Moto G / Slow 4G LCP path.
+ * Stable aspect-ratio sizing (no svh) — mobile browser chrome / svh changes caused CLS.
+ * Mobile forces 750.webp via <picture> to avoid DPR upscale to 1200.
  */
 export default function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-[#0D2B3A] aspect-[1600/889] max-h-[calc(100svh-4rem)] md:max-h-[calc(100svh-7.25rem)]">
+    <section className="relative w-full overflow-hidden bg-[#0D2B3A] aspect-[16/9] max-h-[70vh]">
       <h1 className="sr-only">
         Manpasand Store — Premium Dry Fruits, Dates, Nuts & Spices in Pakistan
       </h1>
@@ -19,7 +20,6 @@ export default function HeroSection() {
         aria-label="Shop Manpasand collection"
       >
         <picture>
-          {/* Viewport-based: ignore devicePixelRatio so mobile stays on ~30KB asset */}
           <source
             media="(max-width: 768px)"
             srcSet="/banners/New-Banner-750.webp"
@@ -35,7 +35,7 @@ export default function HeroSection() {
             src="/banners/New-Banner-750.webp"
             alt={BANNER_ALT}
             width={1600}
-            height={889}
+            height={900}
             className="h-full w-full object-cover object-center"
             fetchPriority="high"
             loading="eager"

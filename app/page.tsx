@@ -1,10 +1,8 @@
 import Header from './components/Header';
-import Footer from './components/Footer';
 import HeroSection from './components/HeroSection';
 import DeferredHomeContent from './components/DeferredHomeContent';
 import { webApi } from '../lib/api/webApi';
 import type { WebHomePayload } from '../lib/api/webApi';
-import { getPageSeo } from '../lib/seo/config';
 
 export const revalidate = 60;
 
@@ -17,7 +15,6 @@ async function getHomeData(): Promise<WebHomePayload | null> {
 }
 
 export default async function Home() {
-  // Do not await API before streaming hero — fetch in parallel with render via Promise
   const dataPromise = getHomeData();
 
   return (
@@ -28,7 +25,6 @@ export default async function Home() {
       >
         Skip to main content
       </a>
-      {/* Header first in DOM + sticky — hero paints immediately after without flex order tricks */}
       <div className="w-full sticky top-0 z-50">
         <Header />
       </div>
@@ -36,9 +32,6 @@ export default async function Home() {
         <HeroSection />
         <DeferredHomeContent dataPromise={dataPromise} />
       </main>
-      <div className="w-full">
-        <Footer seo={getPageSeo('/')} />
-      </div>
     </div>
   );
 }

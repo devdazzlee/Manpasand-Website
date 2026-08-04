@@ -15,22 +15,24 @@ import {
 } from "../lib/seo/schema";
 import { DEFAULT_FAQS } from "../lib/seo/config";
 
-/** Body font — fewer weights = fewer preload competing with LCP */
+/** Body font — 2 weights only (less preload vs LCP on Slow 4G) */
 const poppins = Poppins({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "700"],
   display: "swap",
   preload: true,
+  adjustFontFallback: true,
 });
 
-/** Display font — swap only, do not preload (saves LCP bandwidth on Slow 4G) */
+/** Display font — never preload (not needed for LCP) */
 const playfair = Playfair_Display({
   variable: "--font-heading",
   subsets: ["latin"],
   weight: ["700"],
   display: "swap",
   preload: false,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {

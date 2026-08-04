@@ -22,6 +22,8 @@ type ProductImageProps = {
   compact?: boolean;
   /** Logo-only tile for tiny thumbs where name sits beside the image */
   logoOnly?: boolean;
+  /** Skip name in placeholder when the card already shows it below */
+  hideName?: boolean;
 };
 
 /**
@@ -43,6 +45,7 @@ export default function ProductImage({
   sizes,
   compact = false,
   logoOnly = false,
+  hideName = false,
 }: ProductImageProps) {
   const missing = isMissingProductImage(src);
   const [failed, setFailed] = useState(false);
@@ -74,6 +77,7 @@ export default function ProductImage({
           category={category}
           compact={compact}
           logoOnly={logoOnly}
+          hideName={hideName}
         />
       </div>
     );
@@ -88,6 +92,7 @@ export default function ProductImage({
             category={category}
             compact={compact}
             logoOnly={logoOnly}
+            hideName={hideName}
           />
         </div>
       )}

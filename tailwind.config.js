@@ -20,9 +20,10 @@ module.exports = {
         sans: ['var(--font-body)', 'DM Sans', 'system-ui', 'sans-serif'],
         heading: ['var(--font-heading)', 'Cormorant Garamond', 'Georgia', 'serif'],
       },
-      // Poppins no longer loads 500 — map medium to 600 to avoid faux-bold
+      // Map medium/semibold onto loaded Poppins weights (400/700 only)
       fontWeight: {
-        medium: '600',
+        medium: '700',
+        semibold: '700',
       },
     },
   },
