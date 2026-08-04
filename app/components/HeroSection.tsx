@@ -13,7 +13,7 @@ export default function HeroSection() {
       className="relative w-full overflow-hidden bg-[#0D2B3A] aspect-[1600/889] max-h-[calc(100svh-4rem)] md:max-h-[calc(100svh-7.25rem)]"
     >
       <h1 className="sr-only">
-        Manpasand Store — Premium Dry Fruits, Dates, Nuts &amp; Spices in Pakistan
+        Manpasand Store — Premium Dry Fruits, Dates, Nuts & Spices in Pakistan
       </h1>
       <Link
         href="/shop"

@@ -3,18 +3,19 @@ type JsonLdProps = {
 };
 
 /**
- * Server-only JSON-LD. suppressHydrationWarning avoids React #418 when the
- * browser/React special-case <script> nodes during hydration.
+ * Server JSON-LD for the document body (not &lt;head&gt;).
+ * Escapes &lt; so &lt;/script&gt; inside JSON cannot break out of the tag.
  */
 export default function JsonLd({ data }: JsonLdProps) {
   const payload = Array.isArray(data) ? data : [data];
-  const json = JSON.stringify(payload.length === 1 ? payload[0] : payload);
+  const json = JSON.stringify(payload.length === 1 ? payload[0] : payload).replace(
+    /</g,
+    '\\u003c'
+  );
 
   return (
     <script
       type="application/ld+json"
-      // JSON-LD must not be reconciled as interactive script during hydrate
-      suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: json }}
     />
   );

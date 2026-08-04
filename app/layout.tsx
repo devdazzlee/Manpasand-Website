@@ -43,7 +43,18 @@ export const metadata: Metadata = {
     google: "8lrFYE_ngbLPvaTrJKb0vmmKCtjzDwxvSDR7jgmYGL8",
     other: {
       "msvalidate.01": "E4056095F1036C333F0D0C0DC11861C1",
+      "geo.region": "PK",
+      "geo.placename": "Pakistan",
+      ICBM: "24.8827589, 67.069352",
+      language: "English",
+      coverage: "Pakistan",
+      distribution: "global",
+      rating: "general",
+      "revisit-after": "3 days",
     },
+  },
+  other: {
+    "format-detection": "telephone=no",
   },
 };
 
@@ -68,20 +79,14 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <meta name="theme-color" content="#0D2B3A" />
-        <meta name="format-detection" content="telephone=yes" />
-        <meta name="geo.region" content="PK" />
-        <meta name="geo.placename" content="Pakistan" />
-        <meta name="ICBM" content="24.8827589, 67.069352" />
-        <meta name="author" content="Manpasand Store" />
-        <meta name="copyright" content="Manpasand Store" />
-        <meta name="language" content="English" />
-        <meta name="coverage" content="Pakistan" />
-        <meta name="distribution" content="global" />
-        <meta name="rating" content="general" />
-        <meta name="revisit-after" content="3 days" />
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
         <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
-        {/* JSON-LD in <head> — avoids body script hydration #418 */}
+      </head>
+      <body
+        className={`${poppins.variable} ${playfair.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        {/* JSON-LD in body — avoids head script hydration #418 (HTML vs empty) */}
         <JsonLd
           data={[
             organizationSchema(),
@@ -91,12 +96,6 @@ export default function RootLayout({
             ...localBusinessSchemas(),
           ]}
         />
-      </head>
-      <body
-        className={`${poppins.variable} ${playfair.variable} antialiased`}
-        suppressHydrationWarning
-      >
-        {/* No GTM <noscript> iframe — it causes React #418 (HTML vs empty) when JS is on */}
         <DeferredAnalytics />
         {children}
         <CartToast />

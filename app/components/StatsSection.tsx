@@ -55,9 +55,9 @@ export default function StatsSection({ initialProductCount }: StatsSectionProps)
                 >
                   <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-1">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0D2B3A] mb-1">
                   {stat.number}
-                </h3>
+                </p>
                 <p className="text-[#4B5563] font-medium text-xs sm:text-sm">{stat.label}</p>
               </div>
             );

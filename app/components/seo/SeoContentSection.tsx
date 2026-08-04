@@ -1,18 +1,44 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
-import { getPageSeo, PAKISTAN_CITIES, SITE_NAME } from '../../../lib/seo/config';
+import {
+  getPageSeo,
+  PAKISTAN_CITIES,
+  SITE_NAME,
+  type PageSeo,
+} from '../../../lib/seo/config';
+
+type Props = {
+  /** Server-resolved SEO — required for hydration-safe SSR (avoids React #418). */
+  seo?: PageSeo;
+};
 
 /**
  * Path-specific SEO copy + FAQ accordion.
- * JSON-LD lives in the server layout (not here) — client <script> caused React #418.
+ *
+ * When `seo` is passed from a Server Component, SSR and client match exactly.
+ * Without `seo`, content waits until mount so usePathname cannot diverge
+ * from the server HTML (root cause of production React #418).
  */
-export default function SeoContentSection() {
-  const pathname = usePathname() || '/';
-  const seo = useMemo(() => getPageSeo(pathname), [pathname]);
+export default function SeoContentSection({ seo: seoProp }: Props) {
+  const pathname = usePathname();
+  const [allowClientPath, setAllowClientPath] = useState(Boolean(seoProp));
+
+  useEffect(() => {
+    if (!seoProp) setAllowClientPath(true);
+  }, [seoProp]);
+
+  const seo = useMemo(() => {
+    if (seoProp) return seoProp;
+    return getPageSeo(pathname || '/');
+  }, [seoProp, pathname]);
+
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  // No server-resolved seo: render nothing until mounted (SSR null === client null).
+  if (!allowClientPath) return null;
 
   const faqs = seo.faqs ?? [];
   const body = seo.seoBody ?? [];

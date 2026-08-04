@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 import SeoContentSection from './seo/SeoContentSection';
+import type { PageSeo } from '../../lib/seo/config';
 
 const STORES = [
   {
@@ -47,7 +48,12 @@ const ACCOUNT_LINKS = [
 const linkClass =
   'flex items-center min-h-11 py-2 text-sm text-gray-300 hover:text-white transition-colors leading-snug';
 
-export default function Footer() {
+type FooterProps = {
+  /** Pass from a Server Component so SEO HTML matches the client (fixes React #418). */
+  seo?: PageSeo;
+};
+
+export default function Footer({ seo }: FooterProps) {
   const allFromStore = useWebCategoryStore((s) => s.all);
 
   const categories = useMemo(
@@ -57,7 +63,7 @@ export default function Footer() {
 
   return (
     <>
-      <SeoContentSection />
+      <SeoContentSection seo={seo} />
       <footer className="bg-[#0D2B3A] text-white">
         <div className="container mx-auto px-4 py-10 sm:py-12">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 pb-8 border-b border-white/10">

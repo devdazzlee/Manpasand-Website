@@ -5,6 +5,7 @@ import HeroSection from './components/HeroSection';
 import HomeContent from './components/HomeContent';
 import { webApi } from '../lib/api/webApi';
 import type { WebHomePayload } from '../lib/api/webApi';
+import { getPageSeo } from '../lib/seo/config';
 
 export const revalidate = 60;
 
@@ -48,7 +49,7 @@ export default async function Home() {
         <Header />
       </div>
       <div className="order-3 w-full">
-        <Footer />
+        <Footer seo={getPageSeo('/')} />
       </div>
     </div>
   );
