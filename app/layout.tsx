@@ -65,6 +65,7 @@ export default function RootLayout({
           fetchPriority="high"
         />
         <link rel="dns-prefetch" href={API_BASE_URL} />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <meta name="theme-color" content="#0D2B3A" />
         <meta name="format-detection" content="telephone=yes" />
@@ -80,22 +81,7 @@ export default function RootLayout({
         <meta name="revisit-after" content="3 days" />
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
         <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
-      </head>
-      <body
-        className={`${poppins.variable} ${playfair.variable} antialiased`}
-        suppressHydrationWarning
-      >
-        {/* noscript must stay in this Server Component — not in a client tree */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-K7F45ZVH"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-            title="Google Tag Manager"
-          />
-        </noscript>
-        <DeferredAnalytics />
+        {/* JSON-LD in <head> — avoids body script hydration #418 */}
         <JsonLd
           data={[
             organizationSchema(),
@@ -105,6 +91,13 @@ export default function RootLayout({
             ...localBusinessSchemas(),
           ]}
         />
+      </head>
+      <body
+        className={`${poppins.variable} ${playfair.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        {/* No GTM <noscript> iframe — it causes React #418 (HTML vs empty) when JS is on */}
+        <DeferredAnalytics />
         {children}
         <CartToast />
       </body>

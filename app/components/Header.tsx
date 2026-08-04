@@ -30,7 +30,8 @@ export default function Header() {
   // Avoid auth persist hydration mismatch (React #418) — match SSR logged-out UI first
   const [authReady, setAuthReady] = useState(false);
   useEffect(() => {
-    setAuthReady(true);
+    const result = useAuthStore.persist.rehydrate();
+    Promise.resolve(result).finally(() => setAuthReady(true));
   }, []);
   const showAuthed = authReady && isAuthenticated;
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);

@@ -4,13 +4,15 @@ const BANNER_ALT =
   'Manpasand - Curated Delights Since 2000. Dry fruits, honey, and spices.';
 
 /**
- * LCP element — keep as a server component with no JS.
- * Use <img srcSet> (not <picture>) so discovery matches the preload hint.
- * decoding="sync" avoids LCP render delay from async decode.
+ * LCP element — server component, no JS.
+ * H1 is visually hidden so the full-bleed banner stays clean, but crawlers/a11y get a proper heading.
  */
 export default function HeroSection() {
   return (
     <section className="relative w-full bg-[#0D2B3A]">
+      <h1 className="sr-only">
+        Manpasand Store — Premium Dry Fruits, Dates, Nuts &amp; Spices in Pakistan
+      </h1>
       <Link href="/shop" className="block w-full" aria-label="Shop Manpasand collection">
         <img
           src="/banners/New-Banner-750.webp"

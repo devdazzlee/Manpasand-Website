@@ -92,9 +92,6 @@ export function onlineStoreSchema() {
     image: PUBLISHER.logo,
     telephone: PUBLISHER.phone,
     email: PUBLISHER.email,
-    priceRange: '$$',
-    currenciesAccepted: 'PKR',
-    paymentAccepted: 'Cash, Credit Card, Bank Transfer',
     areaServed: PAKISTAN_CITIES.map((city) => ({
       '@type': 'City',
       name: city,
@@ -114,6 +111,7 @@ export function localBusinessSchemas() {
     telephone: store.phone,
     priceRange: '$$',
     currenciesAccepted: 'PKR',
+    paymentAccepted: 'Cash, Credit Card, Bank Transfer',
     address: {
       '@type': 'PostalAddress',
       streetAddress: store.street,

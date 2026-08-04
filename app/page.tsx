@@ -28,22 +28,28 @@ export default async function Home() {
 
   const data = await getHomeData();
 
-  // Normal DOM order (Header → Hero → Content). CSS order/display:contents
-  // caused fragile hydration and did not fix LCP better than preload.
+  /**
+   * Hero is first in the DOM (faster LCP discovery) while CSS order keeps
+   * the header visually on top. Avoid display:contents — it breaks a11y/hydration.
+   */
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <a
         href="#main-content"
         className="absolute left-[-10000px] top-auto z-[200] focus:left-2 focus:top-2 focus:w-auto focus:h-auto focus:px-4 focus:py-2 focus:bg-white focus:text-[#0D2B3A] focus:rounded-md focus:shadow-lg focus:font-semibold focus:outline-none focus:ring-2 focus:ring-[#1A73A8]"
       >
         Skip to main content
       </a>
-      <Header />
-      <main id="main-content">
+      <main id="main-content" className="order-2 w-full">
         <HeroSection />
         <HomeContent initialData={data} />
       </main>
-      <Footer />
+      <div className="order-1 w-full sticky top-0 z-50">
+        <Header />
+      </div>
+      <div className="order-3 w-full">
+        <Footer />
+      </div>
     </div>
   );
 }

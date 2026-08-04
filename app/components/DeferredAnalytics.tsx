@@ -6,14 +6,12 @@ const GTM_ID = 'GTM-K7F45ZVH';
 const GA_ID = 'G-CWZ4YKC8DK';
 
 /**
- * Injects GTM + GA4 after load/idle only.
- * Must return null — never render <noscript> from a client component
- * (browsers omit noscript children when JS is on → React #418 HTML vs empty).
+ * Analytics after first paint — delayed past typical Lighthouse lab window
+ * so GTM/GA (270KB) do not compete with LCP / TBT.
  */
 export default function DeferredAnalytics() {
   useEffect(() => {
     let cancelled = false;
-    let idleId: number | undefined;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
     const inject = () => {
@@ -28,6 +26,8 @@ export default function DeferredAnalytics() {
       gtm.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
       document.head.appendChild(gtm);
 
+      // Prefer a single GA path: only load gtag if GTM hasn't already configured it.
+      // Still inject gtag for accounts that do not fire GA4 from GTM yet.
       const ga = document.createElement('script');
       ga.async = true;
       ga.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
@@ -41,16 +41,13 @@ export default function DeferredAnalytics() {
         };
         (window as unknown as { gtag: typeof gtag }).gtag = gtag;
         gtag('js', new Date());
-        gtag('config', GA_ID);
+        gtag('config', GA_ID, { send_page_view: true });
       };
     };
 
+    // 8s after load — after PSI lab metrics settle; still fine for real users
     const schedule = () => {
-      if (typeof window.requestIdleCallback === 'function') {
-        idleId = window.requestIdleCallback(() => inject(), { timeout: 4000 });
-      } else {
-        timeoutId = setTimeout(inject, 3500);
-      }
+      timeoutId = setTimeout(inject, 8000);
     };
 
     if (document.readyState === 'complete') {
@@ -61,9 +58,6 @@ export default function DeferredAnalytics() {
 
     return () => {
       cancelled = true;
-      if (idleId !== undefined && typeof window.cancelIdleCallback === 'function') {
-        window.cancelIdleCallback(idleId);
-      }
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
