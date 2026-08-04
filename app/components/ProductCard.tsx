@@ -162,11 +162,11 @@ export default function ProductCard({
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-auto">
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#0D2B3A]">
-                  Rs. {displayPrice.toLocaleString()}
+                  Rs. {displayPrice.toLocaleString('en-PK')}
                 </span>
                 {originalPrice && originalPrice > displayPrice && (
                   <span className="text-xs sm:text-sm text-[#6B7280] line-through" aria-hidden="true">
-                    Rs. {originalPrice.toLocaleString()}
+                    Rs. {originalPrice.toLocaleString('en-PK')}
                   </span>
                 )}
                 {unitName && (
@@ -270,11 +270,11 @@ export default function ProductCard({
         </Link>
         <div className="flex items-center gap-1.5 mb-2.5 sm:mb-3">
           <span className="text-sm sm:text-base font-bold text-[#0D2B3A]">
-            Rs. {displayPrice.toLocaleString()}
+            Rs. {displayPrice.toLocaleString('en-PK')}
           </span>
           {originalPrice && (
             <span className="text-[10px] sm:text-xs text-[#6B7280] line-through" aria-hidden="true">
-              Rs. {originalPrice.toLocaleString()}
+              Rs. {originalPrice.toLocaleString('en-PK')}
             </span>
           )}
         </div>

@@ -19,7 +19,7 @@ interface CategoriesSectionProps {
 
 function formatProductCount(count: number): string {
   if (count === 1) return '1 product';
-  return `${count.toLocaleString()} products`;
+  return `${count.toLocaleString('en-PK')} products`;
 }
 
 function hasCategoryImage(image: string | null | undefined): boolean {
@@ -28,8 +28,8 @@ function hasCategoryImage(image: string | null | undefined): boolean {
 
 function CategoryCard({ category }: { category: WebCategory }) {
   const hasImage = hasCategoryImage(category.image);
-  const src240 = optimizeCloudinaryUrl(category.image, { width: 240 });
-  const src400 = optimizeCloudinaryUrl(category.image, { width: 400 });
+  const src240 = optimizeCloudinaryUrl(category.image, { width: 240, quality: 'auto:low' });
+  const src400 = optimizeCloudinaryUrl(category.image, { width: 360, quality: 'auto:eco' });
 
   return (
     <div className="h-full flex">

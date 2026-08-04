@@ -125,7 +125,7 @@ export default function TestimonialsSection() {
             <span className="text-sm sm:text-base font-bold text-[#0D2B3A]">{overallRating.toFixed(1)}</span>
             {renderStars(overallRating)}
             <span className="text-[11px] sm:text-xs text-[#4B5563] border-l border-gray-300 pl-2">
-              {totalReviews.toLocaleString()}+ reviews
+              {totalReviews.toLocaleString('en-PK')}+ reviews
             </span>
           </div>
         </div>

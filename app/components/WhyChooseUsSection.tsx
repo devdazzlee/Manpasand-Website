@@ -24,7 +24,7 @@ export default function WhyChooseUsSection({ initialProductCount }: WhyChooseUsS
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             Why Choose Manpasand?
           </h2>
-          <p className="text-[#F97316] text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+          <p className="text-[#C2410C] text-sm sm:text-base font-semibold max-w-2xl mx-auto">
             The &ldquo;Heritage&rdquo; Choice
           </p>
         </div>

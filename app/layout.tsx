@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import CartToast from "./components/CartToast";
+import DeferredAnalytics from "./components/DeferredAnalytics";
 import JsonLd from "./components/seo/JsonLd";
 import { API_BASE_URL } from "../config/config";
 import { buildMetadata } from "../lib/seo/metadata";
@@ -15,8 +15,6 @@ import {
 } from "../lib/seo/schema";
 import { DEFAULT_FAQS } from "../lib/seo/config";
 
-const GTM_ID = "GTM-K7F45ZVH";
-const GA_MEASUREMENT_ID = "G-CWZ4YKC8DK";
 const poppins = Poppins({
   variable: "--font-body",
   subsets: ["latin"],
@@ -57,7 +55,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* LCP preload first — avoid competing early connections */}
         <link
           rel="preload"
           as="image"
@@ -67,7 +64,6 @@ export default function RootLayout({
           type="image/webp"
           fetchPriority="high"
         />
-        {/* dns-prefetch only: Cloudinary/API are below-fold on home (lazy) */}
         <link rel="dns-prefetch" href={API_BASE_URL} />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <meta name="theme-color" content="#0D2B3A" />
@@ -89,34 +85,17 @@ export default function RootLayout({
         className={`${poppins.variable} ${playfair.variable} antialiased`}
         suppressHydrationWarning
       >
-        {/* Google Tag Manager (noscript) */}
+        {/* noscript must stay in this Server Component — not in a client tree */}
         <noscript>
           <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            src="https://www.googletagmanager.com/ns.html?id=GTM-K7F45ZVH"
             height="0"
             width="0"
             style={{ display: "none", visibility: "hidden" }}
             title="Google Tag Manager"
           />
         </noscript>
-        <Script id="gtm" strategy="afterInteractive">{`
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','${GTM_ID}');
-        `}</Script>
-        {/* Google Analytics (gtag.js) — do NOT also fire this same ID from a GTM GA4 tag */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="ga4-gtag" strategy="afterInteractive">{`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}');
-        `}</Script>
+        <DeferredAnalytics />
         <JsonLd
           data={[
             organizationSchema(),
