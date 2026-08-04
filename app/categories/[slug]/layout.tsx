@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { buildMetadata } from '../../../lib/seo/metadata';
 import { API_URL } from '../../../config/config';
 import JsonLd from '../../components/seo/JsonLd';
-import { breadcrumbSchema } from '../../../lib/seo/schema';
+import { breadcrumbSchema, collectionPageSchema } from '../../../lib/seo/schema';
+import { SITE_URL } from '../../../lib/seo/config';
 
 type Props = {
   children: React.ReactNode;
@@ -53,11 +54,18 @@ export default async function CategoryLayout({ children, params }: Props) {
   return (
     <>
       <JsonLd
-        data={breadcrumbSchema([
-          { name: 'Home', path: '/' },
-          { name: 'Shop', path: '/shop' },
-          { name: name, path: `/categories/${slug}` },
-        ])}
+        data={[
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Shop', path: '/shop' },
+            { name: name, path: `/categories/${slug}` },
+          ]),
+          collectionPageSchema({
+            name: `Buy ${name} Online — Manpasand Store`,
+            description: `Shop ${name} at Manpasand Store Karachi — premium quality with nationwide delivery across Pakistan.`,
+            url: `${SITE_URL}/categories/${slug}`,
+          }),
+        ]}
       />
       {children}
     </>

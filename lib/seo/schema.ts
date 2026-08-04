@@ -169,26 +169,39 @@ export function faqPageSchema(faqs: Array<{ question: string; answer: string }>)
 export function productSchema(opts: {
   name: string;
   description?: string;
-  image?: string;
+  image?: string | string[];
   sku?: string;
   price?: number;
   currency?: string;
   availability?: boolean;
   url: string;
   brand?: string;
+  category?: string;
 }) {
+  const images = Array.isArray(opts.image)
+    ? opts.image.filter(Boolean)
+    : opts.image
+      ? [opts.image]
+      : [PUBLISHER.logo];
+
+  const price = Number(opts.price) || 0;
+  // Google prefers a future priceValidUntil on Offers
+  const priceValidUntil = new Date();
+  priceValidUntil.setFullYear(priceValidUntil.getFullYear() + 1);
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: opts.name,
-    description: opts.description || opts.name,
-    image: opts.image ? [opts.image] : [PUBLISHER.logo],
+    description: opts.description || `Buy ${opts.name} online from ${SITE_NAME} — delivery across Pakistan.`,
+    image: images,
     sku: opts.sku,
+    mpn: opts.sku,
     brand: {
       '@type': 'Brand',
       name: opts.brand || SITE_NAME,
     },
-    category: 'Dry Fruits & Spices',
+    category: opts.category || 'Dry Fruits & Spices',
     countryOfOrigin: {
       '@type': 'Country',
       name: 'Pakistan',
@@ -197,23 +210,79 @@ export function productSchema(opts: {
       '@type': 'Offer',
       url: opts.url,
       priceCurrency: opts.currency || 'PKR',
-      price: opts.price ?? 0,
+      price: price.toFixed(2),
+      priceValidUntil: priceValidUntil.toISOString().slice(0, 10),
+      itemCondition: 'https://schema.org/NewCondition',
       availability:
         opts.availability === false
           ? 'https://schema.org/OutOfStock'
           : 'https://schema.org/InStock',
-      seller: { '@id': `${SITE_URL}/#organization` },
+      seller: {
+        '@type': 'Organization',
+        '@id': `${SITE_URL}/#organization`,
+        name: SITE_NAME,
+      },
       areaServed: {
         '@type': 'Country',
         name: 'Pakistan',
       },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'PKR',
+        },
         shippingDestination: {
           '@type': 'DefinedRegion',
           addressCountry: 'PK',
         },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 1,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 5,
+            unitCode: 'DAY',
+          },
+        },
       },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'PK',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
+    },
+  };
+}
+
+/** Category / collection page — helps Google understand product listings */
+export function collectionPageSchema(opts: {
+  name: string;
+  description?: string;
+  url: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: opts.name,
+    description:
+      opts.description ||
+      `Shop ${opts.name} at ${SITE_NAME} — premium dry fruits, nuts, spices & herbs with delivery across Pakistan.`,
+    url: opts.url,
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+    about: {
+      '@type': 'Thing',
+      name: opts.name,
     },
   };
 }
