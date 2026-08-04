@@ -58,10 +58,13 @@ export default function ProductImage({
   useEffect(() => {
     setFailed(false);
     setLoaded(false);
+  }, [src, name]);
+
+  useEffect(() => {
     if (ref.current?.complete && ref.current.naturalWidth > 0) {
       setLoaded(true);
     }
-  }, [src, name]);
+  }, [remoteSrc]);
 
   if (showPlaceholder) {
     return (
@@ -89,10 +92,7 @@ export default function ProductImage({
         </div>
       )}
       <img
-        ref={(node) => {
-          ref.current = node;
-          if (node?.complete && node.naturalWidth > 0) setLoaded(true);
-        }}
+        ref={ref}
         src={remoteSrc}
         alt={alt || name}
         width={width}

@@ -1,24 +1,18 @@
 'use client';
 
 import { useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import StatsSection from './StatsSection';
 import CategoriesSection from './CategoriesSection';
 import WhyChooseUsSection from './WhyChooseUsSection';
 import FeaturedProductsSection from './FeaturedProductsSection';
 import BenefitsSection from './BenefitsSection';
+import HerbsSection from './HerbsSection';
+import TestimonialsSection from './TestimonialsSection';
 import Newsletter from './Newsletter';
 import { useWebHomeStore } from '../../lib/store/webHomeStore';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 import { useProductMetaStore } from '../../lib/store/productMetaStore';
 import type { WebHomePayload } from '../../lib/api/webApi';
-
-const HerbsSection = dynamic(() => import('./HerbsSection'), {
-  loading: () => null,
-});
-const TestimonialsSection = dynamic(() => import('./TestimonialsSection'), {
-  loading: () => null,
-});
 
 interface HomeContentProps {
   initialData: WebHomePayload | null;

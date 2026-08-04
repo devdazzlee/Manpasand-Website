@@ -150,9 +150,10 @@ export default function ProductCard({
                 src={image}
                 name={name}
                 category={category}
-                width={400}
-                height={400}
-                optimizeWidth={400}
+                width={360}
+                height={360}
+                optimizeWidth={360}
+                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 280px"
                 className="w-full h-full"
                 imgClassName="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
               />
@@ -255,9 +256,10 @@ export default function ProductCard({
               src={image}
               name={name}
               category={category}
-              width={480}
-              height={360}
-              optimizeWidth={480}
+              width={400}
+              height={300}
+              optimizeWidth={400}
+              sizes="(max-width: 768px) 90vw, 400px"
               className="w-full h-full"
               imgClassName="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             />

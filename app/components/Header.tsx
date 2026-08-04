@@ -28,6 +28,12 @@ export default function Header() {
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   const { isAuthenticated, user, logout, fetchCurrentUser, token } = useAuthStore();
+  // Avoid auth persist hydration mismatch (React #418) — match SSR logged-out UI first
+  const [authReady, setAuthReady] = useState(false);
+  useEffect(() => {
+    setAuthReady(true);
+  }, []);
+  const showAuthed = authReady && isAuthenticated;
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   // Initialize auth state on mount if token exists
@@ -201,13 +207,11 @@ export default function Header() {
   }, [isSearchOpen]);
 
   useEffect(() => {
-    if (isSearchOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    if (!isSearchOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = prev;
     };
   }, [isSearchOpen]);
 
@@ -245,20 +249,18 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 sm:h-18 md:h-20">
           {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0" aria-label="Manpasand Store home">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-                className="relative"
-            >
-              <img
-                src="/Manpasand-Logo.png"
-                alt=""
-                  className="h-12 sm:h-14 md:h-16 w-auto transition-transform duration-300 group-hover:brightness-110"
-                width={180}
-                height={80}
-              />
-            </motion.div>
-          </Link>
+              <picture>
+                <source srcSet="/Manpasand-Logo.webp" type="image/webp" />
+                <img
+                  src="/Manpasand-Logo.png"
+                  alt=""
+                  className="h-12 sm:h-14 md:h-16 w-auto transition-transform duration-300 group-hover:scale-105 group-hover:brightness-110"
+                  width={94}
+                  height={84}
+                  decoding="async"
+                />
+              </picture>
+            </Link>
 
           {/* Desktop Navigation — centered */}
             <nav className="hidden lg:flex items-center justify-center flex-1 space-x-1" aria-label="Primary">
@@ -404,7 +406,7 @@ export default function Header() {
             </button>
             
               {/* User Account / Profile */}
-            {isAuthenticated ? (
+            {showAuthed ? (
               <div className="relative hidden md:block">
                 <button
                   type="button"

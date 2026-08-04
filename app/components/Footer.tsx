@@ -45,7 +45,7 @@ const ACCOUNT_LINKS = [
 ];
 
 const linkClass =
-  'block py-1.5 text-sm text-gray-300 hover:text-white transition-colors leading-snug';
+  'flex items-center min-h-11 py-2 text-sm text-gray-300 hover:text-white transition-colors leading-snug';
 
 export default function Footer() {
   const allFromStore = useWebCategoryStore((s) => s.all);
@@ -78,12 +78,12 @@ export default function Footer() {
             <p className="text-gray-300 text-sm leading-relaxed mb-4">
               Your One-Stop Shop for Premium Dry Fruits, Spices &amp; Herbs. Proudly serving Karachi with excellence since 2000.
             </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-5 gap-y-2 text-sm text-gray-300">
-              <a href="tel:+923423344040" className="inline-flex items-center gap-2 hover:text-white transition-colors">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-5 gap-y-1 text-sm text-gray-300">
+              <a href="tel:+923423344040" className="inline-flex items-center gap-2 min-h-11 hover:text-white transition-colors">
                 <Phone className="w-4 h-4 text-[#5BA3D0] shrink-0" aria-hidden="true" />
                 +92 342 3344040
               </a>
-              <a href="mailto:Contact@manpasandstore.com" className="inline-flex items-center gap-2 hover:text-white transition-colors">
+              <a href="mailto:Contact@manpasandstore.com" className="inline-flex items-center gap-2 min-h-11 hover:text-white transition-colors">
                 <Mail className="w-4 h-4 text-[#5BA3D0] shrink-0" aria-hidden="true" />
                 Contact@manpasandstore.com
               </a>
@@ -164,22 +164,22 @@ export default function Footer() {
 
           <div className="col-span-2 md:col-span-1">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Our Stores</h3>
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {STORES.map((store) => (
                 <li key={store.name} className="flex gap-2.5">
-                  <MapPin className="w-4 h-4 text-[#5BA3D0] mt-0.5 shrink-0" aria-hidden="true" />
+                  <MapPin className="w-4 h-4 text-[#5BA3D0] mt-3 shrink-0" aria-hidden="true" />
                   <div className="min-w-0">
                     <a
                       href={store.maps}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block text-sm text-gray-300 hover:text-white transition-colors leading-snug"
+                      className="flex items-center min-h-11 text-sm text-gray-300 hover:text-white transition-colors leading-snug"
                     >
                       {store.name}
                     </a>
                     <a
                       href={store.tel}
-                      className="block text-sm text-gray-300 hover:text-white transition-colors mt-0.5"
+                      className="flex items-center min-h-11 text-sm text-gray-300 hover:text-white transition-colors"
                     >
                       {store.phone}
                     </a>

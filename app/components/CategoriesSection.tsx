@@ -1,6 +1,5 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
@@ -27,35 +26,31 @@ function hasCategoryImage(image: string | null | undefined): boolean {
   return Boolean(image?.trim());
 }
 
-function CategoryCard({ category, index }: { category: WebCategory; index: number }) {
+function CategoryCard({ category }: { category: WebCategory }) {
   const hasImage = hasCategoryImage(category.image);
+  const src240 = optimizeCloudinaryUrl(category.image, { width: 240 });
+  const src400 = optimizeCloudinaryUrl(category.image, { width: 400 });
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.35, delay: Math.min(index, INITIAL_VISIBLE) * 0.05 }}
-      whileHover={{ y: -4 }}
-      className="h-full flex"
-    >
+    <div className="h-full flex">
       <Link
         href={`/categories/${category.slug}`}
         className="w-full flex flex-col group"
         aria-label={`Shop ${category.name}`}
       >
         <div
-          className={`relative aspect-[4/5] sm:aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#1A73A8]/40 ${
+          className={`relative aspect-[4/5] sm:aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#1A73A8]/40 group-hover:-translate-y-1 ${
             !hasImage ? 'bg-gradient-to-br from-[#E8EDF2] via-[#DDE4EC] to-[#C5D0DC]' : ''
           }`}
         >
           {hasImage && (
             <img
-              src={optimizeCloudinaryUrl(category.image, { width: 480 })}
+              src={src400}
+              srcSet={`${src240} 240w, ${src400} 400w`}
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 240px"
               alt=""
-              width={480}
-              height={480}
+              width={400}
+              height={400}
               loading="lazy"
               decoding="async"
               className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
@@ -81,7 +76,7 @@ function CategoryCard({ category, index }: { category: WebCategory; index: numbe
             {category.product_count > 0 && (
               <p
                 className={`text-[10px] sm:text-xs mt-1 ${
-                  hasImage ? 'text-white'                   : 'text-[#4B5563]'
+                  hasImage ? 'text-white' : 'text-[#4B5563]'
                 }`}
               >
                 {formatProductCount(category.product_count)}
@@ -90,7 +85,7 @@ function CategoryCard({ category, index }: { category: WebCategory; index: numbe
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }
 
@@ -138,19 +133,14 @@ export default function CategoriesSection({
   return (
     <section className="py-10 sm:py-12 md:py-14 bg-gradient-to-b from-white to-[#F8F2DE]/60">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-6 sm:mb-8"
-        >
+        <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             Shop by Category
           </h2>
           <p className="text-[#4B5563] text-xs sm:text-sm">
             Explore our wide range of premium products
           </p>
-        </motion.div>
+        </div>
 
         {loading ? (
           <Loader size="lg" text="Loading categories..." />
@@ -164,19 +154,14 @@ export default function CategoriesSection({
           </div>
         ) : (
           <>
-            <motion.div
-              layout
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5 items-stretch"
-            >
-              <AnimatePresence mode="popLayout">
-                {visibleCategories.map((category, index) => (
-                  <CategoryCard key={category.id} category={category} index={index} />
-                ))}
-              </AnimatePresence>
-            </motion.div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5 items-stretch">
+              {visibleCategories.map((category) => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
+            </div>
 
             <div className="flex flex-col items-center gap-3 mt-8 sm:mt-10">
-              {canExpand && !showAll && (
+              {canExpand && (
                 <button
                   type="button"
                   onClick={handleExpand}
@@ -193,7 +178,7 @@ export default function CategoriesSection({
                 </button>
               )}
 
-              {showAll && canExpand && (
+              {showAll && totalCount > INITIAL_VISIBLE && (
                 <button
                   type="button"
                   onClick={() => setShowAll(false)}

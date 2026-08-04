@@ -46,10 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href={API_BASE_URL} />
-        <link rel="dns-prefetch" href={API_BASE_URL} />
-        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {/* LCP preload first — avoid competing early connections */}
         <link
           rel="preload"
           as="image"
@@ -59,6 +56,9 @@ export default function RootLayout({
           type="image/webp"
           fetchPriority="high"
         />
+        {/* dns-prefetch only: Cloudinary/API are below-fold on home (lazy) */}
+        <link rel="dns-prefetch" href={API_BASE_URL} />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <meta name="theme-color" content="#0D2B3A" />
         <meta name="format-detection" content="telephone=yes" />
         <meta name="geo.region" content="PK" />
