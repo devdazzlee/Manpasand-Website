@@ -4,16 +4,22 @@ const BANNER_ALT =
   'Manpasand - Curated Delights Since 2000. Dry fruits, honey, and spices.';
 
 /**
- * LCP element — server component, no JS.
- * H1 is visually hidden so the full-bleed banner stays clean, but crawlers/a11y get a proper heading.
+ * Full-bleed LCP hero. Width always edge-to-edge; height capped to the
+ * remaining viewport so the banner fits on first paint without side gutters.
  */
 export default function HeroSection() {
   return (
-    <section className="relative w-full bg-[#0D2B3A]">
+    <section
+      className="relative w-full overflow-hidden bg-[#0D2B3A] aspect-[1600/889] max-h-[calc(100svh-4rem)] md:max-h-[calc(100svh-7.25rem)]"
+    >
       <h1 className="sr-only">
         Manpasand Store — Premium Dry Fruits, Dates, Nuts &amp; Spices in Pakistan
       </h1>
-      <Link href="/shop" className="block w-full" aria-label="Shop Manpasand collection">
+      <Link
+        href="/shop"
+        className="absolute inset-0 block"
+        aria-label="Shop Manpasand collection"
+      >
         <img
           src="/banners/New-Banner-750.webp"
           srcSet="/banners/New-Banner-750.webp 750w, /banners/New-Banner-1200.webp 1200w, /banners/New-Banner-1600.webp 1600w"
@@ -21,7 +27,7 @@ export default function HeroSection() {
           alt={BANNER_ALT}
           width={1600}
           height={889}
-          className="w-full h-auto block object-cover"
+          className="h-full w-full object-cover object-center"
           fetchPriority="high"
           loading="eager"
           decoding="sync"
