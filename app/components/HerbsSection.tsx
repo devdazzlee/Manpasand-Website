@@ -49,7 +49,7 @@ export default function HerbsSection({ categories }: HerbsSectionProps) {
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">
               Explore {featured.name}
             </h2>
-            <p className="text-sm sm:text-base text-white/90 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-white leading-relaxed max-w-2xl mx-auto">
               Discover 700+ premium-grade natural products. From rare medicinal herbs to everyday wellness staples, find everything you need for a healthier you at Manpasand.
             </p>
 

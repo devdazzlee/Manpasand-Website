@@ -23,7 +23,7 @@ export default function BenefitsSection() {
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             The Manpasand Standard
           </h2>
-          <p className="text-[#6B7280] text-xs sm:text-sm md:text-base max-w-xl mx-auto">
+          <p className="text-[#4B5563] text-xs sm:text-sm md:text-base max-w-xl mx-auto">
             Experience 25 years of purity with our hand-selected premium harvests and dedicated customer care.
           </p>
         </motion.div>
@@ -44,7 +44,7 @@ export default function BenefitsSection() {
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <h3 className="text-sm sm:text-base font-bold text-[#0D2B3A] mb-1.5">{benefit.title}</h3>
-                <p className="text-[#6B7280] text-xs sm:text-sm leading-relaxed">{benefit.description}</p>
+                <p className="text-[#4B5563] text-xs sm:text-sm leading-relaxed">{benefit.description}</p>
               </motion.div>
             );
           })}

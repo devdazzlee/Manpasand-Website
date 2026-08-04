@@ -78,7 +78,7 @@ export default function FeaturedProductsSection({
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             The Manpasand Favorites
           </h2>
-          <p className="text-[#6B7280] text-xs sm:text-sm md:text-base max-w-xl mx-auto">
+          <p className="text-[#4B5563] text-xs sm:text-sm md:text-base max-w-xl mx-auto">
             Discover the premium staples and natural remedies that have defined our legacy for 25 years.
           </p>
         </motion.div>
@@ -97,7 +97,7 @@ export default function FeaturedProductsSection({
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[#6B7280]">No featured products available at the moment.</p>
+            <p className="text-[#4B5563]">No featured products available at the moment.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch">
@@ -139,14 +139,14 @@ export default function FeaturedProductsSection({
               type="button"
               onClick={handleLoadMore}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1A73A8] text-white font-semibold text-sm hover:bg-[#0D2B3A] transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 min-h-11 px-5 py-2.5 rounded-full bg-[#1A73A8] text-white font-semibold text-sm hover:bg-[#0D2B3A] transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? 'Loading…' : 'Load More Products'}
             </button>
           )}
           <Link
             href="/shop"
-            className="inline-flex items-center space-x-2 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm group"
+            className="inline-flex items-center space-x-2 min-h-11 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm group"
           >
             <span>View All Products</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />

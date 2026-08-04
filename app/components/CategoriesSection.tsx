@@ -7,6 +7,7 @@ import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import Loader from './Loader';
 import { WebCategory } from '../../lib/api/webApi';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
+import { optimizeCloudinaryUrl } from '../../lib/utils/cloudinary';
 
 const INITIAL_VISIBLE = 5;
 
@@ -50,9 +51,14 @@ function CategoryCard({ category, index }: { category: WebCategory; index: numbe
           }`}
         >
           {hasImage && (
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-500 group-hover:scale-110"
-              style={{ backgroundImage: `url(${category.image})` }}
+            <img
+              src={optimizeCloudinaryUrl(category.image, { width: 480 })}
+              alt=""
+              width={480}
+              height={480}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
             />
           )}
           <div
@@ -75,7 +81,7 @@ function CategoryCard({ category, index }: { category: WebCategory; index: numbe
             {category.product_count > 0 && (
               <p
                 className={`text-[10px] sm:text-xs mt-1 ${
-                  hasImage ? 'text-white/75' : 'text-[#6B7280]'
+                  hasImage ? 'text-white'                   : 'text-[#4B5563]'
                 }`}
               >
                 {formatProductCount(category.product_count)}
@@ -141,7 +147,7 @@ export default function CategoriesSection({
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             Shop by Category
           </h2>
-          <p className="text-[#6B7280] text-xs sm:text-sm">
+          <p className="text-[#4B5563] text-xs sm:text-sm">
             Explore our wide range of premium products
           </p>
         </motion.div>
@@ -154,7 +160,7 @@ export default function CategoriesSection({
           </div>
         ) : categories.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-[#6B7280] text-sm">No categories available at the moment.</p>
+            <p className="text-[#4B5563] text-sm">No categories available at the moment.</p>
           </div>
         ) : (
           <>
@@ -175,11 +181,11 @@ export default function CategoriesSection({
                   type="button"
                   onClick={handleExpand}
                   disabled={expanding}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1A73A8] text-white font-semibold text-sm hover:bg-[#0D2B3A] transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 min-h-11 px-5 py-2.5 rounded-full bg-[#1A73A8] text-white font-semibold text-sm hover:bg-[#0D2B3A] transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <span>{expanding ? 'Loading…' : 'View All Categories'}</span>
                   {!expanding && (
-                    <span className="text-white/80 text-xs font-normal">
+                    <span className="text-white text-xs font-normal">
                       ({hiddenCount} more)
                     </span>
                   )}
@@ -191,7 +197,7 @@ export default function CategoriesSection({
                 <button
                   type="button"
                   onClick={() => setShowAll(false)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#1A73A8] text-[#1A73A8] font-semibold text-sm hover:bg-[#1A73A8]/5 transition-colors"
+                  className="inline-flex items-center gap-2 min-h-11 px-5 py-2.5 rounded-full border border-[#1A73A8] text-[#1A73A8] font-semibold text-sm hover:bg-[#1A73A8]/5 transition-colors"
                 >
                   <span>Show Less</span>
                   <ChevronUp className="w-4 h-4" />
@@ -200,7 +206,7 @@ export default function CategoriesSection({
 
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm group"
+                className="inline-flex items-center gap-2 min-h-11 text-[#1A73A8] hover:text-[#0D2B3A] font-semibold text-sm group"
               >
                 <span>Browse All Products</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

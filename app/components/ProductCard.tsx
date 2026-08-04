@@ -11,6 +11,7 @@ import { showCartToast } from './CartToast';
 import { isWeightBasedUnit } from '../../lib/utils/discount';
 import { getWeightInGramsFromText } from '../../lib/utils/weight';
 import ProductImageDisclaimer from './ProductImageDisclaimer';
+import { optimizeCloudinaryUrl } from '../../lib/utils/cloudinary';
 
 interface ProductCardProps {
   id: string;
@@ -44,6 +45,9 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { prefetchProduct } = useProductStore();
   const hasImageSource = Boolean(image && image.trim() !== '' && image !== '/Banner-01.jpg');
+  const optimizedImage = hasImageSource
+    ? optimizeCloudinaryUrl(image, { width: viewMode === 'list' ? 400 : 480 })
+    : image;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -166,8 +170,12 @@ export default function ProductCard({
             <div className="relative w-full h-40 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 overflow-hidden bg-gray-100 sm:rounded-l-xl sm:rounded-r-none rounded-t-xl sm:rounded-t-none">
             {hasImageSource && !imageFailed && (
               <img
-                src={image}
+                src={optimizedImage}
                 alt={name}
+                width={400}
+                height={400}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                 ref={(node) => {
                   imageRef.current = node;
@@ -208,12 +216,12 @@ export default function ProductCard({
                 Rs. {displayPrice.toLocaleString()}
               </span>
               {originalPrice && originalPrice > displayPrice && (
-                <span className="text-xs sm:text-sm text-[#9CA3AF] line-through">
+                <span className="text-xs sm:text-sm text-[#6B7280] line-through" aria-hidden="true">
                   Rs. {originalPrice.toLocaleString()}
                 </span>
               )}
               {unitName && (
-                <span className="text-[10px] sm:text-xs text-[#6B7280]">/ {unitName}</span>
+                <span className="text-[10px] sm:text-xs text-[#4B5563]">/ {unitName}</span>
               )}
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full sm:w-auto">
@@ -221,10 +229,10 @@ export default function ProductCard({
                 onClick={toggleWishlist}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white border-2 border-[#DFF3EA] rounded-full flex items-center justify-center hover:bg-[#DFF3EA] transition-colors flex-shrink-0 ${
+                className={`min-w-11 min-h-11 w-11 h-11 bg-white border-2 border-[#DFF3EA] rounded-full flex items-center justify-center hover:bg-[#DFF3EA] transition-colors flex-shrink-0 ${
                   isInWishlist ? 'bg-red-50 border-red-200 hover:bg-red-100' : ''
                 }`}
-                aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                aria-label={isInWishlist ? `Remove ${name} from wishlist` : `Add ${name} to wishlist`}
               >
                 <Heart className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-[#0D2B3A]'}`} />
               </motion.button>
@@ -264,51 +272,58 @@ export default function ProductCard({
       transition={{ duration: 0.3 }}
       className="bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden group h-full flex flex-col"
     >
-      <Link
-        href={`/products/${id}`}
-        onMouseEnter={() => prefetchProduct(id)}
-        onTouchStart={() => prefetchProduct(id)}
-        className="block shrink-0"
-      >
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
-          {hasImageSource && !imageFailed && (
-            <img
-              src={image}
-              alt={name}
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              ref={(node) => {
-                imageRef.current = node;
-                if (node?.complete && node.naturalWidth > 0) {
-                  setImageLoaded(true);
-                }
-              }}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageFailed(true)}
-            />
-          )}
-          {(!hasImageSource || imageFailed || !imageLoaded) && (
-            <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
-          )}
-          {discount > 0 && (
-            <div className="absolute top-2 left-2 bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
-              -{discount}%
-            </div>
-          )}
-          <div className="absolute top-2 right-2 z-10">
-            <motion.button
-              onClick={toggleWishlist}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className={`w-7 h-7 sm:w-8 sm:h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors ${
-                isInWishlist ? 'bg-red-50 hover:bg-red-100' : ''
-              }`}
-              aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-            >
-              <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
-            </motion.button>
+      <div className="relative shrink-0">
+        <Link
+          href={`/products/${id}`}
+          onMouseEnter={() => prefetchProduct(id)}
+          onTouchStart={() => prefetchProduct(id)}
+          className="block"
+          aria-label={name}
+        >
+          <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
+            {hasImageSource && !imageFailed && (
+              <img
+                src={optimizedImage}
+                alt={name}
+                width={480}
+                height={360}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                ref={(node) => {
+                  imageRef.current = node;
+                  if (node?.complete && node.naturalWidth > 0) {
+                    setImageLoaded(true);
+                  }
+                }}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageFailed(true)}
+              />
+            )}
+            {(!hasImageSource || imageFailed || !imageLoaded) && (
+              <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
+            )}
+            {discount > 0 && (
+              <div className="absolute top-2 left-2 bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
+                -{discount}%
+              </div>
+            )}
           </div>
+        </Link>
+        <div className="absolute top-2 right-2 z-10">
+          <motion.button
+            onClick={toggleWishlist}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className={`min-w-11 min-h-11 w-11 h-11 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors ${
+              isInWishlist ? 'bg-red-50 hover:bg-red-100' : ''
+            }`}
+            aria-label={isInWishlist ? `Remove ${name} from wishlist` : `Add ${name} to wishlist`}
+          >
+            <Heart className={`w-4 h-4 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} aria-hidden="true" />
+          </motion.button>
         </div>
-      </Link>
+      </div>
       <div className="p-2.5 sm:p-3 flex flex-col flex-grow min-h-0">
         <Link href={`/products/${id}`}>
           <h3 className="font-semibold text-[#0D2B3A] mb-1.5 sm:mb-2 hover:text-[#1A73A8] transition-colors line-clamp-2 text-xs sm:text-sm leading-snug">
@@ -320,7 +335,7 @@ export default function ProductCard({
             Rs. {displayPrice.toLocaleString()}
           </span>
           {originalPrice && (
-            <span className="text-[10px] sm:text-xs text-[#9CA3AF] line-through">
+            <span className="text-[10px] sm:text-xs text-[#6B7280] line-through" aria-hidden="true">
               Rs. {originalPrice.toLocaleString()}
             </span>
           )}
@@ -328,18 +343,18 @@ export default function ProductCard({
         <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-1.5 mt-auto">
           <button
             onClick={handleAddToCart}
-            className="flex-1 py-2 sm:py-2 rounded-lg flex items-center justify-center font-semibold text-[11px] sm:text-xs transition-colors duration-200 bg-[#0D2B3A] text-white hover:bg-[#1A73A8]"
-            aria-label="Add to cart"
+            className="flex-1 min-h-11 py-2.5 sm:py-2 rounded-lg flex items-center justify-center font-semibold text-[11px] sm:text-xs transition-colors duration-200 bg-[#0D2B3A] text-white hover:bg-[#1A73A8]"
+            aria-label={`Add ${name} to cart`}
           >
-            <ShoppingCart className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+            <ShoppingCart className="w-3.5 h-3.5 mr-1 flex-shrink-0" aria-hidden="true" />
             <span>Add to Cart</span>
           </button>
           <button
             onClick={handleBuyNow}
-            className="flex-1 py-2 sm:py-2 bg-[#1A73A8] text-white rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors duration-200 font-semibold text-[11px] sm:text-xs"
-            aria-label="Buy now"
+            className="flex-1 min-h-11 py-2.5 sm:py-2 bg-[#1A73A8] text-white rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors duration-200 font-semibold text-[11px] sm:text-xs"
+            aria-label={`Buy ${name} now`}
           >
-            <Zap className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+            <Zap className="w-3.5 h-3.5 mr-1 flex-shrink-0" aria-hidden="true" />
             <span>Buy Now</span>
           </button>
         </div>

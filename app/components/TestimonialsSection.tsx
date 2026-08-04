@@ -116,13 +116,13 @@ export default function TestimonialsSection() {
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             What Our Customers Say
           </h2>
-          <p className="text-[#6B7280] text-xs sm:text-sm mb-4">
+          <p className="text-[#4B5563] text-xs sm:text-sm mb-4">
             Real reviews from our valued customers
           </p>
 
           {/* Google Rating Badge */}
           <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 sm:py-2 shadow-sm">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -130,7 +130,7 @@ export default function TestimonialsSection() {
             </svg>
             <span className="text-sm sm:text-base font-bold text-[#0D2B3A]">{overallRating.toFixed(1)}</span>
             {renderStars(overallRating)}
-            <span className="text-[11px] sm:text-xs text-[#6B7280] border-l border-gray-300 pl-2">
+            <span className="text-[11px] sm:text-xs text-[#4B5563] border-l border-gray-300 pl-2">
               {totalReviews.toLocaleString()}+ reviews
             </span>
           </div>
@@ -142,18 +142,20 @@ export default function TestimonialsSection() {
           {totalPages > 1 && (
             <>
               <button
+                type="button"
                 onClick={prevPage}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 sm:w-11 sm:h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 min-w-11 min-h-11 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
                 aria-label="Previous reviews"
               >
-                <ChevronLeft className="w-5 h-5 text-[#0D2B3A]" />
+                <ChevronLeft className="w-5 h-5 text-[#0D2B3A]" aria-hidden="true" />
               </button>
               <button
+                type="button"
                 onClick={nextPage}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 sm:w-11 sm:h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 min-w-11 min-h-11 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
                 aria-label="Next reviews"
               >
-                <ChevronRight className="w-5 h-5 text-[#0D2B3A]" />
+                <ChevronRight className="w-5 h-5 text-[#0D2B3A]" aria-hidden="true" />
               </button>
             </>
           )}
@@ -209,7 +211,7 @@ export default function TestimonialsSection() {
                           )}
                         </div>
                       </div>
-                      <span className="text-[11px] sm:text-xs text-[#9CA3AF] whitespace-nowrap ml-2">
+                      <span className="text-[11px] sm:text-xs text-[#4B5563] whitespace-nowrap ml-2">
                         {review.relative_time_description}
                       </span>
                     </div>
@@ -221,18 +223,26 @@ export default function TestimonialsSection() {
 
           {/* Dots */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-7">
+            <div className="flex justify-center gap-1 mt-7" role="tablist" aria-label="Review pages">
               {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === currentPage}
                   onClick={() => setCurrentPage(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    i === currentPage
-                      ? 'bg-[#1A73A8] w-6'
-                      : 'bg-gray-300 hover:bg-gray-400 w-2'
-                  }`}
-                  aria-label={`Go to page ${i + 1}`}
-                />
+                  className="min-w-11 min-h-11 flex items-center justify-center"
+                  aria-label={`Go to reviews page ${i + 1}`}
+                >
+                  <span
+                    className={`h-2.5 rounded-full transition-all duration-300 ${
+                      i === currentPage
+                        ? 'bg-[#1A73A8] w-6'
+                        : 'bg-gray-400 hover:bg-gray-500 w-2.5'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
               ))}
             </div>
           )}

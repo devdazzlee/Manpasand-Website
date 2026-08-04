@@ -219,14 +219,14 @@ export default function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Phone className="w-3 h-3" />
+              <a href="tel:+923423344040" className="flex items-center gap-2 hover:underline">
+                <Phone className="w-3 h-3" aria-hidden="true" />
                 <span>+92 342 3344040</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-3 h-3" />
+              </a>
+              <a href="mailto:Contact@manpasandstore.com" className="flex items-center gap-2 hover:underline">
+                <Mail className="w-3 h-3" aria-hidden="true" />
                 <span>Contact@manpasandstore.com</span>
-              </div>
+              </a>
             </div>
             <div className="flex items-center gap-2">
               <Sparkles className="w-3 h-3" />
@@ -243,7 +243,7 @@ export default function Header() {
         <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 sm:h-18 md:h-20">
           {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0" aria-label="Manpasand Store home">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -251,7 +251,7 @@ export default function Header() {
             >
               <img
                 src="/Manpasand-Logo.png"
-                alt="Manpasand Store"
+                alt=""
                   className="h-12 sm:h-14 md:h-16 w-auto transition-transform duration-300 group-hover:brightness-110"
                 width={180}
                 height={80}
@@ -260,7 +260,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation — centered */}
-            <nav className="hidden lg:flex items-center justify-center flex-1 space-x-1">
+            <nav className="hidden lg:flex items-center justify-center flex-1 space-x-1" aria-label="Primary">
             {menuItems.map((item) => {
               if (item.name === 'Shop') {
                 return (
@@ -346,7 +346,7 @@ export default function Header() {
                                 );
                                   })
                                 ) : (
-                                  <div className="text-center py-8 text-gray-500">
+                                  <div className="text-center py-8 text-[#4B5563]">
                                     <p>No categories available</p>
                                   </div>
                                 )}
@@ -392,29 +392,28 @@ export default function Header() {
           {/* Right Icons */}
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Search */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+            <button
+              type="button"
               onClick={handleSearchClick}
-                className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300 group"
+              className="hidden md:flex items-center gap-2 min-h-11 px-4 py-2 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300 group"
               aria-label="Search"
             >
-                <Search className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-                <span className="text-sm font-medium text-gray-600 group-hover:text-white hidden lg:block">Search</span>
-            </motion.button>
+              <Search className="w-5 h-5 text-gray-700 group-hover:text-white transition-colors" aria-hidden="true" />
+              <span className="text-sm font-medium text-gray-700 group-hover:text-white hidden lg:block">Search</span>
+            </button>
             
               {/* User Account / Profile */}
             {isAuthenticated ? (
               <div className="relative hidden md:block">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                <button
+                  type="button"
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white rounded-full transition-all duration-300 hover:shadow-lg group"
-                  aria-label="Profile"
+                  className="flex items-center justify-center min-w-11 min-h-11 w-11 h-11 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white rounded-full transition-all duration-300 hover:shadow-lg group"
+                  aria-label="Profile menu"
+                  aria-expanded={isProfileMenuOpen}
                 >
-                  <User className="w-5 h-5" />
-                </motion.button>
+                  <User className="w-5 h-5" aria-hidden="true" />
+                </button>
                 
                 <AnimatePresence>
                   {isProfileMenuOpen && (
@@ -427,7 +426,7 @@ export default function Header() {
                       <div className="p-4 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white">
                         <p className="font-semibold truncate">{user?.email}</p>
                         {user?.name && (
-                          <p className="text-sm text-white/90 truncate">{user.name}</p>
+                          <p className="text-sm text-white truncate">{user.name}</p>
                         )}
                       </div>
                       <div className="py-2">
@@ -461,78 +460,62 @@ export default function Header() {
                 </AnimatePresence>
               </div>
             ) : (
-              <Link href="/login">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="hidden md:flex items-center justify-center w-10 h-10 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300 group"
-                  aria-label="Account"
-                >
-                  <User className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-                </motion.button>
+              <Link
+                href="/login"
+                aria-label="Account"
+                className="hidden md:flex items-center justify-center min-w-11 min-h-11 w-11 h-11 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300 group"
+              >
+                <User className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
               </Link>
             )}
 
               {/* Wishlist */}
-            <Link href="/wishlist">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                  className="relative flex items-center justify-center w-10 h-10 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300 group"
-                aria-label="Wishlist"
-              >
-                  <Heart className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-                {wishlistCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
-                    >
-                    {wishlistCount > 9 ? '9+' : wishlistCount}
-                    </motion.span>
-                )}
-              </motion.button>
+            <Link
+              href="/wishlist"
+              aria-label={wishlistCount > 0 ? `Wishlist, ${wishlistCount} items` : 'Wishlist'}
+              className="relative flex items-center justify-center min-w-11 min-h-11 w-11 h-11 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300 group"
+            >
+              <Heart className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
+                  {wishlistCount > 9 ? '9+' : wishlistCount}
+                </span>
+              )}
             </Link>
 
               {/* Cart */}
-            <Link href="/cart">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                  className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white rounded-full transition-all duration-300 hover:shadow-lg group"
-                aria-label="Shopping Cart"
-              >
-                  <ShoppingCart className="w-5 h-5" />
-                  {cartCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg"
-                    >
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </motion.span>
-                  )}
-              </motion.button>
+            <Link
+              href="/cart"
+              aria-label={cartCount > 0 ? `Shopping cart, ${cartCount} items` : 'Shopping cart'}
+              className="relative flex items-center justify-center min-w-11 min-h-11 w-11 h-11 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white rounded-full transition-all duration-300 hover:shadow-lg group"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
             </Link>
 
               {/* Mobile Search */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+            <button
+              type="button"
               onClick={handleSearchClick}
-                className="lg:hidden flex items-center justify-center w-10 h-10 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300"
+              className="lg:hidden flex items-center justify-center min-w-11 min-h-11 w-11 h-11 bg-gray-50 hover:bg-[#1A73A8] hover:text-white rounded-full transition-all duration-300"
               aria-label="Search"
             >
-                <Search className="w-5 h-5 text-gray-600" />
-            </motion.button>
+              <Search className="w-5 h-5 text-gray-600" />
+            </button>
 
               {/* Mobile Menu */}
             <button
+              type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden flex items-center justify-center w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full transition-all duration-300"
-              aria-label="Menu"
+              className="lg:hidden flex items-center justify-center min-w-11 min-h-11 w-11 h-11 bg-gray-50 hover:bg-gray-100 rounded-full transition-all duration-300"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen}
             >
-                {isMenuOpen ? <X className="w-5 h-5 text-gray-700" /> : <Menu className="w-5 h-5 text-gray-700" />}
+              {isMenuOpen ? <X className="w-5 h-5 text-gray-700" /> : <Menu className="w-5 h-5 text-gray-700" />}
             </button>
           </div>
         </div>
@@ -547,7 +530,7 @@ export default function Header() {
             exit={{ opacity: 0, height: 0 }}
               className="lg:hidden bg-white border-t border-gray-100 shadow-lg"
           >
-              <nav className="container mx-auto px-4 py-6 space-y-1">
+              <nav className="container mx-auto px-4 py-6 space-y-1" aria-label="Mobile">
               {/* Mobile Search */}
                 <form onSubmit={handleSearchSubmit} className="pb-4 mb-4 border-b border-gray-200">
                 <div className="relative">
@@ -616,7 +599,7 @@ export default function Header() {
                                 );
                                 })
                               ) : (
-                                <div className="text-center py-4 text-gray-500 text-sm">
+                                <div className="text-center py-4 text-[#4B5563] text-sm">
                                   <p>No categories available</p>
                                 </div>
                               )}
@@ -661,13 +644,15 @@ export default function Header() {
       <AnimatePresence>
         {isSearchOpen && (
           <>
-            <motion.div
+            <motion.button
+              type="button"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={closeSearchModal}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+              aria-label="Close search dialog"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] cursor-default"
             />
 
             <motion.div
@@ -701,7 +686,7 @@ export default function Header() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search for products, categories, or brands..."
-                        className="w-full pl-14 pr-12 py-4 text-lg text-[#0D2B3A] placeholder-gray-400 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 transition-all"
+                        className="w-full pl-14 pr-12 py-4 text-lg text-[#0D2B3A] placeholder:text-[#6B7280] border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1A73A8] focus:ring-2 focus:ring-[#1A73A8]/20 transition-all"
                       autoFocus
                     />
                     {searchQuery && (
@@ -714,7 +699,7 @@ export default function Header() {
                         className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
                         aria-label="Clear search"
                       >
-                        <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                        <X className="w-5 h-5 text-gray-700 hover:text-gray-900" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -751,7 +736,7 @@ export default function Header() {
                                   {product.name}
                                 </h3>
                                 {product.category && (
-                                  <p className="text-sm text-gray-500 truncate">{product.category.name}</p>
+                                  <p className="text-sm text-[#4B5563] truncate">{product.category.name}</p>
                                 )}
                                 <p className="text-lg font-bold text-[#1A73A8] mt-1">
                                   Rs. {product.price?.toLocaleString() || '0'}
@@ -765,8 +750,8 @@ export default function Header() {
                         </div>
                       ) : (
                         <div className="text-center py-8">
-                          <p className="text-gray-500">No products found</p>
-                          <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+                          <p className="text-[#4B5563]">No products found</p>
+                          <p className="text-sm text-[#4B5563] mt-1">Try a different search term</p>
                         </div>
                       )}
                     </div>
@@ -804,7 +789,7 @@ export default function Header() {
                 </form>
 
                   <div className="px-6 pb-4">
-                  <p className="text-xs text-gray-400 text-center">
+                  <p className="text-xs text-[#4B5563] text-center">
                     Press <kbd className="hidden sm:inline px-2 py-1 bg-gray-100 rounded text-gray-600 font-mono">ESC</kbd><span className="sm:hidden">Tap outside</span> to close
                   </p>
                 </div>

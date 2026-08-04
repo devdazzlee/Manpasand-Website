@@ -17,7 +17,7 @@ export default function ProductImageDisclaimer({
         className={[
           'w-full shrink-0 border-t border-gray-200/90 bg-[#FAFAF9]',
           'px-3 py-2.5 sm:px-4 md:px-6 sm:py-3',
-          'text-center sm:text-left text-[10px] sm:text-[11px] leading-relaxed text-[#4B5563]',
+      'text-center sm:text-left text-[11px] sm:text-xs leading-relaxed text-[#374151]',
           className,
         ]
           .filter(Boolean)
@@ -34,7 +34,7 @@ export default function ProductImageDisclaimer({
       <p
         className={[
           'mt-2 sm:mt-2.5 pt-2 sm:pt-2.5 border-t border-gray-200/90',
-          'text-[10px] sm:text-[11px] leading-relaxed text-[#4B5563]',
+          'text-[11px] sm:text-xs leading-relaxed text-[#374151]',
           className,
         ]
           .filter(Boolean)
