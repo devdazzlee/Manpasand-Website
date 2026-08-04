@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
@@ -25,8 +24,6 @@ export default function FeaturedProductsSection({
   const bucket = useWebProductListStore((s) => s.buckets[BUCKET_KEY]);
   const loadNextPage = useWebProductListStore((s) => s.loadNextPage);
 
-  // Pre-seed the store with what /web/home returned so the first "Load More"
-  // click fetches page 2 directly. No wasted page-1 refetch.
   const [seeded, setSeeded] = useState(false);
   useEffect(() => {
     if (seeded) return;
@@ -69,19 +66,14 @@ export default function FeaturedProductsSection({
   return (
     <section className="py-10 sm:py-12 md:py-14 bg-gradient-to-b from-[#F8F2DE]/60 to-white">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-6 sm:mb-8"
-        >
+        <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             The Manpasand Favorites
           </h2>
           <p className="text-[#4B5563] text-xs sm:text-sm md:text-base max-w-xl mx-auto">
             Discover the premium staples and natural remedies that have defined our legacy for 25 years.
           </p>
-        </motion.div>
+        </div>
 
         {initialLoading && products.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch">
@@ -101,15 +93,8 @@ export default function FeaturedProductsSection({
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 items-stretch">
-            {products.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: Math.min(index, 8) * 0.05 }}
-                className="h-full"
-              >
+            {products.map((product) => (
+              <div key={product.id} className="h-full">
                 <ProductCard
                   id={product.id}
                   name={product.name}
@@ -122,7 +107,7 @@ export default function FeaturedProductsSection({
                   sales_rate_exc_dis_and_tax={product.base_price}
                   selling_price={product.price}
                 />
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

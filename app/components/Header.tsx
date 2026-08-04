@@ -4,13 +4,12 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ShoppingCart, Menu, X, Search, User, ChevronDown, Heart, Phone, Mail, MapPin, ArrowRight, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import ProductImage from './ProductImage';
 import { webApi, WebCategory, WebSearchSuggestion } from '../../lib/api/webApi';
 import { cartUtils } from '../../lib/utils/cart';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 import { useAuthStore } from '../../lib/store/authStore';
 import { getCategoryIcon, getCategoryDescription } from '../../lib/utils/categoryIcons';
-import ProductImage from './ProductImage';
 
 export default function Header() {
   const router = useRouter();
@@ -278,10 +277,8 @@ export default function Header() {
                     >
                       {item.name}
                         {isActive(item.href) && (
-                          <motion.div
-                            layoutId="activeNav"
+                          <div
                             className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1A73A8] rounded-full"
-                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                           />
                         )}
                     </Link>
@@ -301,13 +298,8 @@ export default function Header() {
                         <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
                       </button>
 
-                      <AnimatePresence>
-                        {isCategoriesOpen && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            transition={{ duration: 0.2 }}
+                      {isCategoriesOpen && (
+                          <div
                               className="absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100"
                             >
                               <div className="p-6 bg-gradient-to-r from-[#1A73A8] via-[#0D2B3A] to-[#1A73A8]">
@@ -328,10 +320,7 @@ export default function Header() {
                                         href={`/categories/${category.slug}`}
                                     onClick={() => setIsCategoriesOpen(false)}
                                   >
-                                    <motion.div
-                                      initial={{ opacity: 0, x: -10 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ delay: index * 0.03 }}
+                                    <div
                                           className="flex items-center gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-[#DFF3EA] hover:to-[#F8F2DE] transition-all group cursor-pointer"
                                     >
                                           <div className="w-14 h-14 bg-gradient-to-br from-[#DFF3EA] to-[#1A73A8]/10 rounded-xl flex items-center justify-center group-hover:from-[#1A73A8] group-hover:to-[#0D2B3A] transition-all shadow-sm group-hover:shadow-md">
@@ -344,7 +333,7 @@ export default function Header() {
                                             <p className="text-sm text-gray-600 mt-0.5">{category.description}</p>
                                       </div>
                                           <ChevronDown className="w-5 h-5 text-gray-400 rotate-[-90deg] group-hover:text-[#1A73A8] transition-colors" />
-                                    </motion.div>
+                                    </div>
                                   </Link>
                                 );
                                   })
@@ -362,9 +351,8 @@ export default function Header() {
                                 View All Products →
                               </Link>
                             </div>
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
                     </div>
                   </div>
                 );
@@ -381,10 +369,8 @@ export default function Header() {
                 >
                   {item.name}
                     {isActive(item.href) && (
-                      <motion.div
-                        layoutId="activeNav"
+                      <div
                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1A73A8] rounded-full"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
                     )}
                 </Link>
@@ -418,12 +404,8 @@ export default function Header() {
                   <User className="w-5 h-5" aria-hidden="true" />
                 </button>
                 
-                <AnimatePresence>
-                  {isProfileMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
+                {isProfileMenuOpen && (
+                    <div
                       className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100 z-50"
                     >
                       <div className="p-4 bg-gradient-to-r from-[#1A73A8] to-[#0D2B3A] text-white">
@@ -458,9 +440,8 @@ export default function Header() {
                           Logout
                         </button>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
-                </AnimatePresence>
               </div>
             ) : (
               <Link
@@ -525,12 +506,8 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+      {isMenuOpen && (
+          <div
               className="lg:hidden bg-white border-t border-gray-100 shadow-lg"
           >
               <nav className="container mx-auto px-4 py-6 space-y-1" aria-label="Mobile">
@@ -571,12 +548,8 @@ export default function Header() {
                           <span>Products</span>
                           <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
                         </button>
-                        <AnimatePresence>
-                          {isCategoriesOpen && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
+                        {isCategoriesOpen && (
+                            <div
                                 className="pl-4 mt-1 space-y-1"
                             >
                               {categoriesLoading ? (
@@ -606,9 +579,8 @@ export default function Header() {
                                   <p>No categories available</p>
                                 </div>
                               )}
-                            </motion.div>
+                            </div>
                           )}
-                        </AnimatePresence>
                       </div>
                     </div>
                   );
@@ -639,30 +611,20 @@ export default function Header() {
                 </Link>
               </div>
             </nav>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
 
       {/* Search Modal */}
-      <AnimatePresence>
-        {isSearchOpen && (
+      {isSearchOpen && (
           <>
-            <motion.button
+            <button
               type="button"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
               onClick={closeSearchModal}
               aria-label="Close search dialog"
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] cursor-default"
             />
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
+            <div
               className="fixed inset-0 z-[101] flex items-start justify-center pt-10 sm:pt-20 px-4 pointer-events-none overflow-y-auto"
             >
               <div
@@ -801,10 +763,9 @@ export default function Header() {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </>
         )}
-      </AnimatePresence>
     </header>
     </>
   );

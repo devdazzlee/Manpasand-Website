@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import CartToast from "./components/CartToast";
@@ -10,8 +11,11 @@ import {
   onlineStoreSchema,
   organizationSchema,
   websiteSchema,
+  faqPageSchema,
 } from "../lib/seo/schema";
+import { DEFAULT_FAQS } from "../lib/seo/config";
 
+const GTM_ID = "GTM-K7F45ZVH";
 const poppins = Poppins({
   variable: "--font-body",
   subsets: ["latin"],
@@ -35,6 +39,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
     apple: "/Manpasand-Logo.png",
+  },
+  verification: {
+    google: "8lrFYE_ngbLPvaTrJKb0vmmKCtjzDwxvSDR7jgmYGL8",
+    other: {
+      "msvalidate.01": "E4056095F1036C333F0D0C0DC11861C1",
+    },
   },
 };
 
@@ -78,11 +88,29 @@ export default function RootLayout({
         className={`${poppins.variable} ${playfair.variable} antialiased`}
         suppressHydrationWarning
       >
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="Google Tag Manager"
+          />
+        </noscript>
+        <Script id="gtm" strategy="afterInteractive">{`
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','${GTM_ID}');
+        `}</Script>
         <JsonLd
           data={[
             organizationSchema(),
             websiteSchema(),
             onlineStoreSchema(),
+            faqPageSchema(DEFAULT_FAQS),
             ...localBusinessSchemas(),
           ]}
         />

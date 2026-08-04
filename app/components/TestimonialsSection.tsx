@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
 interface GoogleReview {
@@ -107,12 +106,7 @@ export default function TestimonialsSection() {
     <section className="py-10 sm:py-12 md:py-14 bg-white overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-6 sm:mb-8"
-        >
+        <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             What Our Customers Say
           </h2>
@@ -134,7 +128,7 @@ export default function TestimonialsSection() {
               {totalReviews.toLocaleString()}+ reviews
             </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Reviews Grid */}
         <div className="relative">
@@ -162,15 +156,10 @@ export default function TestimonialsSection() {
 
           {/* Cards Grid */}
           <div className="px-6 sm:px-14 overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentPage}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-              >
+            <div
+              key={currentPage}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
                 {currentReviews.map((review, index) => (
                   <div
                     key={`${review.author_name}-${currentPage}-${index}`}
@@ -217,8 +206,7 @@ export default function TestimonialsSection() {
                     </div>
                   </div>
                 ))}
-              </motion.div>
-            </AnimatePresence>
+            </div>
           </div>
 
           {/* Dots */}
@@ -249,12 +237,7 @@ export default function TestimonialsSection() {
         </div>
 
         {/* Google link */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mt-6"
-        >
+        <div className="text-center mt-6">
           <a
             href={googleMapsUrl}
             target="_blank"
@@ -270,7 +253,7 @@ export default function TestimonialsSection() {
             <span>See all reviews on Google</span>
             <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
           </a>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

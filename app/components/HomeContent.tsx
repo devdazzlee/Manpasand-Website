@@ -67,7 +67,7 @@ export default function HomeContent({ initialData }: HomeContentProps) {
         initialLoading={isLoading}
         error={error}
       />
-      <WhyChooseUsSection />
+      <WhyChooseUsSection initialProductCount={productCount} />
       <FeaturedProductsSection
         initialProducts={featured}
         initialTotal={featuredTotal}

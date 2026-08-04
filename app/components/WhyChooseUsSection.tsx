@@ -1,25 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Layers, ShieldCheck, Landmark, PackageCheck } from 'lucide-react';
-import { useProductMetaStore } from '../../lib/store/productMetaStore';
 
-export default function WhyChooseUsSection() {
-  const [productCount, setProductCount] = useState<string>('1400+');
-  const { getProductCount } = useProductMetaStore();
+interface WhyChooseUsSectionProps {
+  initialProductCount?: number;
+}
 
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const count = await getProductCount();
-        if (count > 0) setProductCount(`${count}+`);
-      } catch {
-        // keep default
-      }
-    };
-    fetchCount();
-  }, [getProductCount]);
+export default function WhyChooseUsSection({ initialProductCount }: WhyChooseUsSectionProps) {
+  const productCount =
+    initialProductCount && initialProductCount > 0 ? `${initialProductCount}+` : '1400+';
 
   const features = [
     { icon: Layers, title: 'Unmatched Variety', description: `Explore a curated collection of ${productCount} premium herbs, exotic dry fruits, and essential kitchen staples.` },
@@ -31,38 +20,28 @@ export default function WhyChooseUsSection() {
   return (
     <section className="py-10 sm:py-12 md:py-14 bg-white">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-6 sm:mb-8 md:mb-10"
-        >
+        <div className="text-center mb-6 sm:mb-8 md:mb-10">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0D2B3A] mb-2">
             Why Choose Manpasand?
           </h2>
           <p className="text-[#F97316] text-sm sm:text-base font-semibold max-w-2xl mx-auto">
             The &ldquo;Heritage&rdquo; Choice
           </p>
-        </motion.div>
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {features.map((feature, index) => {
+          {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <motion.div
+              <div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
-                whileHover={{ y: -5 }}
-                className="bg-gradient-to-br from-[#F8F2DE]/50 to-white p-4 sm:p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 text-center"
+                className="bg-gradient-to-br from-[#F8F2DE]/50 to-white p-4 sm:p-5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-center"
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg, #1A73A8, #0D2B3A)' }}>
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <h3 className="text-sm sm:text-base font-bold text-[#0D2B3A] mb-1.5">{feature.title}</h3>
                 <p className="text-[#4B5563] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
-              </motion.div>
+              </div>
             );
           })}
         </div>

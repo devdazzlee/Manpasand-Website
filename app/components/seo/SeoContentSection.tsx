@@ -4,10 +4,10 @@ import { useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { getPageSeo, PAKISTAN_CITIES, SITE_NAME } from '../../../lib/seo/config';
-import { faqPageSchema } from '../../../lib/seo/schema';
 
 /**
- * Path-specific SEO copy + FAQ (FAQPage JSON-LD) above the footer on EVERY page.
+ * Path-specific SEO copy + FAQ accordion.
+ * JSON-LD lives in the server layout (not here) — client <script> caused React #418.
  */
 export default function SeoContentSection() {
   const pathname = usePathname() || '/';
@@ -20,12 +20,6 @@ export default function SeoContentSection() {
 
   return (
     <section className="bg-[#F8F2DE]/40 border-t border-gray-100" aria-label="About Manpasand Store">
-      {faqs.length > 0 && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs)) }}
-        />
-      )}
       <div className="container mx-auto px-4 py-10 sm:py-12 max-w-4xl">
         <div className="mb-8 sm:mb-10">
           <h2 className="text-xl sm:text-2xl font-bold text-[#0D2B3A] mb-3">{heading}</h2>
@@ -57,7 +51,7 @@ export default function SeoContentSection() {
                     <button
                       type="button"
                       onClick={() => setOpenIndex(open ? null : index)}
-                      className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left"
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left min-h-11"
                       aria-expanded={open}
                     >
                       <span className="font-semibold text-sm sm:text-base text-[#0D2B3A]">
@@ -70,11 +64,11 @@ export default function SeoContentSection() {
                         aria-hidden
                       />
                     </button>
-                    {open && (
+                    {open ? (
                       <div className="px-4 pb-4 text-sm text-[#4B5563] leading-relaxed border-t border-gray-100 pt-3">
                         {faq.answer}
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 );
               })}

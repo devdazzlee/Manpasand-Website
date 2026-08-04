@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Heart, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { cartUtils } from '../../lib/utils/cart';
 import { useProductStore } from '../../lib/store/productStore';
@@ -78,9 +77,8 @@ export default function ProductCard({
       name,
       price: displayPrice,
       image: resolvedImage,
-      productId: id,
-      unitName,
-      gramsPerUnit: inferredGramsPerUnit,
+      quantity: 1,
+      gramsPerUnit: inferredGramsPerUnit ?? undefined,
     });
     showCartToast(name, resolvedImage);
   };
@@ -93,9 +91,8 @@ export default function ProductCard({
       name,
       price: displayPrice,
       image: resolvedImage,
-      productId: id,
-      unitName,
-      gramsPerUnit: inferredGramsPerUnit,
+      quantity: 1,
+      gramsPerUnit: inferredGramsPerUnit ?? undefined,
     });
     router.push('/checkout');
   };
@@ -103,46 +100,31 @@ export default function ProductCard({
   const toggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (typeof window !== 'undefined') {
       const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-      const product = {
-        id,
-        name,
-        price: displayPrice,
-        originalPrice,
-        image: resolvedImage,
-        category,
-        unitName,
-        sales_rate_inc_dis_and_tax,
-        sales_rate_exc_dis_and_tax,
-        selling_price,
-      };
-
       if (isInWishlist) {
         const updatedWishlist = wishlist.filter((item: { id: string }) => item.id !== id);
         localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
         setIsInWishlist(false);
       } else {
-        wishlist.push(product);
+        wishlist.push({
+          id,
+          name,
+          price: displayPrice,
+          originalPrice,
+          image: resolvedImage,
+          category,
+        });
         localStorage.setItem('wishlist', JSON.stringify(wishlist));
         setIsInWishlist(true);
       }
-
       window.dispatchEvent(new Event('wishlistUpdated'));
     }
   };
 
   if (viewMode === 'list') {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group flex flex-col"
-      >
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group flex flex-col">
         <div className="flex flex-col sm:flex-row min-w-0">
           <Link href={`/products/${id}`} className="flex-shrink-0 w-full sm:w-auto">
             <div className="relative w-full h-40 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 overflow-hidden bg-gray-100 sm:rounded-l-xl sm:rounded-r-none rounded-t-xl sm:rounded-t-none">
@@ -192,10 +174,9 @@ export default function ProductCard({
                 )}
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full sm:w-auto">
-                <motion.button
+                <button
+                  type="button"
                   onClick={toggleWishlist}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
                   className={`min-w-11 min-h-11 w-11 h-11 bg-white border-2 border-[#DFF3EA] rounded-full flex items-center justify-center hover:bg-[#DFF3EA] transition-colors flex-shrink-0 ${
                     isInWishlist ? 'bg-red-50 border-red-200 hover:bg-red-100' : ''
                   }`}
@@ -206,8 +187,9 @@ export default function ProductCard({
                       isInWishlist ? 'text-red-500 fill-red-500' : 'text-[#0D2B3A]'
                     }`}
                   />
-                </motion.button>
+                </button>
                 <button
+                  type="button"
                   onClick={handleAddToCart}
                   className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 rounded-full flex items-center justify-center transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base flex-1 sm:flex-initial bg-[#1A73A8] text-white hover:bg-[#0D2B3A]"
                   aria-label={`Add ${name} to cart`}
@@ -217,6 +199,7 @@ export default function ProductCard({
                   <span className="sm:hidden">Add</span>
                 </button>
                 <button
+                  type="button"
                   onClick={handleBuyNow}
                   className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white rounded-full flex items-center justify-center hover:from-[#FF6B35] hover:to-[#F97316] transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base shadow-lg hover:shadow-xl flex-1 sm:flex-initial"
                   aria-label={`Buy ${name} now`}
@@ -230,19 +213,12 @@ export default function ProductCard({
           </div>
         </div>
         <ProductImageDisclaimer variant="cardStrip" />
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden group h-full flex flex-col"
-    >
+    <div className="bg-white rounded-xl border border-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group h-full flex flex-col">
       <div className="relative shrink-0">
         <Link
           href={`/products/${id}`}
@@ -271,10 +247,9 @@ export default function ProductCard({
           </div>
         </Link>
         <div className="absolute top-2 right-2 z-10">
-          <motion.button
+          <button
+            type="button"
             onClick={toggleWishlist}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
             className={`min-w-11 min-h-11 w-11 h-11 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors ${
               isInWishlist ? 'bg-red-50 hover:bg-red-100' : ''
             }`}
@@ -284,7 +259,7 @@ export default function ProductCard({
               className={`w-4 h-4 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-700'}`}
               aria-hidden="true"
             />
-          </motion.button>
+          </button>
         </div>
       </div>
       <div className="p-2.5 sm:p-3 flex flex-col flex-grow min-h-0">
@@ -305,6 +280,7 @@ export default function ProductCard({
         </div>
         <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-1.5 mt-auto">
           <button
+            type="button"
             onClick={handleAddToCart}
             className="flex-1 min-h-11 py-2.5 sm:py-2 rounded-lg flex items-center justify-center font-semibold text-[11px] sm:text-xs transition-colors duration-200 bg-[#0D2B3A] text-white hover:bg-[#1A73A8]"
             aria-label={`Add ${name} to cart`}
@@ -313,6 +289,7 @@ export default function ProductCard({
             <span>Add to Cart</span>
           </button>
           <button
+            type="button"
             onClick={handleBuyNow}
             className="flex-1 min-h-11 py-2.5 sm:py-2 bg-[#1A73A8] text-white rounded-lg flex items-center justify-center hover:bg-[#0D2B3A] transition-colors duration-200 font-semibold text-[11px] sm:text-xs"
             aria-label={`Buy ${name} now`}
@@ -323,6 +300,6 @@ export default function ProductCard({
         </div>
         <ProductImageDisclaimer variant="card" className="mt-2.5 sm:mt-3" />
       </div>
-    </motion.div>
+    </div>
   );
 }
