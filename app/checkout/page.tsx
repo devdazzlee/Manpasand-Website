@@ -14,6 +14,7 @@ import { orderApi } from '../../lib/api/orderApi';
 import { useAuthStore } from '../../lib/store/authStore';
 import { KG_DISCOUNT } from '../../lib/utils/discount';
 import { calculateCartPricing } from '../../lib/utils/pricing';
+import { resolveProductImage } from '../../lib/utils/productImagePlaceholder';
 import {
   getShippingChargePkr,
   formatShippingAmountLabel,
@@ -226,7 +227,7 @@ export default function CheckoutPage() {
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center gap-2.5 pb-2.5 border-b border-gray-200/60 last:border-0 last:pb-0">
                     <img
-                      src={item.image || '/Banner-01.jpg'}
+                      src={resolveProductImage(item.image, item.name, 96)}
                       alt={item.name}
                       className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
                     />
@@ -457,7 +458,7 @@ export default function CheckoutPage() {
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex items-center gap-3 pb-3 border-b border-gray-200">
                       <img
-                        src={item.image || '/Banner-01.jpg'}
+                        src={resolveProductImage(item.image, item.name, 96)}
                         alt={item.name}
                         className="w-14 h-14 md:w-16 md:h-16 rounded-lg object-cover flex-shrink-0"
                       />

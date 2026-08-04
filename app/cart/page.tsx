@@ -9,6 +9,7 @@ import Services from '../components/Services';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { cartUtils, CartItem } from '../../lib/utils/cart';
+import { resolveProductImage } from '../../lib/utils/productImagePlaceholder';
 import { KG_DISCOUNT } from '../../lib/utils/discount';
 import { calculateCartPricing } from '../../lib/utils/pricing';
 import {
@@ -87,7 +88,7 @@ export default function CartPage() {
                   >
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-lg sm:rounded-xl overflow-hidden bg-[#F8F2DE] flex-shrink-0">
                       <img
-                        src={item.image || '/Banner-01.jpg'}
+                        src={resolveProductImage(item.image, item.name, 160)}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />

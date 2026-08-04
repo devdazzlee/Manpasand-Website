@@ -1,0 +1,35 @@
+# Manpasand Store
+
+> Pakistan’s trusted brand for premium dry fruits, dates, nuts, honey, saffron, herbs, spices, and pulses since 2000.
+
+Website: https://www.manpasandstore.com
+Brand: Manpasand Store (Karachi, Pakistan)
+Contact: Contact@manpasandstore.com | +92 342 3344040
+
+## About
+Manpasand Store is a multi-location retail and online store based in Karachi with nationwide delivery across Pakistan (Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar, Quetta, Hyderabad, and more).
+
+Physical stores:
+- Bahadurabad, Karachi
+- DHA Phase 4, Karachi
+- Bahria Town (AQ Supermarket), Karachi
+
+## Key pages
+- [Home](https://www.manpasandstore.com/)
+- [Shop](https://www.manpasandstore.com/shop)
+- [About](https://www.manpasandstore.com/about)
+- [Contact](https://www.manpasandstore.com/contact)
+- [Saffron](https://www.manpasandstore.com/saffron)
+- [Gift Packs](https://www.manpasandstore.com/gift-packs)
+- [Wholesale](https://www.manpasandstore.com/wholesale)
+- [Shipping & Returns](https://www.manpasandstore.com/shipping-returns)
+- [FAQ](https://www.manpasandstore.com/faq)
+- [Sitemap](https://www.manpasandstore.com/site-map)
+- [XML Sitemap](https://www.manpasandstore.com/sitemap.xml)
+- [Robots](https://www.manpasandstore.com/robots.txt)
+
+## Products
+We sell premium dry fruits (almonds, cashews, pistachios, walnuts), dates (including Ajwa), saffron (zafran), honey, spices, herbs, pulses, and gift hampers.
+
+## Crawling
+All public pages are allowed for indexing by search engines and AI assistants. See /robots.txt and /sitemap.xml.

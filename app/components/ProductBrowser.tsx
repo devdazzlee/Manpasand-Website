@@ -497,7 +497,7 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
                     name={product.name}
                     price={product.price}
                     originalPrice={product.original_price}
-                    image={product.image || '/Banner-01.jpg'}
+                    image={product.image || ''}
                     category={product.category?.name}
                     unitName={product.unit?.name}
                     viewMode={viewMode}

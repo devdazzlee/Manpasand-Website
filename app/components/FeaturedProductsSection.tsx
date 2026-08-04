@@ -115,7 +115,7 @@ export default function FeaturedProductsSection({
                   name={product.name}
                   price={product.price}
                   originalPrice={product.original_price}
-                  image={product.image || '/Banner-01.jpg'}
+                  image={product.image || ''}
                   category={product.category?.name}
                   unitName={product.unit?.name}
                   sales_rate_inc_dis_and_tax={product.price}

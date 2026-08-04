@@ -60,7 +60,7 @@ const pages = [
   { path: '/deals', name: 'Deals' },
   
   // Utility Pages
-  { path: '/sitemap', name: 'Sitemap' },
+  { path: '/site-map', name: 'Sitemap' },
   { path: '/search', name: 'Search' },
   
   // Forms & Service Pages

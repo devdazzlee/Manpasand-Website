@@ -10,6 +10,7 @@ import { cartUtils } from '../../lib/utils/cart';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 import { useAuthStore } from '../../lib/store/authStore';
 import { getCategoryIcon, getCategoryDescription } from '../../lib/utils/categoryIcons';
+import ProductImage from './ProductImage';
 
 export default function Header() {
   const router = useRouter();
@@ -721,14 +722,18 @@ export default function Header() {
                               onClick={() => handleProductClick(product)}
                               className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors text-left group"
                             >
-                              <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                                <img
-                                  src={product.image || '/Banner-01.jpg'}
-                                  alt={product.name}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = '/Banner-01.jpg';
-                                  }}
+                              <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden">
+                                <ProductImage
+                                  src={product.image}
+                                  name={product.name}
+                                  category={product.category?.name}
+                                  width={128}
+                                  height={128}
+                                  optimizeWidth={128}
+                                  compact
+                                  logoOnly
+                                  className="w-full h-full"
+                                  imgClassName="w-full h-full object-cover group-hover:scale-110 transition-transform"
                                 />
                               </div>
                               <div className="flex-1 min-w-0">

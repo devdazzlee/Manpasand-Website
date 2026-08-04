@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
+import SeoContentSection from './seo/SeoContentSection';
 
 const STORES = [
   {
@@ -33,6 +34,7 @@ const INFO_LINKS = [
   { name: 'Shipping', href: '/shipping-returns' },
   { name: 'Privacy', href: '/privacy-policy' },
   { name: 'Terms', href: '/terms-conditions' },
+  { name: 'Sitemap', href: '/site-map' },
 ];
 
 const ACCOUNT_LINKS = [
@@ -54,7 +56,9 @@ export default function Footer() {
   );
 
   return (
-    <footer className="bg-[#0D2B3A] text-white">
+    <>
+      <SeoContentSection />
+      <footer className="bg-[#0D2B3A] text-white">
       <div className="container mx-auto px-4 py-10 sm:py-12">
         {/* Brand row */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 pb-8 border-b border-white/10">
@@ -202,5 +206,6 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }

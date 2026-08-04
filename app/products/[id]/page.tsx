@@ -9,6 +9,7 @@ import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
 import ProductCard from '../../components/ProductCard';
 import ProductImageDisclaimer from '../../components/ProductImageDisclaimer';
+import ProductImage from '../../components/ProductImage';
 import { ShoppingCart, Heart, Minus, Plus, Star, Shield, RotateCcw, CheckCircle, TrendingUp, Award, Gift, Zap, Sparkles } from 'lucide-react';
 import Loader from '../../components/Loader';
 import Link from 'next/link';
@@ -17,6 +18,10 @@ import { useWebProductDetailStore } from '../../../lib/store/webProductDetailSto
 import { cartUtils } from '../../../lib/utils/cart';
 import { showCartToast } from '../../components/CartToast';
 import { is1KgSelection, get1KgDiscount, KG_DISCOUNT, isWeightBasedUnit } from '../../../lib/utils/discount';
+import {
+  isMissingProductImage,
+  resolveProductImage,
+} from '../../../lib/utils/productImagePlaceholder';
 
 // Legacy view-model used by this page's existing JSX. We map WebProductDetail
 // into this shape so the rest of the file (cart, wishlist, variation logic)
@@ -47,7 +52,9 @@ type ViewProduct = {
 };
 
 const toViewProduct = (p: WebProductDetail): ViewProduct => {
-  const images = p.images.length > 0 ? p.images : p.image ? [p.image] : ['/Banner-01.jpg'];
+  const rawImages =
+    p.images.length > 0 ? p.images : p.image ? [p.image] : [];
+  const images = rawImages.filter((img) => !isMissingProductImage(img));
   return {
     id: p.id,
     name: p.name,
@@ -61,7 +68,7 @@ const toViewProduct = (p: WebProductDetail): ViewProduct => {
     discount_amount: p.discount_amount,
     sales_rate_inc_dis_and_tax: p.price,
     sales_rate_exc_dis_and_tax: p.base_price,
-    image: images[0],
+    image: images[0] ?? '',
     images,
     ProductImage: images.map((image) => ({ image })),
     features: [],
@@ -72,24 +79,27 @@ const toViewProduct = (p: WebProductDetail): ViewProduct => {
   };
 };
 
-const toViewProductFromList = (p: WebProduct): ViewProduct => ({
-  id: p.id,
-  name: p.name,
-  description: p.description ?? '',
-  category: p.category,
-  unit: p.unit,
-  price: p.price,
-  selling_price: p.price,
-  originalPrice: p.original_price,
-  discount_amount: p.discount_amount,
-  image: p.image || '/Banner-01.jpg',
-  images: p.image ? [p.image] : ['/Banner-01.jpg'],
-  ProductImage: [{ image: p.image || '/Banner-01.jpg' }],
-  features: [],
-  nutrition: [],
-  weight: 'N/A',
-  origin: 'N/A',
-});
+const toViewProductFromList = (p: WebProduct): ViewProduct => {
+  const image = isMissingProductImage(p.image) ? '' : (p.image ?? '');
+  return {
+    id: p.id,
+    name: p.name,
+    description: p.description ?? '',
+    category: p.category,
+    unit: p.unit,
+    price: p.price,
+    selling_price: p.price,
+    originalPrice: p.original_price,
+    discount_amount: p.discount_amount,
+    image,
+    images: image ? [image] : [],
+    ProductImage: image ? [{ image }] : [],
+    features: [],
+    nutrition: [],
+    weight: 'N/A',
+    origin: 'N/A',
+  };
+};
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -265,7 +275,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         name: product.name, 
         price: product.price || product.selling_price, 
         originalPrice: product.originalPrice, 
-        image: product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : '/Banner-01.jpg') || '/Banner-01.jpg',
+        image: resolveProductImage(
+          product.image || product.ProductImage?.[0]?.image,
+          product.name,
+          400
+        ),
         category: product.category?.name || (product as any).category
       };
       
@@ -326,7 +340,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const handleAddToCart = () => {
     if (product) {
       if (isCustomWeight && (!customWeight || parseFloat(customWeight) <= 0)) return; // guard
-      const productImage = product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : null) || '/Banner-01.jpg';
+      const productImage = resolveProductImage(
+        product.image || product.ProductImage?.[0]?.image,
+        product.name,
+        400
+      );
       const cartName = selectedVariationLabel ? `${product.name} - ${selectedVariationLabel}` : product.name;
       cartUtils.addToCart({
         id: cartVariationId,
@@ -345,7 +363,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const handleBuyNow = () => {
     if (product) {
       if (isCustomWeight && (!customWeight || parseFloat(customWeight) <= 0)) return; // guard
-      const productImage = product.image || (product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage[0].image : null) || '/Banner-01.jpg';
+      const productImage = resolveProductImage(
+        product.image || product.ProductImage?.[0]?.image,
+        product.name,
+        400
+      );
       const cartName = selectedVariationLabel ? `${product.name} - ${selectedVariationLabel}` : product.name;
       cartUtils.addToCart({
         id: cartVariationId,
@@ -403,12 +425,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             >
               <motion.div
                 whileHover={{ scale: 1.01 }}
-                className="relative aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-md"
+                className="relative aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-md bg-[#0D2B3A]"
               >
-                <img
-                  src={product.ProductImage && product.ProductImage[selectedImage] ? product.ProductImage[selectedImage].image : (product.image || '/Banner-01.jpg')}
-                  alt={product.name}
-                  className="w-full h-full object-cover object-center"
+                <ProductImage
+                  src={
+                    product.ProductImage?.[selectedImage]?.image ||
+                    product.image ||
+                    ''
+                  }
+                  name={product.name}
+                  category={product.category?.name || (product as any).category}
+                  width={800}
+                  height={600}
+                  optimizeWidth={900}
+                  priority
+                  loading="eager"
+                  className="w-full h-full"
+                  imgClassName="w-full h-full object-cover object-center"
                 />
                 {discount > 0 && (
                   <div className="absolute top-2.5 left-2.5 bg-[#F97316] text-white px-2.5 py-0.5 rounded-full font-bold text-xs">
@@ -416,21 +449,34 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   </div>
                 )}
               </motion.div>
-              <div className="grid grid-cols-4 gap-2">
-                {(product.ProductImage && product.ProductImage.length > 0 ? product.ProductImage.map(img => img.image) : [product.image || '/Banner-01.jpg']).map((img: string, index: number) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImage === index
-                        ? 'border-[#1A73A8] shadow-sm'
-                        : 'border-gray-200 hover:border-[#1A73A8]/50'
-                    }`}
-                  >
-                    <img src={img} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover object-center" />
-                  </button>
-                ))}
-              </div>
+              {(product.ProductImage?.length ?? 0) > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {product.ProductImage.map((img, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setSelectedImage(index)}
+                      className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImage === index
+                          ? 'border-[#1A73A8] shadow-sm'
+                          : 'border-gray-200 hover:border-[#1A73A8]/50'
+                      }`}
+                    >
+                      <ProductImage
+                        src={img.image}
+                        name={product.name}
+                        category={product.category?.name || (product as any).category}
+                        alt={`${product.name} ${index + 1}`}
+                        width={160}
+                        height={160}
+                        optimizeWidth={200}
+                        compact
+                        className="w-full h-full"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
               <ProductImageDisclaimer className="text-[10px] sm:text-xs pt-0.5" />
             </motion.div>
 
@@ -902,7 +948,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   name={product.name}
                   price={product.price || product.selling_price || 0}
                   originalPrice={product.originalPrice}
-                  image={product.image || '/Banner-01.jpg'}
+                  image={product.image || ''}
                   category={product.category?.name || (product as any).category}
                   unitName={product.unit?.name}
                   weight={product.weight}

@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Heart, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { cartUtils } from '../../lib/utils/cart';
 import { useProductStore } from '../../lib/store/productStore';
 import { showCartToast } from './CartToast';
-import { isWeightBasedUnit } from '../../lib/utils/discount';
 import { getWeightInGramsFromText } from '../../lib/utils/weight';
 import ProductImageDisclaimer from './ProductImageDisclaimer';
-import { optimizeCloudinaryUrl } from '../../lib/utils/cloudinary';
+import ProductImage from './ProductImage';
+import { resolveProductImage } from '../../lib/utils/productImagePlaceholder';
 
 interface ProductCardProps {
   id: string;
@@ -21,7 +21,6 @@ interface ProductCardProps {
   image: string;
   category?: string;
   viewMode?: 'grid' | 'list';
-  // Additional fields for price extraction
   sales_rate_inc_dis_and_tax?: string | number;
   sales_rate_exc_dis_and_tax?: string | number;
   selling_price?: number;
@@ -44,37 +43,21 @@ export default function ProductCard({
   weight,
 }: ProductCardProps) {
   const { prefetchProduct } = useProductStore();
-  const hasImageSource = Boolean(image && image.trim() !== '' && image !== '/Banner-01.jpg');
-  const optimizedImage = hasImageSource
-    ? optimizeCloudinaryUrl(image, { width: viewMode === 'list' ? 400 : 480 })
-    : image;
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageFailed, setImageFailed] = useState(false);
-  const imageRef = useRef<HTMLImageElement | null>(null);
-  
-  // Extract price from multiple possible fields
-  const displayPrice = price 
-    || (sales_rate_inc_dis_and_tax ? parseFloat(String(sales_rate_inc_dis_and_tax)) : 0)
-    || (sales_rate_exc_dis_and_tax ? parseFloat(String(sales_rate_exc_dis_and_tax)) : 0)
-    || selling_price
-    || 0;
-  const discount = originalPrice && displayPrice
-    ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)
-    : 0;
-  
+
+  const displayPrice =
+    price ||
+    (sales_rate_inc_dis_and_tax ? parseFloat(String(sales_rate_inc_dis_and_tax)) : 0) ||
+    (sales_rate_exc_dis_and_tax ? parseFloat(String(sales_rate_exc_dis_and_tax)) : 0) ||
+    selling_price ||
+    0;
+  const discount =
+    originalPrice && displayPrice
+      ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)
+      : 0;
+
   const [isInWishlist, setIsInWishlist] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    setImageLoaded(false);
-    setImageFailed(false);
-    // If browser already has this image in cache, mark as loaded immediately.
-    if (imageRef.current?.complete && imageRef.current.naturalWidth > 0) {
-      setImageLoaded(true);
-    }
-  }, [image]);
-
-  // Check if product is in wishlist
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
@@ -85,44 +68,42 @@ export default function ProductCard({
   const inferredGramsPerUnit =
     getWeightInGramsFromText(weight) ?? getWeightInGramsFromText(name);
 
+  const resolvedImage = resolveProductImage(image, name, 400);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const productImage = image || '/Banner-01.jpg';
     cartUtils.addToCart({
       id,
       name,
       price: displayPrice,
-      image: productImage,
+      image: resolvedImage,
       productId: id,
       unitName,
       gramsPerUnit: inferredGramsPerUnit,
     });
-    // Toast notification — no state change, no re-render
-    showCartToast(name, productImage);
+    showCartToast(name, resolvedImage);
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Add to cart first
     cartUtils.addToCart({
       id,
       name,
       price: displayPrice,
-      image: image || '/Banner-01.jpg',
+      image: resolvedImage,
       productId: id,
       unitName,
       gramsPerUnit: inferredGramsPerUnit,
     });
-    // Redirect to checkout
     router.push('/checkout');
   };
 
   const toggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (typeof window !== 'undefined') {
       const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
       const product = {
@@ -130,27 +111,24 @@ export default function ProductCard({
         name,
         price: displayPrice,
         originalPrice,
-        image,
+        image: resolvedImage,
         category,
         unitName,
         sales_rate_inc_dis_and_tax,
         sales_rate_exc_dis_and_tax,
         selling_price,
       };
-      
+
       if (isInWishlist) {
-        // Remove from wishlist
         const updatedWishlist = wishlist.filter((item: { id: string }) => item.id !== id);
         localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
         setIsInWishlist(false);
       } else {
-        // Add to wishlist
         wishlist.push(product);
         localStorage.setItem('wishlist', JSON.stringify(wishlist));
         setIsInWishlist(true);
       }
-      
-      // Dispatch event to update header count
+
       window.dispatchEvent(new Event('wishlistUpdated'));
     }
   };
@@ -168,95 +146,87 @@ export default function ProductCard({
         <div className="flex flex-col sm:flex-row min-w-0">
           <Link href={`/products/${id}`} className="flex-shrink-0 w-full sm:w-auto">
             <div className="relative w-full h-40 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 overflow-hidden bg-gray-100 sm:rounded-l-xl sm:rounded-r-none rounded-t-xl sm:rounded-t-none">
-            {hasImageSource && !imageFailed && (
-              <img
-                src={optimizedImage}
-                alt={name}
+              <ProductImage
+                src={image}
+                name={name}
+                category={category}
                 width={400}
                 height={400}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                ref={(node) => {
-                  imageRef.current = node;
-                  if (node?.complete && node.naturalWidth > 0) {
-                    setImageLoaded(true);
-                  }
-                }}
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageFailed(true)}
+                optimizeWidth={400}
+                className="w-full h-full"
+                imgClassName="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
               />
-            )}
-            {(!hasImageSource || imageFailed || !imageLoaded) && (
-              <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
-            )}
-            {discount > 0 && (
-              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-[#F97316] text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold">
-                -{discount}%
-              </div>
-            )}
-          </div>
-        </Link>
-        <div className="flex-1 p-3 sm:p-4 md:p-6 flex flex-col justify-between min-w-0">
-          <div>
-            {category && (
-              <span className="inline-block text-[10px] sm:text-xs font-medium text-[#1A73A8] bg-[#DFF3EA]/80 px-2 py-0.5 rounded-full mb-1.5 sm:mb-2">
-                {category}
-              </span>
-            )}
-            <Link href={`/products/${id}`}>
-              <h3 className="font-semibold text-sm sm:text-base md:text-lg text-[#0D2B3A] mb-2 hover:text-[#1A73A8] transition-colors line-clamp-2">
-                {name}
-              </h3>
-            </Link>
-          </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-auto">
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#0D2B3A]">
-                Rs. {displayPrice.toLocaleString()}
-              </span>
-              {originalPrice && originalPrice > displayPrice && (
-                <span className="text-xs sm:text-sm text-[#6B7280] line-through" aria-hidden="true">
-                  Rs. {originalPrice.toLocaleString()}
+              {discount > 0 && (
+                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-[#F97316] text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold">
+                  -{discount}%
+                </div>
+              )}
+            </div>
+          </Link>
+          <div className="flex-1 p-3 sm:p-4 md:p-6 flex flex-col justify-between min-w-0">
+            <div>
+              {category && (
+                <span className="inline-block text-[10px] sm:text-xs font-medium text-[#1A73A8] bg-[#DFF3EA]/80 px-2 py-0.5 rounded-full mb-1.5 sm:mb-2">
+                  {category}
                 </span>
               )}
-              {unitName && (
-                <span className="text-[10px] sm:text-xs text-[#4B5563]">/ {unitName}</span>
-              )}
+              <Link href={`/products/${id}`}>
+                <h3 className="font-semibold text-sm sm:text-base md:text-lg text-[#0D2B3A] mb-2 hover:text-[#1A73A8] transition-colors line-clamp-2">
+                  {name}
+                </h3>
+              </Link>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full sm:w-auto">
-              <motion.button
-                onClick={toggleWishlist}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className={`min-w-11 min-h-11 w-11 h-11 bg-white border-2 border-[#DFF3EA] rounded-full flex items-center justify-center hover:bg-[#DFF3EA] transition-colors flex-shrink-0 ${
-                  isInWishlist ? 'bg-red-50 border-red-200 hover:bg-red-100' : ''
-                }`}
-                aria-label={isInWishlist ? `Remove ${name} from wishlist` : `Add ${name} to wishlist`}
-              >
-                <Heart className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-[#0D2B3A]'}`} />
-              </motion.button>
-              <button
-                onClick={handleAddToCart}
-                className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 rounded-full flex items-center justify-center transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base flex-1 sm:flex-initial bg-[#1A73A8] text-white hover:bg-[#0D2B3A]"
-                aria-label="Add to cart"
-              >
-                <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
-                <span className="hidden sm:inline">Add to Cart</span>
-                <span className="sm:hidden">Add</span>
-              </button>
-              <button
-                onClick={handleBuyNow}
-                className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white rounded-full flex items-center justify-center hover:from-[#FF6B35] hover:to-[#F97316] transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base shadow-lg hover:shadow-xl flex-1 sm:flex-initial"
-                aria-label="Buy now"
-              >
-                <Zap className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
-                <span className="hidden sm:inline">Buy Now</span>
-                <span className="sm:hidden">Buy</span>
-              </button>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-auto">
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#0D2B3A]">
+                  Rs. {displayPrice.toLocaleString()}
+                </span>
+                {originalPrice && originalPrice > displayPrice && (
+                  <span className="text-xs sm:text-sm text-[#6B7280] line-through" aria-hidden="true">
+                    Rs. {originalPrice.toLocaleString()}
+                  </span>
+                )}
+                {unitName && (
+                  <span className="text-[10px] sm:text-xs text-[#4B5563]">/ {unitName}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full sm:w-auto">
+                <motion.button
+                  onClick={toggleWishlist}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className={`min-w-11 min-h-11 w-11 h-11 bg-white border-2 border-[#DFF3EA] rounded-full flex items-center justify-center hover:bg-[#DFF3EA] transition-colors flex-shrink-0 ${
+                    isInWishlist ? 'bg-red-50 border-red-200 hover:bg-red-100' : ''
+                  }`}
+                  aria-label={isInWishlist ? `Remove ${name} from wishlist` : `Add ${name} to wishlist`}
+                >
+                  <Heart
+                    className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 ${
+                      isInWishlist ? 'text-red-500 fill-red-500' : 'text-[#0D2B3A]'
+                    }`}
+                  />
+                </motion.button>
+                <button
+                  onClick={handleAddToCart}
+                  className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 rounded-full flex items-center justify-center transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base flex-1 sm:flex-initial bg-[#1A73A8] text-white hover:bg-[#0D2B3A]"
+                  aria-label={`Add ${name} to cart`}
+                >
+                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
+                  <span className="hidden sm:inline">Add to Cart</span>
+                  <span className="sm:hidden">Add</span>
+                </button>
+                <button
+                  onClick={handleBuyNow}
+                  className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-3 bg-gradient-to-r from-[#F97316] to-[#FF6B35] text-white rounded-full flex items-center justify-center hover:from-[#FF6B35] hover:to-[#F97316] transition-colors duration-200 font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base shadow-lg hover:shadow-xl flex-1 sm:flex-initial"
+                  aria-label={`Buy ${name} now`}
+                >
+                  <Zap className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-1.5 md:mr-2 flex-shrink-0" />
+                  <span className="hidden sm:inline">Buy Now</span>
+                  <span className="sm:hidden">Buy</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
         </div>
         <ProductImageDisclaimer variant="cardStrip" />
       </motion.div>
@@ -281,28 +251,16 @@ export default function ProductCard({
           aria-label={name}
         >
           <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
-            {hasImageSource && !imageFailed && (
-              <img
-                src={optimizedImage}
-                alt={name}
-                width={480}
-                height={360}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                ref={(node) => {
-                  imageRef.current = node;
-                  if (node?.complete && node.naturalWidth > 0) {
-                    setImageLoaded(true);
-                  }
-                }}
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageFailed(true)}
-              />
-            )}
-            {(!hasImageSource || imageFailed || !imageLoaded) && (
-              <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />
-            )}
+            <ProductImage
+              src={image}
+              name={name}
+              category={category}
+              width={480}
+              height={360}
+              optimizeWidth={480}
+              className="w-full h-full"
+              imgClassName="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            />
             {discount > 0 && (
               <div className="absolute top-2 left-2 bg-[#F97316] text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
                 -{discount}%
@@ -320,7 +278,10 @@ export default function ProductCard({
             }`}
             aria-label={isInWishlist ? `Remove ${name} from wishlist` : `Add ${name} to wishlist`}
           >
-            <Heart className={`w-4 h-4 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} aria-hidden="true" />
+            <Heart
+              className={`w-4 h-4 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-700'}`}
+              aria-hidden="true"
+            />
           </motion.button>
         </div>
       </div>
@@ -363,4 +324,3 @@ export default function ProductCard({
     </motion.div>
   );
 }
-
