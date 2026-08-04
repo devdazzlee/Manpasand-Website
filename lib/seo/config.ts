@@ -3,7 +3,7 @@ export const SITE_NAME = 'Manpasand Store';
 export const SITE_LEGAL_NAME = 'Manpasand Store';
 export const SITE_TAGLINE = 'Premium Dry Fruits, Dates, Nuts, Spices & Herbs since 2000';
 export const SITE_DESCRIPTION =
-  'Buy premium dry fruits, dates, nuts, saffron, honey & spices online from Manpasand Store. Delivery across Pakistan. Stores in Bahadurabad, DHA & Bahria Town.';
+  'Buy premium dry fruits, dates, nuts, saffron, honey & spices from Manpasand Store. Delivery across Pakistan. Stores in Bahadurabad, DHA & Bahria Town.';
 
 export const SITE_KEYWORDS = [
   'Manpasand Store',
