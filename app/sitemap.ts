@@ -4,7 +4,11 @@ import { API_URL } from '../config/config';
 
 type CategoryRow = { slug: string; is_active?: boolean; updated_at?: string };
 type ProductRow = { id: string; updated_at?: string; is_active?: boolean };
-type Envelope<T> = { success?: boolean; data?: T; meta?: { totalPages?: number; total?: number } };
+type Envelope<T> = {
+  success?: boolean;
+  data?: T;
+  meta?: { totalPages?: number; total?: number; page?: number; limit?: number };
+};
 
 async function fetchJson<T>(path: string): Promise<T | null> {
   try {
@@ -18,6 +22,10 @@ async function fetchJson<T>(path: string): Promise<T | null> {
   }
 }
 
+/**
+ * Include every active product + category from the live API (not seeders).
+ * Seeders only populate the DB — the sitemap must reflect what the API sells now.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
@@ -25,9 +33,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: path === '/' ? SITE_URL : `${SITE_URL}${path}`,
     lastModified: now,
     changeFrequency:
-      path === '/' ? 'daily' : path.startsWith('/account') || path === '/cart' || path === '/checkout'
-        ? 'monthly'
-        : 'weekly',
+      path === '/'
+        ? 'daily'
+        : path.startsWith('/account') || path === '/cart' || path === '/checkout'
+          ? 'monthly'
+          : 'weekly',
     priority:
       path === '/'
         ? 1
@@ -48,13 +58,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     }));
 
-  // Crawl as many product pages as the API returns (cap pages for build time).
+  // API max page size is 48 — paginate until all active products are included (~748 today).
+  const PAGE_SIZE = 48;
   const productEntries: MetadataRoute.Sitemap = [];
   const seen = new Set<string>();
-  const maxPages = 40;
+  const maxPages = 50; // safety cap (~2400 products)
+
   for (let page = 1; page <= maxPages; page++) {
     const productsPayload = await fetchJson<Envelope<ProductRow[]>>(
-      `/web/products?page=${page}&limit=100&sort=newest`
+      `/web/products?page=${page}&limit=${PAGE_SIZE}&sort=newest`
     );
     const rows = productsPayload?.data || [];
     if (rows.length === 0) break;
@@ -66,13 +78,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${SITE_URL}/products/${p.id}`,
         lastModified: p.updated_at ? new Date(p.updated_at) : now,
         changeFrequency: 'weekly',
-        priority: 0.65,
+        priority: 0.7,
       });
     }
 
-    const totalPages = productsPayload?.meta?.totalPages;
-    if (totalPages && page >= totalPages) break;
-    if (rows.length < 100) break;
+    const totalPages = productsPayload?.meta?.totalPages ?? page;
+    const limit = productsPayload?.meta?.limit ?? PAGE_SIZE;
+    if (page >= totalPages) break;
+    if (rows.length < limit) break;
   }
 
   return [...staticEntries, ...categoryEntries, ...productEntries];
