@@ -28,8 +28,8 @@ function hasCategoryImage(image: string | null | undefined): boolean {
 
 function CategoryCard({ category }: { category: WebCategory }) {
   const hasImage = hasCategoryImage(category.image);
-  const src240 = optimizeCloudinaryUrl(category.image, { width: 240, quality: 'auto:low' });
-  const src400 = optimizeCloudinaryUrl(category.image, { width: 360, quality: 'auto:eco' });
+  const src200 = optimizeCloudinaryUrl(category.image, { width: 200, quality: 'auto:low' });
+  const src320 = optimizeCloudinaryUrl(category.image, { width: 320, quality: 'auto:low' });
 
   return (
     <div className="h-full flex">
@@ -45,12 +45,12 @@ function CategoryCard({ category }: { category: WebCategory }) {
         >
           {hasImage && (
             <img
-              src={src400}
-              srcSet={`${src240} 240w, ${src400} 400w`}
-              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 240px"
+              src={src320}
+              srcSet={`${src200} 200w, ${src320} 320w`}
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 200px"
               alt=""
-              width={400}
-              height={400}
+              width={320}
+              height={320}
               loading="lazy"
               decoding="async"
               className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"

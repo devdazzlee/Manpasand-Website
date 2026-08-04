@@ -15,18 +15,22 @@ import {
 } from "../lib/seo/schema";
 import { DEFAULT_FAQS } from "../lib/seo/config";
 
+/** Body font — fewer weights = fewer preload competing with LCP */
 const poppins = Poppins({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   display: "swap",
+  preload: true,
 });
 
+/** Display font — swap only, do not preload (saves LCP bandwidth on Slow 4G) */
 const playfair = Playfair_Display({
   variable: "--font-heading",
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["700"],
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -66,14 +70,22 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Mobile LCP only — single file, no srcset DPR upscale */}
         <link
           rel="preload"
           as="image"
           href="/banners/New-Banner-750.webp"
-          imageSrcSet="/banners/New-Banner-750.webp 750w, /banners/New-Banner-1200.webp 1200w, /banners/New-Banner-1600.webp 1600w"
-          imageSizes="100vw"
           type="image/webp"
           fetchPriority="high"
+          media="(max-width: 768px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/banners/New-Banner-1200.webp"
+          type="image/webp"
+          fetchPriority="high"
+          media="(min-width: 769px)"
         />
         <link rel="dns-prefetch" href={API_BASE_URL} />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
@@ -86,7 +98,6 @@ export default function RootLayout({
         className={`${poppins.variable} ${playfair.variable} antialiased`}
         suppressHydrationWarning
       >
-        {/* JSON-LD in body — avoids head script hydration #418 (HTML vs empty) */}
         <JsonLd
           data={[
             organizationSchema(),
