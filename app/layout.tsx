@@ -16,6 +16,7 @@ import {
 import { DEFAULT_FAQS } from "../lib/seo/config";
 
 const GTM_ID = "GTM-K7F45ZVH";
+const GA_MEASUREMENT_ID = "G-CWZ4YKC8DK";
 const poppins = Poppins({
   variable: "--font-body",
   subsets: ["latin"],
@@ -104,6 +105,17 @@ export default function RootLayout({
           j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','${GTM_ID}');
+        `}</Script>
+        {/* Google Analytics (gtag.js) — do NOT also fire this same ID from a GTM GA4 tag */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-gtag" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_MEASUREMENT_ID}');
         `}</Script>
         <JsonLd
           data={[
