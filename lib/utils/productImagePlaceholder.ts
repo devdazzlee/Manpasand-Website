@@ -58,16 +58,16 @@ export function getProductPlaceholderSrc(name: string, size = 480): string {
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   }
 
-  const lines = wrapName(displayName, size >= 360 ? 18 : 12, 3);
-  const fontSize = size >= 360 ? 22 : 14;
-  const lineHeight = fontSize + 8;
+  const lines = wrapName(displayName, size >= 360 ? 14 : 11, 3);
+  const fontSize = size >= 360 ? 34 : size >= 280 ? 26 : 18;
+  const lineHeight = Math.round(fontSize * 1.2);
   const blockH = lines.length * lineHeight;
-  const startY = size * 0.52 - blockH / 2 + fontSize * 0.8;
+  const startY = size * 0.58 - blockH / 2 + fontSize * 0.75;
 
   const textNodes = lines
     .map((line, i) => {
       const y = startY + i * lineHeight;
-      return `<text x="50%" y="${y}" text-anchor="middle" fill="#0D2B3A" font-family="Georgia, 'Times New Roman', serif" font-size="${fontSize}" font-weight="600">${escapeXml(line)}</text>`;
+      return `<text x="50%" y="${y}" text-anchor="middle" fill="#0D2B3A" font-family="system-ui, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="700">${escapeXml(line)}</text>`;
     })
     .join('');
 
@@ -84,12 +84,11 @@ export function getProductPlaceholderSrc(name: string, size = 480): string {
   <rect width="100%" height="100%" fill="url(#bg)"/>
   <rect x="${pad}" y="${pad}" width="${size - pad * 2}" height="${size - pad * 2}" fill="none" stroke="#0D2B3A" stroke-opacity="0.12" stroke-width="1"/>
   <rect x="${pad2}" y="${pad2}" width="${size - pad2 * 2}" height="${size - pad2 * 2}" fill="none" stroke="#1A73A8" stroke-opacity="0.16" stroke-width="1"/>
-  <text x="50%" y="${logoY}" text-anchor="middle" fill="#1A73A8" font-family="system-ui,sans-serif" font-size="${Math.max(11, Math.round(size * 0.036))}" font-weight="600" letter-spacing="3">MANPASAND</text>
+  <text x="50%" y="${logoY}" text-anchor="middle" fill="#1A73A8" font-family="system-ui,sans-serif" font-size="${Math.max(14, Math.round(size * 0.048))}" font-weight="700" letter-spacing="2.5">MANPASAND</text>
   <line x1="${size * 0.38}" y1="${size * 0.34}" x2="${size * 0.46}" y2="${size * 0.34}" stroke="#1A73A8" stroke-opacity="0.35" stroke-width="1"/>
   <circle cx="${size / 2}" cy="${size * 0.34}" r="2" fill="#1A73A8" fill-opacity="0.45"/>
   <line x1="${size * 0.54}" y1="${size * 0.34}" x2="${size * 0.62}" y2="${size * 0.34}" stroke="#1A73A8" stroke-opacity="0.35" stroke-width="1"/>
   ${textNodes}
-  <text x="50%" y="${size * 0.88}" text-anchor="middle" fill="#1A73A8" fill-opacity="0.8" font-family="system-ui,sans-serif" font-size="${Math.max(9, Math.round(size * 0.028))}" font-weight="500" letter-spacing="2">PREMIUM QUALITY</text>
 </svg>`;
 
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;

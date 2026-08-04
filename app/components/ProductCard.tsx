@@ -138,7 +138,6 @@ export default function ProductCard({
                 sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 280px"
                 className="w-full h-full"
                 compact
-                hideName
                 imgClassName="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
               />
               {discount > 0 && (
@@ -240,7 +239,6 @@ export default function ProductCard({
               sizes="(max-width: 768px) 45vw, 400px"
               className="w-full h-full"
               compact
-              hideName
               imgClassName="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             />
             {discount > 0 && (
