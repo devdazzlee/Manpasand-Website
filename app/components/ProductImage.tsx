@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { isMissingProductImage } from '../../lib/utils/productImagePlaceholder';
 import { optimizeCloudinaryUrl } from '../../lib/utils/cloudinary';
-import ProductImagePlaceholder from './ProductImagePlaceholder';
 
 type ProductImageProps = {
   src?: string | null;
@@ -26,14 +25,24 @@ type ProductImageProps = {
   hideName?: boolean;
 };
 
+function ImageSkeleton({ pulse }: { pulse: boolean }) {
+  return (
+    <div
+      className={`absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-100 to-gray-200 ${
+        pulse ? 'animate-pulse' : ''
+      }`}
+      aria-hidden
+    />
+  );
+}
+
 /**
- * Real product photo when available; otherwise a branded Manpasand
- * name tile (centered) so shoppers still get a clear product cue.
+ * Real product photo when available. While the photo loads — or when it is
+ * missing / fails — the image area shows a skeleton instead of a branded tile.
  */
 export default function ProductImage({
   src,
   name,
-  category,
   alt,
   className = '',
   imgClassName = 'w-full h-full object-cover object-center',
@@ -43,16 +52,13 @@ export default function ProductImage({
   loading = 'lazy',
   priority = false,
   sizes,
-  compact = false,
-  logoOnly = false,
-  hideName = false,
 }: ProductImageProps) {
   const missing = isMissingProductImage(src);
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const ref = useRef<HTMLImageElement | null>(null);
 
-  const showPlaceholder = missing || failed;
+  const showSkeleton = missing || failed;
   const remoteSrc =
     !missing && src
       ? optimizeCloudinaryUrl(src, { width: optimizeWidth ?? width })
@@ -69,33 +75,21 @@ export default function ProductImage({
     }
   }, [remoteSrc]);
 
-  if (showPlaceholder) {
+  if (showSkeleton) {
     return (
-      <div className={`relative overflow-hidden ${className}`}>
-        <ProductImagePlaceholder
-          name={name}
-          category={category}
-          compact={compact}
-          logoOnly={logoOnly}
-          hideName={hideName}
-        />
+      <div
+        className={`relative overflow-hidden ${className}`}
+        role="img"
+        aria-label={alt || name}
+      >
+        <ImageSkeleton pulse />
       </div>
     );
   }
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      {!loaded && (
-        <div className="absolute inset-0" aria-hidden>
-          <ProductImagePlaceholder
-            name={name}
-            category={category}
-            compact={compact}
-            logoOnly={logoOnly}
-            hideName={hideName}
-          />
-        </div>
-      )}
+      {!loaded && <ImageSkeleton pulse />}
       <img
         ref={ref}
         src={remoteSrc}

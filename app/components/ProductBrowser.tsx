@@ -66,10 +66,13 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showSortMenu, setShowSortMenu] = useState(false);
-  const [showMobileCategories, setShowMobileCategories] = useState(false);
   const [showMobilePrice, setShowMobilePrice] = useState(false);
+  const [canScrollCategoriesLeft, setCanScrollCategoriesLeft] = useState(false);
+  const [canScrollCategoriesRight, setCanScrollCategoriesRight] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const skipCategoryAutoScroll = useRef(true);
 
   // Categories — cached, shared with Header/Footer. Only needed for the picker.
   const allCategories = useWebCategoryStore((s) => s.all);
@@ -179,6 +182,51 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
     return categories.find((c) => c.slug === selectedCategory)?.name ?? selectedCategory;
   }, [selectedCategory, categories]);
 
+  const updateCategoryScroll = useCallback(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollCategoriesLeft(scrollLeft > 2);
+    setCanScrollCategoriesRight(scrollLeft + clientWidth < scrollWidth - 2);
+  }, []);
+
+  const scrollCategories = useCallback((direction: 'left' | 'right') => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const amount = Math.max(el.clientWidth * 0.65, 140);
+    el.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    updateCategoryScroll();
+    el.addEventListener('scroll', updateCategoryScroll, { passive: true });
+    const observer = new ResizeObserver(updateCategoryScroll);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    return () => {
+      el.removeEventListener('scroll', updateCategoryScroll);
+      observer.disconnect();
+    };
+  }, [updateCategoryScroll, categories.length]);
+
+  useEffect(() => {
+    if (skipCategoryAutoScroll.current) {
+      skipCategoryAutoScroll.current = false;
+      return;
+    }
+    const parent = categoryScrollRef.current;
+    if (!parent) return;
+    const active = parent.querySelector<HTMLElement>('[data-active-category="true"]');
+    if (!active) return;
+    const parentRect = parent.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const offset = activeRect.left - parentRect.left - (parent.clientWidth - active.offsetWidth) / 2;
+    if (Math.abs(offset) < 4) return;
+    parent.scrollBy({ left: offset, behavior: 'smooth' });
+  }, [selectedCategory]);
+
   const clearAll = () => {
     if (!categoryLocked) setSelectedCategory('All');
     setSelectedPriceTag('all');
@@ -277,33 +325,53 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
           {/* Categories — hidden when the browser is locked to one category. */}
           {!categoryLocked && (
             <div className="mb-4 sm:mb-5">
-              <button
-                onClick={() => setShowMobileCategories(!showMobileCategories)}
-                className="flex items-center gap-2 mb-0 sm:mb-2.5 w-full sm:pointer-events-none"
-              >
+              <div className="flex items-center gap-2 mb-2.5 w-full min-w-0">
                 <LayoutGrid className="w-4 h-4 text-[#1A73A8] flex-shrink-0" />
-                <h3 className="text-xs sm:text-sm font-bold text-[#0D2B3A] uppercase tracking-wider">Browse by Category</h3>
+                <h3 className="text-xs sm:text-sm font-bold text-[#0D2B3A] uppercase tracking-wider whitespace-nowrap">
+                  Browse by Category
+                </h3>
                 {selectedCategory !== 'All' && (
-                  <span className="text-[10px] bg-[#1A73A8] text-white px-1.5 py-0.5 rounded-full font-semibold">{selectedCategoryLabel}</span>
-                )}
-                <div className="flex-1 h-px bg-gray-200" />
-                {selectedCategory !== 'All' && (
-                  <span
-                    onClick={(e) => { e.stopPropagation(); setSelectedCategory('All'); }}
-                    className="text-[11px] sm:text-xs text-[#1A73A8] hover:text-[#0D2B3A] font-medium transition-colors flex items-center gap-0.5 whitespace-nowrap cursor-pointer"
-                  >
-                    <X className="w-3 h-3" /> Reset
+                  <span className="hidden sm:inline-block max-w-[10rem] md:max-w-[14rem] truncate text-[10px] bg-[#1A73A8] text-white px-1.5 py-0.5 rounded-full font-semibold">
+                    {selectedCategoryLabel}
                   </span>
                 )}
-                <ChevronDown className={`w-4 h-4 text-gray-400 sm:hidden transition-transform duration-200 flex-shrink-0 ${showMobileCategories ? 'rotate-180' : ''}`} />
-              </button>
+                <div className="flex-1 h-px bg-gray-200 min-w-3" />
+                {selectedCategory !== 'All' && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('All')}
+                    className="text-[11px] sm:text-xs text-[#1A73A8] hover:text-[#0D2B3A] font-medium transition-colors flex items-center gap-0.5 whitespace-nowrap flex-shrink-0"
+                  >
+                    <X className="w-3 h-3" /> Reset
+                  </button>
+                )}
+              </div>
 
-              <div className="hidden sm:block relative mt-2.5">
-                <div className="overflow-x-auto scrollbar-hide pb-1">
-                  <div className="flex gap-2 min-w-max">
+              <div className="relative">
+                <button
+                  type="button"
+                  aria-label="Scroll categories left"
+                  onClick={() => scrollCategories('left')}
+                  disabled={!canScrollCategoriesLeft}
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border shadow-md transition-all ${
+                    canScrollCategoriesLeft
+                      ? 'bg-white text-[#0D2B3A] border-gray-200 hover:bg-[#0D2B3A] hover:text-white hover:border-[#0D2B3A]'
+                      : 'bg-white/80 text-gray-300 border-gray-100 pointer-events-none'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                <div
+                  ref={categoryScrollRef}
+                  className="overflow-x-auto scrollbar-hide pb-1 px-8 sm:px-10 scroll-smooth touch-pan-x overscroll-x-contain"
+                >
+                  <div className="flex gap-1.5 sm:gap-2 min-w-max">
                     <button
+                      type="button"
+                      data-active-category={selectedCategory === 'All' ? 'true' : undefined}
                       onClick={() => setSelectedCategory('All')}
-                      className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-sm whitespace-nowrap border ${
+                      className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-medium transition-all duration-200 text-xs sm:text-sm whitespace-nowrap border ${
                         selectedCategory === 'All'
                           ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
                           : 'bg-white text-gray-600 border-gray-200 hover:border-[#1A73A8] hover:text-[#1A73A8]'
@@ -314,8 +382,10 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
                     {categories.map((cat) => (
                       <button
                         key={cat.id}
+                        type="button"
+                        data-active-category={selectedCategory === cat.slug ? 'true' : undefined}
                         onClick={() => setSelectedCategory(cat.slug)}
-                        className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-sm whitespace-nowrap border ${
+                        className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-medium transition-all duration-200 text-xs sm:text-sm whitespace-nowrap border ${
                           selectedCategory === cat.slug
                             ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
                             : 'bg-white text-gray-600 border-gray-200 hover:border-[#1A73A8] hover:text-[#1A73A8]'
@@ -326,46 +396,28 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
                     ))}
                   </div>
                 </div>
-                <div className="absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-              </div>
 
-              <AnimatePresence>
-                {showMobileCategories && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    className="overflow-hidden sm:hidden"
-                  >
-                    <div className="flex flex-wrap gap-2 pt-2.5">
-                      <button
-                        onClick={() => { setSelectedCategory('All'); setShowMobileCategories(false); }}
-                        className={`px-3 py-1.5 rounded-full font-medium transition-all text-xs border ${
-                          selectedCategory === 'All'
-                            ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
-                            : 'bg-white text-gray-600 border-gray-200 active:border-[#1A73A8] active:text-[#1A73A8]'
-                        }`}
-                      >
-                        All
-                      </button>
-                      {categories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => { setSelectedCategory(cat.slug); setShowMobileCategories(false); }}
-                          className={`px-3 py-1.5 rounded-full font-medium transition-all text-xs border ${
-                            selectedCategory === cat.slug
-                              ? 'bg-[#0D2B3A] text-white border-[#0D2B3A] shadow-md'
-                              : 'bg-white text-gray-600 border-gray-200 active:border-[#1A73A8] active:text-[#1A73A8]'
-                          }`}
-                        >
-                          {cat.name}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
+                {canScrollCategoriesLeft && (
+                  <div className="absolute left-0 top-0 bottom-1 w-8 sm:w-10 bg-gradient-to-r from-white to-transparent pointer-events-none" />
                 )}
-              </AnimatePresence>
+                {canScrollCategoriesRight && (
+                  <div className="absolute right-0 top-0 bottom-1 w-8 sm:w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+                )}
+
+                <button
+                  type="button"
+                  aria-label="Scroll categories right"
+                  onClick={() => scrollCategories('right')}
+                  disabled={!canScrollCategoriesRight}
+                  className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border shadow-md transition-all ${
+                    canScrollCategoriesRight
+                      ? 'bg-white text-[#0D2B3A] border-gray-200 hover:bg-[#0D2B3A] hover:text-white hover:border-[#0D2B3A]'
+                      : 'bg-white/80 text-gray-300 border-gray-100 pointer-events-none'
+                  }`}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -376,9 +428,9 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
               className="flex items-center gap-2 mb-0 sm:mb-2.5 w-full sm:pointer-events-none"
             >
               <SlidersHorizontal className="w-4 h-4 text-[#F97316] flex-shrink-0" />
-              <h3 className="text-xs sm:text-sm font-bold text-[#0D2B3A] uppercase tracking-wider">Filter by Price</h3>
+              <h3 className="text-xs sm:text-sm font-bold text-[#0D2B3A] uppercase tracking-wider whitespace-nowrap">Filter by Price</h3>
               {selectedPriceTag !== 'all' && (
-                <span className="text-[10px] bg-[#F97316] text-white px-1.5 py-0.5 rounded-full font-semibold">{activeTag.label}</span>
+                <span className="hidden sm:inline-block max-w-[10rem] truncate text-[10px] bg-[#F97316] text-white px-1.5 py-0.5 rounded-full font-semibold">{activeTag.label}</span>
               )}
               <div className="flex-1 h-px bg-gray-200" />
               {selectedPriceTag !== 'all' && (
