@@ -76,7 +76,13 @@ export default function ProductBrowser({ bucketKey, lockedCategorySlug }: Produc
 
   // Categories — cached, shared with Header/Footer. Only needed for the picker.
   const allCategories = useWebCategoryStore((s) => s.all);
-  const categories = useMemo(() => allCategories ?? [], [allCategories]);
+  const categories = useMemo(
+    () =>
+      [...(allCategories ?? [])].sort((a, b) =>
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+      ),
+    [allCategories],
+  );
   const fetchAllCategories = useWebCategoryStore((s) => s.fetchAll);
   useEffect(() => {
     if (categoryLocked) return;

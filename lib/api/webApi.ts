@@ -1,4 +1,5 @@
 import axiosInstance from './axios';
+import { sortByName } from '../utils/sortByName';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types — match the shape returned by Backend /api/v1/web/* endpoints.
@@ -154,7 +155,7 @@ class WebApi {
     return {
       featuredProducts: (data.featuredProducts || []).map(shapeProduct),
       bestSellingProducts: (data.bestSellingProducts || []).map(shapeProduct),
-      categories: (data.categories || []).map(shapeCategory),
+      categories: sortByName((data.categories || []).map(shapeCategory)),
       product_count: toNumber(data.product_count),
       featured_total: toNumber(data.featured_total),
       categories_total: toNumber(data.categories_total),
@@ -164,14 +165,14 @@ class WebApi {
   async listCategories(opts: { page?: number; limit?: number; search?: string } = {}): Promise<{ data: WebCategory[]; meta: WebMeta }> {
     const res = await axiosInstance.get<RawApiEnvelope<any[]>>('/web/categories', { params: opts });
     return {
-      data: (res.data.data || []).map(shapeCategory),
+      data: sortByName((res.data.data || []).map(shapeCategory)),
       meta: res.data.meta as WebMeta,
     };
   }
 
   async getAllCategories(): Promise<WebCategory[]> {
     const res = await axiosInstance.get<RawApiEnvelope<any[]>>('/web/categories/all');
-    return (res.data.data || []).map(shapeCategory);
+    return sortByName((res.data.data || []).map(shapeCategory));
   }
 
   async getCategoryBySlug(

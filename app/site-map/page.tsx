@@ -53,6 +53,10 @@ export default function SitemapPage() {
         setCategoryLinks(
           categories
             .filter((c: Category) => c.is_active)
+            .slice()
+            .sort((a: Category, b: Category) =>
+              a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+            )
             .map((c: Category) => ({ name: c.name, href: `/categories/${c.slug}` }))
         );
       } catch {

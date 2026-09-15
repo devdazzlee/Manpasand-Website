@@ -57,7 +57,12 @@ export default function Footer({ seo }: FooterProps) {
   const allFromStore = useWebCategoryStore((s) => s.all);
 
   const categories = useMemo(
-    () => (allFromStore ?? []).filter((c) => c.is_active).slice(0, 8),
+    () =>
+      (allFromStore ?? [])
+        .filter((c) => c.is_active)
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
+        .slice(0, 8),
     [allFromStore]
   );
 

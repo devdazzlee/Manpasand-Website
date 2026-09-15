@@ -51,6 +51,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categoriesPayload = await fetchJson<Envelope<CategoryRow[]>>('/web/categories/all');
   const categoryEntries: MetadataRoute.Sitemap = (categoriesPayload?.data || [])
     .filter((c) => c.slug && c.is_active !== false)
+    .slice()
+    .sort((a, b) => a.slug.localeCompare(b.slug, 'en', { sensitivity: 'base' }))
     .map((c) => ({
       url: `${SITE_URL}/categories/${c.slug}`,
       lastModified: c.updated_at ? new Date(c.updated_at) : now,

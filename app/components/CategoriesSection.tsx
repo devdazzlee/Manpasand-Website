@@ -7,6 +7,7 @@ import Loader from './Loader';
 import { WebCategory } from '../../lib/api/webApi';
 import { useWebCategoryStore } from '../../lib/store/webCategoryStore';
 import { optimizeCloudinaryUrl } from '../../lib/utils/cloudinary';
+import { sortByName } from '../../lib/utils/sortByName';
 
 const INITIAL_VISIBLE = 5;
 
@@ -103,7 +104,7 @@ export default function CategoriesSection({
 
   const categories = useMemo(() => {
     const source = allCategories?.length ? allCategories : initialCategories;
-    return source.filter((c) => c.is_active);
+    return sortByName(source.filter((c) => c.is_active));
   }, [allCategories, initialCategories]);
 
   const totalCount = initialTotal ?? categories.length;

@@ -52,7 +52,11 @@ export const useWebCategoryStore = create<CategoryState>((set, get) => ({
     inFlightAll = webApi
       .getAllCategories()
       .then((data) => {
-        set({ all: data, allFetchedAt: Date.now(), allLoading: false });
+        set({
+          all: [...data].sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })),
+          allFetchedAt: Date.now(),
+          allLoading: false,
+        });
         return data;
       })
       .catch((err) => {
@@ -71,7 +75,10 @@ export const useWebCategoryStore = create<CategoryState>((set, get) => ({
     const s = get();
     const fresh = s.allFetchedAt && Date.now() - s.allFetchedAt < TTL_MS;
     if (s.all && fresh) return;
-    set({ all: categories, allFetchedAt: Date.now(), allLoading: false, allError: null });
+    const sorted = [...categories].sort((a, b) =>
+      a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+    );
+    set({ all: sorted, allFetchedAt: Date.now(), allLoading: false, allError: null });
   },
 
   fetchFirstPage: async (limit = 6) => {

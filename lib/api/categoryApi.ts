@@ -52,7 +52,9 @@ class CategoryApi {
    */
   async getCategories(): Promise<Category[]> {
     const response = await axiosInstance.get<ApiResponse<Category[]>>('/customer/app/categories');
-    return response.data.data || [];
+    return (response.data.data || []).slice().sort((a, b) =>
+      a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+    );
   }
 
   /**

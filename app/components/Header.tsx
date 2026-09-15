@@ -70,6 +70,8 @@ export default function Header() {
       setCategories(
         allFromStore
           .filter((cat) => cat.is_active)
+          .slice()
+          .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
           .map((cat) => ({
             ...cat,
             icon: getCategoryIcon(cat.name),
