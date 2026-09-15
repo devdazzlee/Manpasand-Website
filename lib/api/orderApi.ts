@@ -65,6 +65,15 @@ export interface CreateGuestOrderData {
   orderNotes?: string;
 }
 
+export interface GuestOrderResponse extends Order {
+  payment?: {
+    provider: 'alfalah';
+    actionUrl: string;
+    method: 'POST';
+    fields: Record<string, string>;
+  };
+}
+
 export interface CreateOrderData {
   items: Array<{
     productId: string;
@@ -90,8 +99,8 @@ class OrderApi {
     return response.data.data;
   }
 
-  async createGuestOrder(data: CreateGuestOrderData): Promise<Order> {
-    const response = await axiosInstance.post<ApiResponse<Order>>('/guest/order', data);
+  async createGuestOrder(data: CreateGuestOrderData): Promise<GuestOrderResponse> {
+    const response = await axiosInstance.post<ApiResponse<GuestOrderResponse>>('/guest/order', data);
     return response.data.data;
   }
 

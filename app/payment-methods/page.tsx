@@ -16,7 +16,7 @@ const paymentMethods = [
   {
     icon: CreditCard,
     title: 'Credit/Debit Cards',
-    description: 'Secure online payment using Visa, MasterCard, or other major cards.',
+    description: 'Secure online payment on Bank Alfalah using Visa, MasterCard, or other major cards.',
   },
   {
     icon: Wallet,

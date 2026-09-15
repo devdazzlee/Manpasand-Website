@@ -7,10 +7,11 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
-import { CheckCircle, ArrowRight, Lock, Truck, ShoppingBag } from 'lucide-react';
+import { CheckCircle, ArrowRight, Lock, Truck, ShoppingBag, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { cartUtils, CartItem, resolveCartProductId } from '../../lib/utils/cart';
 import { orderApi } from '../../lib/api/orderApi';
+import { alfalahApi, submitAlfalahForm } from '../../lib/api/alfalahApi';
 import { useAuthStore } from '../../lib/store/authStore';
 import { KG_DISCOUNT } from '../../lib/utils/discount';
 import { calculateCartPricing } from '../../lib/utils/pricing';
@@ -27,6 +28,8 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+  const [cardPaymentsEnabled, setCardPaymentsEnabled] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -45,6 +48,13 @@ export default function CheckoutPage() {
     }
     setCartItems(items);
   }, [router]);
+
+  useEffect(() => {
+    alfalahApi
+      .getConfig()
+      .then((config) => setCardPaymentsEnabled(Boolean(config.enabled)))
+      .catch(() => setCardPaymentsEnabled(false));
+  }, []);
 
   // Pre-fill form if user is authenticated
   useEffect(() => {
@@ -105,7 +115,7 @@ export default function CheckoutPage() {
             address: formData.address,
             city: formData.city,
           },
-          paymentMethod: 'cash' as const,
+          paymentMethod,
           subtotal,
           shippingCost: shipping,
           total,
@@ -133,9 +143,15 @@ export default function CheckoutPage() {
           subtotal,
           shipping,
           total,
-          paymentMethod: 'cash',
+          paymentMethod,
           status: orderResponse.status,
         };
+
+        if (paymentMethod === 'card' && orderResponse.payment) {
+          localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+          submitAlfalahForm(orderResponse.payment.actionUrl, orderResponse.payment.fields);
+          return;
+        }
 
         localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
         cartUtils.clearCart();
@@ -378,19 +394,49 @@ export default function CheckoutPage() {
                   >
                     <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#0D2B3A] mb-2 sm:mb-4 md:mb-6">Payment Method</h2>
                     <div className="space-y-3 sm:space-y-4">
-                      <div className="flex items-start gap-3 sm:space-x-4 p-4 sm:p-5 md:p-6 border-2 border-[#1A73A8] rounded-xl bg-[#DFF3EA]/30">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('cash')}
+                        className={`w-full text-left flex items-start gap-3 sm:space-x-4 p-4 sm:p-5 md:p-6 border-2 rounded-xl transition-colors ${
+                          paymentMethod === 'cash'
+                            ? 'border-[#1A73A8] bg-[#DFF3EA]/30'
+                            : 'border-gray-200 bg-white hover:border-[#1A73A8]/40'
+                        }`}
+                      >
                         <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#1A73A8] mt-0.5 flex-shrink-0" />
                         <div className="flex-1">
                           <p className="font-bold text-[#0D2B3A] text-sm sm:text-base md:text-lg">Cash on Delivery</p>
                           <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
                             Pay with cash when your order is delivered. Our delivery person will collect the payment.
                           </p>
-                          <div className="mt-2 sm:mt-3 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-[#1A73A8]">
-                            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                            <span>No online payment required</span>
-                          </div>
                         </div>
-                      </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => cardPaymentsEnabled && setPaymentMethod('card')}
+                        disabled={!cardPaymentsEnabled}
+                        className={`w-full text-left flex items-start gap-3 sm:space-x-4 p-4 sm:p-5 md:p-6 border-2 rounded-xl transition-colors ${
+                          paymentMethod === 'card'
+                            ? 'border-[#1A73A8] bg-[#DFF3EA]/30'
+                            : 'border-gray-200 bg-white hover:border-[#1A73A8]/40'
+                        } disabled:opacity-60 disabled:cursor-not-allowed`}
+                      >
+                        <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-[#1A73A8] mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="font-bold text-[#0D2B3A] text-sm sm:text-base md:text-lg">
+                            Credit / Debit Card
+                          </p>
+                          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
+                            Pay securely on Bank Alfalah. Visa, MasterCard, and other cards are accepted.
+                          </p>
+                          {!cardPaymentsEnabled && (
+                            <p className="text-xs text-amber-700 mt-2">
+                              Online card payment will appear here once Bank Alfalah credentials are added.
+                            </p>
+                          )}
+                        </div>
+                      </button>
                     </div>
 
                     {/* Order Review */}
@@ -431,11 +477,11 @@ export default function CheckoutPage() {
                     {loading ? (
                       <>
                         <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Placing Order...</span>
+                        <span>{paymentMethod === 'card' ? 'Redirecting to Bank Alfalah...' : 'Placing Order...'}</span>
                       </>
                     ) : (
                       <>
-                        <span>{step === 1 ? 'Continue to Payment' : 'Place Order'}</span>
+                        <span>{step === 1 ? 'Continue to Payment' : paymentMethod === 'card' ? 'Pay with Card' : 'Place Order'}</span>
                         {step === 2 && <Lock className="w-4 h-4 sm:w-5 sm:h-5" />}
                         {step === 1 && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
                       </>
