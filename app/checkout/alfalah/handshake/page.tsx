@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { alfalahApi, submitAlfalahForm } from '../../../lib/api/alfalahApi';
+import { alfalahApi, submitAlfalahForm } from '@/lib/api/alfalahApi';
 
 function HandshakeContent() {
   const searchParams = useSearchParams();

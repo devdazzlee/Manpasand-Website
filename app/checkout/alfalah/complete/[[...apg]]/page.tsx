@@ -2,8 +2,9 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { alfalahApi } from '../../../../lib/api/alfalahApi';
-import { cartUtils } from '../../../../lib/utils/cart';
+import { alfalahApi } from '@/lib/api/alfalahApi';
+import { cartUtils } from '@/lib/utils/cart';
+import { saveLastOrderFromPaidApiOrder } from '@/lib/utils/lastOrder';
 
 function CompleteContent() {
   const router = useRouter();
@@ -12,27 +13,23 @@ function CompleteContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const orderNumber = searchParams.get('ref') || searchParams.get('O') || searchParams.get('o') || '';
+    const rawRef = searchParams.get('ref') || '';
+    const fromRef = rawRef.match(/MP\d+/i)?.[0] || '';
+    const orderNumber =
+      searchParams.get('O') ||
+      searchParams.get('o') ||
+      fromRef ||
+      (rawRef.includes('?') ? '' : rawRef) ||
+      '';
 
     alfalahApi
       .verifyPayment({
         orderNumber: orderNumber || undefined,
-        path: pathname,
+        path: `${pathname}${typeof window !== 'undefined' ? window.location.search : ''}`,
       })
       .then((result) => {
         if (result.paid) {
-          const lastOrderRaw = localStorage.getItem('lastOrder');
-          if (lastOrderRaw) {
-            try {
-              const lastOrder = JSON.parse(lastOrderRaw);
-              lastOrder.paymentMethod = 'card';
-              lastOrder.status = result.order?.status || 'PROCESSING';
-              lastOrder.paymentStatus = 'PAID';
-              localStorage.setItem('lastOrder', JSON.stringify(lastOrder));
-            } catch {
-              // keep whatever was stored
-            }
-          }
+          saveLastOrderFromPaidApiOrder(result.order);
           cartUtils.clearCart();
           router.replace(`/checkout/thank-you?order=${result.order.order_number}`);
           return;

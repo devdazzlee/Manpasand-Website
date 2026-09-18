@@ -9,6 +9,7 @@ import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
 import { CheckCircle, Package, Mail, Home, Truck } from 'lucide-react';
 import Link from 'next/link';
+import { readLastOrder } from '../../../lib/utils/lastOrder';
 
 interface Order {
   orderNumber: string;
@@ -51,59 +52,38 @@ function ThankYouContent() {
 
     setLoading(true);
 
-    // Get order from localStorage (saved as 'lastOrder')
-    const lastOrderData = localStorage.getItem('lastOrder');
-    
-    if (lastOrderData) {
-      try {
-        const orderData = JSON.parse(lastOrderData);
-        
-        // Map the order data to match the Order interface
-        const mappedOrder: Order = {
-          orderNumber: orderData.orderNumber,
-          items: orderData.items || [],
-          customer: {
-            firstName: orderData.customerInfo?.firstName || '',
-            lastName: orderData.customerInfo?.lastName || '',
-            email: orderData.customerInfo?.email || '',
-            phone: orderData.customerInfo?.phone || '',
-          },
-          shipping: {
-            address: orderData.shippingAddress?.address || '',
-            city: orderData.shippingAddress?.city || '',
-          },
-          payment: {
-            method: orderData.paymentMethod || 'cash',
-            status: orderData.status || 'pending',
-          },
-          totals: {
-            subtotal: orderData.subtotal || 0,
-            shipping: orderData.shipping || 0,
-            total: orderData.total || 0,
-          },
-          date: orderData.orderDate || new Date().toISOString(),
-        };
-        
-        // Verify order number matches
-        if (mappedOrder.orderNumber === orderNumber) {
-          setOrder(mappedOrder);
-          setLoading(false);
-        } else {
-          console.warn('Order number mismatch. Expected:', orderNumber, 'Got:', mappedOrder.orderNumber);
-          setLoading(false);
-          router.push('/');
-        }
-      } catch (error) {
-        console.error('Error parsing order data:', error);
-        setLoading(false);
-        router.push('/');
-      }
-    } else {
-      // If order not found, redirect to home
-      console.warn('No order data found in localStorage');
+    const lastOrder = readLastOrder();
+    if (lastOrder && lastOrder.orderNumber === orderNumber) {
+      setOrder({
+        orderNumber: lastOrder.orderNumber,
+        items: lastOrder.items || [],
+        customer: lastOrder.customerInfo,
+        shipping: lastOrder.shippingAddress,
+        payment: {
+          method: lastOrder.paymentMethod || 'cash',
+          status: lastOrder.paymentStatus || lastOrder.status || 'pending',
+        },
+        totals: {
+          subtotal: lastOrder.subtotal || 0,
+          shipping: lastOrder.shipping || 0,
+          total: lastOrder.total || 0,
+        },
+        date: lastOrder.orderDate || new Date().toISOString(),
+      });
       setLoading(false);
-      router.push('/');
+      return;
     }
+
+    setOrder({
+      orderNumber,
+      items: [],
+      customer: { firstName: '', lastName: '', email: '', phone: '' },
+      shipping: { address: '', city: '' },
+      payment: { method: 'card', status: 'PAID' },
+      totals: { subtotal: 0, shipping: 0, total: 0 },
+      date: new Date().toISOString(),
+    });
+    setLoading(false);
   }, [orderNumber, router]);
 
   if (loading) {
@@ -177,8 +157,17 @@ function ThankYouContent() {
                 <div className="flex flex-col xs:flex-row justify-between gap-1">
                   <span className="text-[#6B7280] text-sm sm:text-base">Payment Method:</span>
                   <span className="font-semibold text-[#0D2B3A] text-sm sm:text-base flex items-center gap-2">
-                    <Truck className="w-4 h-4 flex-shrink-0" />
-                    Cash on Delivery
+                    {order.payment.method === 'card' ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                        Credit / Debit Card (Paid)
+                      </>
+                    ) : (
+                      <>
+                        <Truck className="w-4 h-4 flex-shrink-0" />
+                        Cash on Delivery
+                      </>
+                    )}
                   </span>
                 </div>
               </div>
@@ -214,6 +203,7 @@ function ThankYouContent() {
                 </div>
               </div>
 
+              {order.payment.method !== 'card' && (
               <div className="pt-3 sm:pt-4 border-t border-gray-200">
                 <div className="bg-[#DFF3EA] rounded-lg p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
                   <Truck className="w-5 h-5 text-[#1A73A8] mt-0.5 flex-shrink-0" />
@@ -223,6 +213,18 @@ function ThankYouContent() {
                   </div>
                 </div>
               </div>
+              )}
+              {order.payment.method === 'card' && (
+              <div className="pt-3 sm:pt-4 border-t border-gray-200">
+                <div className="bg-[#DFF3EA] rounded-lg p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#1A73A8] mt-0.5 flex-shrink-0" />
+                  <div className="text-xs sm:text-sm text-[#0D2B3A]">
+                    <p className="font-semibold mb-1">Card payment received</p>
+                    <p>Your Bank Alfalah payment is confirmed. We will process and ship this order next.</p>
+                  </div>
+                </div>
+              </div>
+              )}
             </motion.div>
 
             {/* Action Buttons */}
