@@ -18,7 +18,7 @@ export default function SpecialOfferBanner() {
             <Truck className="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0" />
             <div>
               <h3 className="text-base sm:text-lg font-bold">Free Nationwide Shipping!</h3>
-              <p className="text-white/90 text-xs sm:text-sm">Enjoy Free Shipping When You Spend Rs. 5,000 or More</p>
+              <p className="text-white/90 text-xs sm:text-sm">Enjoy Free Shipping When You Spend Rs. 10,000 or More</p>
             </div>
           </div>
           <Link href="/shop">

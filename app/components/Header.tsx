@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { ShoppingCart, Menu, X, Search, User, ChevronDown, Heart, Phone, Mail, MapPin, ArrowRight, Sparkles } from 'lucide-react';
+import { ShoppingCart, Menu, X, Search, User, ChevronDown, Heart, Phone, Mail, MapPin, ArrowRight, Truck } from 'lucide-react';
 import ProductImage from './ProductImage';
 import { webApi, WebCategory, WebSearchSuggestion } from '../../lib/api/webApi';
 import { cartUtils } from '../../lib/utils/cart';
@@ -242,8 +242,8 @@ export default function Header() {
               </a>
             </div>
             <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3" />
-              <span>Free Shipping on Orders Over Rs. 5000</span>
+              <Truck className="w-4 h-4" aria-hidden="true" />
+              <span>Free Shipping on Orders Over Rs. 10000</span>
             </div>
           </div>
         </div>

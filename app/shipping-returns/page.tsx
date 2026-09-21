@@ -12,7 +12,7 @@ export default function ShippingReturnsPage() {
     {
       icon: Truck,
       title: 'Free Shipping',
-      description: 'Complimentary delivery on orders over Rs. 5,000',
+      description: 'Complimentary delivery on orders over Rs. 10,000',
     },
     {
       icon: Clock,
@@ -123,7 +123,7 @@ export default function ShippingReturnsPage() {
                 <div>
                   <h3 className="font-bold text-[#0D2B3A] text-base sm:text-lg mb-1">Complimentary Shipping</h3>
                   <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed">
-                    Enjoy free nationwide delivery on all orders over <span className="font-semibold text-[#0D2B3A]">Rs. 5,000</span>.
+                    Enjoy free nationwide delivery on all orders over <span className="font-semibold text-[#0D2B3A]">Rs. 10,000</span>.
                   </p>
                 </div>
               </div>
@@ -136,7 +136,7 @@ export default function ShippingReturnsPage() {
                 <div>
                   <h3 className="font-bold text-[#0D2B3A] text-base sm:text-lg mb-1">Standard Delivery Charges</h3>
                   <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed">
-                    For orders below Rs. 5,000, a flat shipping fee will be calculated and displayed at checkout based on your location.
+                    For orders below Rs. 10,000, shipping is Rs. 500 in Karachi and Rs. 700 outside Karachi, shown at checkout.
                   </p>
                 </div>
               </div>

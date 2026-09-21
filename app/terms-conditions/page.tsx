@@ -63,7 +63,7 @@ export default function TermsConditionsPage() {
                   <li>All prices are listed in Pakistani Rupees (PKR).</li>
                   <li>Prices are subject to change without notice due to market fluctuations in premium harvests.</li>
                   <li>We reserve the right to modify or discontinue products at any time.</li>
-                  <li>Prices do not include shipping charges unless the order qualifies for our Complimentary Shipping (over Rs. 5,000).</li>
+                  <li>Prices do not include shipping charges unless the order qualifies for our Complimentary Shipping (over Rs. 10,000). Below that, Karachi delivery is Rs. 500 and outside Karachi is Rs. 700.</li>
                 </ul>
               </div>
 

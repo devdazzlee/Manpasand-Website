@@ -2,7 +2,7 @@ import { ShieldCheck, Truck, Sparkles, HeartHandshake } from 'lucide-react';
 
 const benefits = [
   { icon: ShieldCheck, title: 'Guaranteed Purity', description: 'Every product is rigorously sourced and verified for 100% organic authenticity.' },
-  { icon: Truck, title: 'Nationwide Delivery', description: 'Enjoy complimentary shipping on all orders over Rs. 5,000 across Pakistan.' },
+  { icon: Truck, title: 'Nationwide Delivery', description: 'Enjoy complimentary shipping on all orders over Rs. 10,000 across Pakistan.' },
   { icon: Sparkles, title: 'Exclusive Rewards', description: 'Join the Manpasand community for seasonal curated deals and wellness promotions.' },
   { icon: HeartHandshake, title: 'Dedicated Care', description: 'Our expert team is available around the clock to assist with your health and pantry needs.' },
 ];

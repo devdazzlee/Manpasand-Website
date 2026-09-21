@@ -76,7 +76,7 @@ export default function CheckoutPage() {
   const subtotalBeforeDiscount = pricing.subtotalBeforeDiscount;
   const kgDiscountTotal = pricing.kgDiscountTotal;
   const subtotal = pricing.subtotalAfterDiscount;
-  const shipping = getShippingChargePkr(subtotal);
+  const shipping = getShippingChargePkr(subtotal, formData.city);
   const total = subtotal + shipping;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -275,10 +275,12 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-[#6B7280]">
                     <span>Shipping</span>
                     <span className={shipping <= 0 ? 'text-green-600 font-semibold' : ''}>
-                      {formatShippingAmountLabel(shipping)}
+                      {formatShippingAmountLabel(shipping, { city: formData.city })}
                     </span>
                   </div>
-                  <p className="text-[11px] sm:text-xs text-[#6B7280]">{shippingSummaryFootnote(shipping)}</p>
+                  <p className="text-[11px] sm:text-xs text-[#6B7280]">
+                    {shippingSummaryFootnote(shipping, { city: formData.city })}
+                  </p>
                   <div className="border-t border-gray-300 pt-2 mt-1">
                     <div className="flex justify-between font-bold text-[#0D2B3A] text-sm sm:text-base">
                       <span>Total</span>
@@ -535,10 +537,12 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-[#6B7280] text-sm">
                     <span>Shipping</span>
                     <span className={shipping <= 0 ? 'text-green-600 font-semibold' : ''}>
-                      {formatShippingAmountLabel(shipping)}
+                      {formatShippingAmountLabel(shipping, { city: formData.city })}
                     </span>
                   </div>
-                  <p className="text-xs md:text-sm text-[#6B7280]">{shippingSummaryFootnote(shipping)}</p>
+                  <p className="text-xs md:text-sm text-[#6B7280]">
+                    {shippingSummaryFootnote(shipping, { city: formData.city })}
+                  </p>
                   <div className="border-t border-gray-300 pt-4">
                     <div className="flex justify-between text-lg md:text-xl font-bold text-[#0D2B3A]">
                       <span>Total</span>

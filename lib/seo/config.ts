@@ -153,7 +153,7 @@ export const PAGE_SEO: Record<string, PageSeo> = {
       {
         question: 'Does Manpasand Store deliver across Pakistan?',
         answer:
-          'Yes. We deliver dry fruits, spices, honey, and more nationwide across Pakistan — Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar and beyond. Free shipping applies on eligible orders over Rs. 5,000 (terms may vary by city).',
+          'Yes. We deliver dry fruits, spices, honey, and more nationwide across Pakistan — Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar and beyond. Free shipping applies on eligible orders over Rs. 10,000. Below that, Karachi is Rs. 500 and outside Karachi is Rs. 700.',
       },
       {
         question: 'Where are Manpasand Store locations in Karachi?',
@@ -263,7 +263,7 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     faqs: [
       {
         question: 'Is shipping free?',
-        answer: 'Complimentary shipping is available on eligible orders over Rs. 5,000 across Pakistan. Smaller orders may include a shipping charge based on city.',
+        answer: 'Complimentary shipping is available on eligible orders over Rs. 10,000 across Pakistan. Below that, Karachi delivery is Rs. 500 and outside Karachi is Rs. 700.',
       },
       {
         question: 'How long do I have to return an item?',

@@ -3,42 +3,62 @@
  * Change only here — cart and checkout must not invent parallel constants.
  */
 export const deliveryRules = {
-  /**
-   * When true, every order gets PKR 0 delivery (no shipping line item).
-   * Set to false to use threshold + flat rate below.
-   */
-  // TEMP: shipping fees commented off — set back to false to charge Rs. 350 under Rs. 5,000
-  complimentaryNationwide: true,
-
-  /** Applied when complimentaryNationwide is false and subtotal is below freeFromSubtotalPkr */
-  flatRatePkrWhenChargeApplies: 350,
-
-  /** Subtotal after cart discounts; at or above this, shipping is PKR 0 (when not complimentaryNationwide) */
-  freeFromSubtotalPkr: 5000,
+  karachiRatePkr: 500,
+  outsideKarachiRatePkr: 700,
+  /** Subtotal after cart discounts; at or above this, shipping is PKR 0 */
+  freeFromSubtotalPkr: 10000,
 } as const;
+
+export function isKarachiCity(city?: string | null): boolean {
+  const normalized = (city ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+  return normalized.includes('karachi') || normalized === 'khi';
+}
 
 /**
  * @param subtotalAfterDiscountsPkr — same value used for checkout subtotal (after line/kg discounts)
+ * @param city — delivery city from checkout; when omitted (cart), Karachi rate is used as the lower estimate
  */
-export function getShippingChargePkr(subtotalAfterDiscountsPkr: number): number {
-  if (deliveryRules.complimentaryNationwide) {
+export function getShippingChargePkr(
+  subtotalAfterDiscountsPkr: number,
+  city?: string | null,
+): number {
+  if (subtotalAfterDiscountsPkr >= deliveryRules.freeFromSubtotalPkr) {
     return 0;
   }
-  return subtotalAfterDiscountsPkr >= deliveryRules.freeFromSubtotalPkr
-    ? 0
-    : deliveryRules.flatRatePkrWhenChargeApplies;
+  if (isKarachiCity(city) || !city?.trim()) {
+    return deliveryRules.karachiRatePkr;
+  }
+  return deliveryRules.outsideKarachiRatePkr;
 }
 
-export function formatShippingAmountLabel(chargePkr: number): string {
-  return chargePkr <= 0 ? 'Free' : `Rs. ${chargePkr.toLocaleString()}`;
+export function formatShippingAmountLabel(
+  chargePkr: number,
+  options?: { city?: string | null },
+): string {
+  if (chargePkr <= 0) return 'Free';
+  if (!options?.city?.trim()) {
+    return `Rs. ${deliveryRules.karachiRatePkr.toLocaleString()} – ${deliveryRules.outsideKarachiRatePkr.toLocaleString()}`;
+  }
+  return `Rs. ${chargePkr.toLocaleString()}`;
 }
 
 /** Short helper line under the shipping row in order summaries */
-export function shippingSummaryFootnote(chargePkr: number): string {
+export function shippingSummaryFootnote(
+  chargePkr: number,
+  options?: { city?: string | null },
+): string {
+  const freeAt = `Rs. ${deliveryRules.freeFromSubtotalPkr.toLocaleString()}`;
   if (chargePkr <= 0) {
-    return deliveryRules.complimentaryNationwide
-      ? 'Complimentary delivery across Pakistan.'
-      : 'Complimentary delivery on this order.';
+    return `Complimentary delivery on orders of ${freeAt} or more.`;
   }
-  return `Flat Rs. ${deliveryRules.flatRatePkrWhenChargeApplies.toLocaleString()} for orders under Rs. ${deliveryRules.freeFromSubtotalPkr.toLocaleString()}.`;
+  if (!options?.city?.trim()) {
+    return `Rs. ${deliveryRules.karachiRatePkr.toLocaleString()} in Karachi, Rs. ${deliveryRules.outsideKarachiRatePkr.toLocaleString()} outside Karachi. Free over ${freeAt}.`;
+  }
+  if (isKarachiCity(options.city)) {
+    return `Karachi delivery Rs. ${deliveryRules.karachiRatePkr.toLocaleString()}. Free over ${freeAt}.`;
+  }
+  return `Delivery outside Karachi Rs. ${deliveryRules.outsideKarachiRatePkr.toLocaleString()}. Free over ${freeAt}.`;
 }
