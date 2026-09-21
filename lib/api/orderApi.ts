@@ -58,7 +58,7 @@ export interface CreateGuestOrderData {
     city: string;
     postalCode?: string;
   };
-  paymentMethod: 'cash' | 'card';
+  paymentMethod: 'cash' | 'card' | 'bank_transfer';
   subtotal: number;
   shippingCost: number;
   total: number;
@@ -79,7 +79,7 @@ export interface CreateOrderData {
     productId: string;
     quantity: number;
   }>;
-  paymentMethod?: 'cash' | 'card';
+  paymentMethod?: 'cash' | 'card' | 'bank_transfer';
   shippingAddress?: {
     address: string;
     city: string;

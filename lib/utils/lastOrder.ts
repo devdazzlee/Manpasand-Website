@@ -22,7 +22,7 @@ export type LastOrder = {
   subtotal: number;
   shipping: number;
   total: number;
-  paymentMethod: 'cash' | 'card';
+  paymentMethod: 'cash' | 'card' | 'bank_transfer';
   status: string;
   paymentStatus: string;
 };
@@ -50,7 +50,9 @@ export function saveLastOrderFromPaidApiOrder(apiOrder: any): LastOrder {
   }));
   const total = Number(apiOrder.total_amount) || 0;
   const subtotal = items.reduce((sum: number, item: { price: number; quantity: number }) => sum + item.price * item.quantity, 0);
-  const paymentMethod = String(apiOrder.payment_method || 'card').toLowerCase() === 'cash' ? 'cash' : 'card';
+  const method = String(apiOrder.payment_method || 'card').toLowerCase();
+  const paymentMethod =
+    method === 'cash' || method === 'bank_transfer' ? method : 'card';
 
   const lastOrder: LastOrder = {
     orderId: apiOrder.id,

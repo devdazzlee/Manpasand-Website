@@ -7,7 +7,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import Services from '../components/Services';
-import { CheckCircle, ArrowRight, Lock, Truck, ShoppingBag, CreditCard } from 'lucide-react';
+import { CheckCircle, ArrowRight, Lock, Truck, ShoppingBag, CreditCard, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { cartUtils, CartItem, resolveCartProductId } from '../../lib/utils/cart';
 import { orderApi } from '../../lib/api/orderApi';
@@ -21,6 +21,7 @@ import {
   formatShippingAmountLabel,
   shippingSummaryFootnote,
 } from '../../lib/utils/shipping';
+import { buildBankTransferWhatsAppUrl } from '../../lib/utils/whatsapp';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'bank_transfer'>('cash');
   const [cardPaymentsEnabled, setCardPaymentsEnabled] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -155,6 +156,20 @@ export default function CheckoutPage() {
 
         localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
         cartUtils.clearCart();
+
+        if (paymentMethod === 'bank_transfer') {
+          const whatsappUrl = buildBankTransferWhatsAppUrl({
+            orderNumber: orderResponse.order_number,
+            total,
+            customerName: `${formData.firstName} ${formData.lastName}`.trim(),
+            city: formData.city,
+            phone: formData.phone,
+          });
+          window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+          router.push(`/checkout/thank-you?order=${orderResponse.order_number}`);
+          return;
+        }
+
         router.push(`/checkout/thank-you?order=${orderResponse.order_number}`);
       } catch (error: any) {
         console.error('Error placing order:', error);
@@ -439,6 +454,26 @@ export default function CheckoutPage() {
                           )}
                         </div>
                       </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('bank_transfer')}
+                        className={`w-full text-left flex items-start gap-3 sm:space-x-4 p-4 sm:p-5 md:p-6 border-2 rounded-xl transition-colors ${
+                          paymentMethod === 'bank_transfer'
+                            ? 'border-[#1A73A8] bg-[#DFF3EA]/30'
+                            : 'border-gray-200 bg-white hover:border-[#1A73A8]/40'
+                        }`}
+                      >
+                        <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#1A73A8] mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="font-bold text-[#0D2B3A] text-sm sm:text-base md:text-lg">
+                            Pay through Bank Transfer
+                          </p>
+                          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
+                            Place your order and we will connect you on WhatsApp to share account details and verify the transfer by hand.
+                          </p>
+                        </div>
+                      </button>
                     </div>
 
                     {/* Order Review */}
@@ -479,11 +514,25 @@ export default function CheckoutPage() {
                     {loading ? (
                       <>
                         <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>{paymentMethod === 'card' ? 'Redirecting to Bank Alfalah...' : 'Placing Order...'}</span>
+                        <span>
+                          {paymentMethod === 'card'
+                            ? 'Redirecting to Bank Alfalah...'
+                            : paymentMethod === 'bank_transfer'
+                              ? 'Opening WhatsApp...'
+                              : 'Placing Order...'}
+                        </span>
                       </>
                     ) : (
                       <>
-                        <span>{step === 1 ? 'Continue to Payment' : paymentMethod === 'card' ? 'Pay with Card' : 'Place Order'}</span>
+                        <span>
+                          {step === 1
+                            ? 'Continue to Payment'
+                            : paymentMethod === 'card'
+                              ? 'Pay with Card'
+                              : paymentMethod === 'bank_transfer'
+                                ? 'Place Order on WhatsApp'
+                                : 'Place Order'}
+                        </span>
                         {step === 2 && <Lock className="w-4 h-4 sm:w-5 sm:h-5" />}
                         {step === 1 && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
                       </>

@@ -7,9 +7,10 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
-import { CheckCircle, Package, Mail, Home, Truck } from 'lucide-react';
+import { CheckCircle, Package, Mail, Home, Truck, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { readLastOrder } from '../../../lib/utils/lastOrder';
+import { buildBankTransferWhatsAppUrl } from '../../../lib/utils/whatsapp';
 
 interface Order {
   orderNumber: string;
@@ -162,6 +163,11 @@ function ThankYouContent() {
                         <CheckCircle className="w-4 h-4 flex-shrink-0" />
                         Credit / Debit Card (Paid)
                       </>
+                    ) : order.payment.method === 'bank_transfer' ? (
+                      <>
+                        <Building2 className="w-4 h-4 flex-shrink-0" />
+                        Bank Transfer
+                      </>
                     ) : (
                       <>
                         <Truck className="w-4 h-4 flex-shrink-0" />
@@ -203,13 +209,38 @@ function ThankYouContent() {
                 </div>
               </div>
 
-              {order.payment.method !== 'card' && (
+              {order.payment.method === 'cash' && (
               <div className="pt-3 sm:pt-4 border-t border-gray-200">
                 <div className="bg-[#DFF3EA] rounded-lg p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
                   <Truck className="w-5 h-5 text-[#1A73A8] mt-0.5 flex-shrink-0" />
                   <div className="text-xs sm:text-sm text-[#0D2B3A]">
                     <p className="font-semibold mb-1">Cash on Delivery</p>
                     <p>Please keep cash ready. Our delivery person will collect the payment when your order arrives.</p>
+                  </div>
+                </div>
+              </div>
+              )}
+              {order.payment.method === 'bank_transfer' && (
+              <div className="pt-3 sm:pt-4 border-t border-gray-200">
+                <div className="bg-[#DFF3EA] rounded-lg p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
+                  <Building2 className="w-5 h-5 text-[#1A73A8] mt-0.5 flex-shrink-0" />
+                  <div className="text-xs sm:text-sm text-[#0D2B3A]">
+                    <p className="font-semibold mb-1">Bank transfer</p>
+                    <p className="mb-3">WhatsApp should open with your order details. Share the transfer screenshot there so we can verify by hand and process your order.</p>
+                    <a
+                      href={buildBankTransferWhatsAppUrl({
+                        orderNumber: order.orderNumber,
+                        total: order.totals.total,
+                        customerName: `${order.customer.firstName} ${order.customer.lastName}`.trim(),
+                        city: order.shipping.city,
+                        phone: order.customer.phone,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center bg-[#25D366] hover:bg-[#1ebe57] text-white px-4 py-2 rounded-full font-semibold text-xs sm:text-sm"
+                    >
+                      Continue on WhatsApp
+                    </a>
                   </div>
                 </div>
               </div>
