@@ -41,6 +41,7 @@ const INFO_LINKS = [
 const ACCOUNT_LINKS = [
   { name: 'My Account', href: '/login' },
   { name: 'Orders', href: '/account/orders' },
+  { name: 'Order status', href: '/order-status' },
   { name: 'Returns', href: '/shipping-returns' },
   { name: 'Support', href: '/contact' },
 ];

@@ -647,6 +647,18 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     ],
     faqs: DEFAULT_FAQS,
   },
+  '/order-status': {
+    path: '/order-status',
+    title: 'Order Status — Manpasand Store Pakistan',
+    description:
+      'Check your Manpasand Store order status with your order number and checkout email or phone. Delivery across Pakistan.',
+    keywords: SITE_KEYWORDS,
+    seoHeading: 'Check your order status',
+    seoBody: [
+      'Look up any Manpasand Store website order using the order number from your confirmation and the email or phone used at checkout.',
+    ],
+    faqs: DEFAULT_FAQS,
+  },
 };
 
 export function getPageSeo(path: string): PageSeo {

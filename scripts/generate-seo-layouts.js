@@ -40,6 +40,7 @@ const routes = [
   'account/orders',
   'account/addresses',
   'account/track-order',
+  'order-status',
   'checkout/thank-you',
 ];
 

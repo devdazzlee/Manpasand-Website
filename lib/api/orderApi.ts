@@ -88,6 +88,48 @@ export interface CreateOrderData {
   };
 }
 
+export type TrackableOrderStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
+export type TrackablePaymentStatus = 'PAID' | 'PARTIAL' | 'PENDING' | 'OVERDUE' | 'FAILED';
+
+export interface TrackOrderRequest {
+  orderNumber: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface TrackOrderItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  total_price: number;
+  unit_name?: string | null;
+  grams_per_unit?: number | null;
+}
+
+export interface TrackOrderResult {
+  id: string;
+  order_number: string;
+  status: TrackableOrderStatus;
+  payment_method: string | null;
+  payment_status: TrackablePaymentStatus;
+  total_amount: number;
+  created_at: string;
+  updated_at: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  shipping: {
+    address: string;
+    city: string;
+    postalCode: string;
+  };
+  items: TrackOrderItem[];
+}
+
 class OrderApi {
   async getMyOrders(): Promise<Order[]> {
     const response = await axiosInstance.get<ApiResponse<Order[]>>('/app/customer/order');
@@ -106,6 +148,15 @@ class OrderApi {
 
   async createOrder(data: CreateOrderData): Promise<Order> {
     const response = await axiosInstance.post<ApiResponse<Order>>('/app/customer/order', data);
+    return response.data.data;
+  }
+
+  async trackOrder(data: TrackOrderRequest): Promise<TrackOrderResult> {
+    const response = await axiosInstance.post<ApiResponse<TrackOrderResult>>('/guest/order/track', {
+      orderNumber: data.orderNumber.trim(),
+      email: data.email?.trim() || undefined,
+      phone: data.phone?.trim() || undefined,
+    });
     return response.data.data;
   }
 }

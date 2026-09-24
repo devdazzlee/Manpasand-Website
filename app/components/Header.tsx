@@ -385,6 +385,19 @@ export default function Header() {
                 </Link>
               );
             })}
+            <Link
+              href="/order-status"
+              className={`relative rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                isActive('/order-status')
+                  ? 'bg-[#1A73A8]/10 text-[#1A73A8]'
+                  : 'text-[#0D2B3A] hover:bg-gray-50 hover:text-[#1A73A8]'
+              }`}
+            >
+              Order status
+              {isActive('/order-status') && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-[#1A73A8]" />
+              )}
+            </Link>
           </nav>
 
           {/* Right Icons */}
@@ -437,6 +450,13 @@ export default function Header() {
                           className="block px-4 py-2 text-[#0D2B3A] hover:bg-gray-50 transition-colors"
                         >
                           My Orders
+                        </Link>
+                        <Link
+                          href="/order-status"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="block px-4 py-2 text-[#0D2B3A] hover:bg-gray-50 transition-colors"
+                        >
+                          Order status
                         </Link>
                         <button
                           onClick={async () => {
@@ -611,6 +631,17 @@ export default function Header() {
               })}
 
                 <div className="pt-4 mt-4 border-t border-gray-200 space-y-1">
+                <Link
+                  href="/order-status"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block px-4 py-3 rounded-lg font-semibold transition-colors ${
+                    isActive('/order-status')
+                      ? 'text-[#1A73A8] bg-[#1A73A8]/10'
+                      : 'text-[#0D2B3A] hover:bg-gray-50'
+                  }`}
+                >
+                  Order status
+                </Link>
                 <Link
                   href="/login"
                   onClick={() => setIsMenuOpen(false)}

@@ -7,7 +7,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Newsletter from '../../components/Newsletter';
 import Services from '../../components/Services';
-import { CheckCircle, Package, Mail, Home, Truck, Building2 } from 'lucide-react';
+import { CheckCircle, Package, Mail, Home, Truck, Building2, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
 import { readLastOrder } from '../../../lib/utils/lastOrder';
 import { buildBankTransferWhatsAppUrl } from '../../../lib/utils/whatsapp';
@@ -44,6 +44,26 @@ function ThankYouContent() {
   const orderNumber = searchParams.get('order');
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const copyOrderNumber = async () => {
+    if (!order?.orderNumber) return;
+    try {
+      await navigator.clipboard.writeText(order.orderNumber);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers / insecure contexts
+      const input = document.createElement('input');
+      input.value = order.orderNumber;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     if (!orderNumber) {
@@ -139,9 +159,31 @@ function ThankYouContent() {
                 <h2 className="text-lg sm:text-2xl font-bold text-[#0D2B3A]">Order Details</h2>
               </div>
               <div className="space-y-3">
-                <div className="flex flex-col xs:flex-row justify-between gap-1">
+                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2">
                   <span className="text-[#6B7280] text-sm sm:text-base">Order Number:</span>
-                  <span className="font-semibold text-[#0D2B3A] text-sm sm:text-base break-all">{order.orderNumber}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-semibold text-[#0D2B3A] text-sm sm:text-base break-all">
+                      {order.orderNumber}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={copyOrderNumber}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs font-semibold text-[#0D2B3A] transition-colors hover:border-[#1A73A8] hover:bg-[#1A73A8]/10 hover:text-[#1A73A8]"
+                      aria-label="Copy order number"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-green-600" />
+                          <span className="text-green-700">Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex justify-between gap-1">
                   <span className="text-[#6B7280] text-sm sm:text-base">Order Date:</span>
@@ -265,6 +307,19 @@ function ThankYouContent() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-4 justify-center mt-6 sm:mt-8 px-2"
             >
+              <Link
+                href={`/order-status?order=${encodeURIComponent(order.orderNumber)}`}
+                className="w-full sm:w-auto"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full sm:w-auto border-2 border-[#1A73A8] text-[#1A73A8] hover:bg-[#1A73A8] hover:text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
+                >
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Track order status</span>
+                </motion.button>
+              </Link>
               <Link href="/shop" className="w-full sm:w-auto">
                 <motion.button
                   whileHover={{ scale: 1.05 }}

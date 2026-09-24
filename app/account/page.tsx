@@ -122,6 +122,13 @@ export default function AccountPage() {
                   <span>My Orders</span>
                 </Link>
                 <Link
+                  href="/order-status"
+                  className="flex items-center space-x-3 p-3 text-[#0D2B3A] hover:bg-white rounded-xl transition-colors"
+                >
+                  <Package className="w-5 h-5" />
+                  <span>Order status</span>
+                </Link>
+                <Link
                   href="/account/profile"
                   className="flex items-center space-x-3 p-3 text-[#0D2B3A] hover:bg-white rounded-xl transition-colors"
                 >

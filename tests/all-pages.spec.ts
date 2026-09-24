@@ -23,6 +23,7 @@ const pages = [
   { path: '/account/profile', name: 'Profile Settings' },
   { path: '/account/addresses', name: 'Address Book' },
   { path: '/account/track-order', name: 'Track Order' },
+  { path: '/order-status', name: 'Order Status' },
   
   // Category Pages
   { path: '/categories/dry-fruits', name: 'Dry Fruits Category' },
