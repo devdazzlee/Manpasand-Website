@@ -1,0 +1,56 @@
+# Push to main -> deploy the website (manpasandstore.com) to the VPS.
+# Builds in website-src first, so the live site keeps running until the new build is ready.
+name: Deploy website to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-manpasand-website
+  cancel-in-progress: false
+
+env:
+  APP_DIR: /var/www/manpasand
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+          echo "SSH=ssh -i $HOME/.ssh/deploy_key ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" >> "$GITHUB_ENV"
+          echo "RSYNC_SSH=ssh -i $HOME/.ssh/deploy_key" >> "$GITHUB_ENV"
+          echo "TARGET=${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" >> "$GITHUB_ENV"
+
+      - name: Upload source
+        run: |
+          rsync -az --delete -e "$RSYNC_SSH" \
+            --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude '.next' \
+            --exclude '.env' --exclude '.env.*' --exclude '*.tsbuildinfo' \
+            ./ "$TARGET:$APP_DIR/website-src/"
+
+      - name: Build and restart
+        run: |
+          $SSH "set -e
+            cd $APP_DIR/website-src
+            npm install --no-audit --no-fund
+            NODE_OPTIONS=--max-old-space-size=4096 npm run build
+            rsync -a --delete --exclude '.env' --exclude '.env.*' $APP_DIR/website-src/ $APP_DIR/website/
+            systemctl restart manpasand-web
+            for i in 1 2 3 4 5 6 7 8 9 10; do
+              sleep 3
+              curl -fsS -o /dev/null http://127.0.0.1:3003/ && exit 0
+            done
+            echo 'Website did not come up'; journalctl -u manpasand-web -n 40 --no-pager; exit 1"
+
+      - name: Check live
+        run: curl -fsS -o /dev/null https://manpasandstore.com
